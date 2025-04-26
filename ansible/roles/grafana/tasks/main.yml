@@ -1,0 +1,26 @@
+---
+- name: Create datasource provisioning directory
+  ansible.builtin.file:
+    path: '{{ grafana_config_folders.provisioning }}/datasources'
+    state: directory
+    recurse: true
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy datasource provisioning
+  ansible.builtin.copy:
+    src: 'datasources.yaml'
+    dest: '{{ grafana_config_folders.provisioning }}/datasources/datasources.yaml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+
+- name: Deploy Grafana
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: 'grafana'
+    docker_compose_volumes: '{{ grafana_docker_volumes.values() }}'

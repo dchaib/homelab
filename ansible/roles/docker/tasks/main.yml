@@ -1,0 +1,13 @@
+---
+- name: Create Docker root directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  loop:
+    - "{{ docker_compose_dir }}"
+    - "{{ docker_config_dir }}"
+    - "{{ docker_volumes_dir }}"
+  become: true

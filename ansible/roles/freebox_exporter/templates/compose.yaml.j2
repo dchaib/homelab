@@ -1,0 +1,17 @@
+services:
+  freebox-exporter:
+    image: shackerd/freebox-exporter-rs:v0.0.14
+    restart: unless-stopped
+    user: "{{ users.app_user.uid }}:{{ users.app_user.gid }}"
+    ports:
+      - "{{ freebox_exporter_port }}:9102"
+    volumes:
+      - "{{ freebox_exporter_config_folder }}:/etc/freebox-exporter-rs"
+      - "{{ freebox_exporter_docker_volumes.data }}:/data"
+    command: ["/root/freebox-exporter-rs", "-c", "/etc/freebox-exporter-rs/config.toml" ,"auto"]
+    networks:
+      - monitoring_network
+
+networks:
+  monitoring_network:
+    external: true

@@ -1,0 +1,30 @@
+---
+- name: Create groups
+  ansible.builtin.group:
+    name: "{{ item.value.group }}"
+    state: present
+  loop: "{{ users | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  become: true
+
+- name: Create users
+  ansible.builtin.user:
+    name: "{{ item.value.name }}"
+    group: "{{ item.value.group }}"
+    shell: /usr/sbin/nologin
+    system: true
+    create_home: false
+    state: present
+  loop: "{{ users | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  become: true
+
+- name: Add admin to group
+  ansible.builtin.user:
+    name: "{{ admin_user }}"
+    groups:
+      - "{{ users.app_user.group }}"
+    append: true
+  become: true

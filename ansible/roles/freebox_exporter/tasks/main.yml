@@ -1,0 +1,26 @@
+---
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: '{{ freebox_exporter_config_folder }}'
+    state: directory
+    recurse: true
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy configuration file
+  ansible.builtin.copy:
+    src: 'config.toml'
+    dest: '{{ freebox_exporter_config_folder }}/config.toml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+
+- name: Deploy Freebox Exporter
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: 'freebox-exporter'
+    docker_compose_volumes: '{{ freebox_exporter_docker_volumes.values() }}'

@@ -1,0 +1,139 @@
+livedebugging {
+  enabled = false
+}
+
+prometheus.exporter.unix "local_system" { }
+
+prometheus.scrape "scrape_metrics" {
+  targets         = prometheus.exporter.unix.local_system.targets
+  forward_to      = [prometheus.relabel.filter_metrics.receiver]
+  scrape_interval = "15s"
+}
+
+prometheus.relabel "filter_metrics" {
+  rule {
+    action        = "drop"
+    source_labels = ["env"]
+    regex         = "dev"
+  }
+
+  rule {
+    target_label = "instance"
+    replacement  = "docker-host"
+  }
+
+  forward_to = [prometheus.remote_write.metrics_service.receiver]
+}
+
+prometheus.exporter.cadvisor "integrations_cadvisor" {
+    docker_only = true
+}
+
+discovery.relabel "integrations_cadvisor" {
+    targets = prometheus.exporter.cadvisor.integrations_cadvisor.targets
+
+    rule {
+        target_label = "job"
+        replacement  = "integrations/docker"
+    }
+
+    rule {
+        target_label = "instance"
+        replacement  = "docker-host"
+    }
+}
+
+prometheus.relabel "integrations_cadvisor" {
+    rule {
+        source_labels = ["container_label_com_docker_compose_service"]
+        target_label = "service"
+    }
+
+    rule {
+        source_labels = ["container_label_com_docker_compose_project"]
+        target_label  = "project"
+    }
+
+    rule {
+        source_labels = ["name"]
+        target_label  = "container"
+    }
+
+    forward_to = [prometheus.remote_write.metrics_service.receiver]
+}
+
+prometheus.scrape "integrations_cadvisor" {
+    targets    = discovery.relabel.integrations_cadvisor.output
+    forward_to = [prometheus.relabel.integrations_cadvisor.receiver]
+    scrape_interval = "15s"
+}
+
+prometheus.remote_write "metrics_service" {
+  endpoint {
+    url = "http://prometheus-prometheus-1:9090/api/v1/write"
+  }
+}
+
+local.file_match "local_files" {
+  path_targets = [{"__path__" = "/var/log/*.log"}]
+  sync_period = "5s"
+}
+
+loki.source.file "log_scrape" {
+  targets    = local.file_match.local_files.targets
+  forward_to = [loki.process.filter_logs.receiver]
+  tail_from_end = true
+}
+
+loki.process "filter_logs" {
+  stage.drop {
+    source = ""
+    expression  = ".*Connection closed by authenticating user root"
+    drop_counter_reason = "noisy"
+  }
+  forward_to = [loki.write.grafana_loki.receiver]
+}
+
+discovery.docker "logs_integrations_docker" {
+  host = "unix:///var/run/docker.sock"
+  refresh_interval = "5s"
+}
+
+discovery.relabel "logs_integrations_docker" {
+    targets = []
+
+    rule {
+        target_label = "job"
+        replacement  = "integrations/docker"
+    }
+
+    rule {
+        target_label = "instance"
+        replacement  = "docker-host"
+    }
+
+    rule {
+        source_labels = ["__meta_docker_container_name"]
+        regex         = "/(.*)"
+        target_label  = "container"
+    }
+
+    rule {
+        source_labels = ["__meta_docker_container_log_stream"]
+        target_label  = "stream"
+    }
+}
+
+loki.source.docker "logs_integrations_docker" {
+  host             = "unix:///var/run/docker.sock"
+  targets          = discovery.docker.logs_integrations_docker.targets
+  forward_to       = [loki.write.grafana_loki.receiver]
+  relabel_rules    = discovery.relabel.logs_integrations_docker.rules
+  refresh_interval = "5s"
+}
+
+loki.write "grafana_loki" {
+  endpoint {
+    url = "http://loki-loki-1:3100/loki/api/v1/push"
+  }
+}

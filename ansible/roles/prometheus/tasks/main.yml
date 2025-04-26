@@ -1,0 +1,26 @@
+---
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: '{{ prometheus_config_folder }}'
+    state: directory
+    recurse: true
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy configuration file
+  ansible.builtin.copy:
+    src: 'prometheus.yml'
+    dest: '{{ prometheus_config_folder }}/prometheus.yml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+
+- name: Deploy Prometheus
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ prometheus_name }}'
+    docker_compose_volumes: '{{ prometheus_docker_volumes.values() }}'

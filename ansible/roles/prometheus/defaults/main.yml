@@ -1,0 +1,6 @@
+---
+prometheus_name: prometheus
+prometheus_config_folder: '{{ docker_config_dir }}/{{ prometheus_name }}'
+prometheus_docker_volumes:
+  data: '{{ docker_volumes_dir }}/{{ prometheus_name }}/data'
+prometheus_port: 9090

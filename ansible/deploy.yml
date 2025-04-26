@@ -1,0 +1,31 @@
+---
+- name: Setup
+  hosts: all
+  roles:
+    - users
+    - docker
+
+- name: Deploy Docker stacks
+  hosts: all
+  roles:
+    - role: prometheus
+      tags:
+        - prometheus
+    - role: loki
+      tags:
+        - loki
+    - role: alloy
+      tags:
+        - alloy
+    - role: grafana
+      tags:
+        - grafana
+    - role: freebox_exporter
+      tags:
+        - freebox_exporter
+    - role: omada_controller
+      tags:
+        - omada_controller
+    - role: omada_exporter
+      tags:
+        - omada_exporter

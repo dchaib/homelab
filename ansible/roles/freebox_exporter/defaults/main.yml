@@ -1,0 +1,5 @@
+---
+freebox_exporter_config_folder: '{{ docker_config_dir }}/freebox-exporter'
+freebox_exporter_port: 9102
+freebox_exporter_docker_volumes:
+  data: '{{ docker_volumes_dir }}/freebox-exporter/data'

@@ -1,0 +1,5 @@
+---
+loki_config_folder: '{{ docker_config_dir }}/loki'
+loki_docker_volumes:
+  data: '{{ docker_volumes_dir }}/loki/data'
+loki_port: 3100

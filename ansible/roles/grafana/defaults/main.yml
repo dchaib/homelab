@@ -1,0 +1,6 @@
+---
+grafana_config_folders:
+  provisioning: '{{ docker_config_dir }}/grafana/provisioning'
+grafana_docker_volumes:
+  data: '{{ docker_volumes_dir }}/grafana/data'
+grafana_port: 3000

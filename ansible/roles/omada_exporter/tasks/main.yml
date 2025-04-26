@@ -1,0 +1,7 @@
+---
+- name: Deploy Omada Exporter
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: 'omada-exporter'
+    docker_compose_use_env: true

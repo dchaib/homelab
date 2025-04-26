@@ -1,0 +1,26 @@
+services:
+  alloy:
+    image: grafana/alloy:v1.6.1
+    restart: unless-stopped
+    ports:
+      - '{{ alloy_port }}:12345'
+    volumes:
+      - '{{ alloy_config_folder }}/config.alloy:/etc/alloy/config.alloy:ro'
+#      - "./endpoints.json:/etc/alloy/endpoints.json"
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /dev/disk/:/dev/disk:ro
+    command: [
+      "run",
+      "--server.http.listen-addr=0.0.0.0:12345",
+      "/etc/alloy/config.alloy",
+    ]
+    networks:
+      - monitoring_network
+
+networks:
+  monitoring_network:
+    external: true

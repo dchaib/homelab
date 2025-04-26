@@ -1,0 +1,3 @@
+---
+alloy_config_folder: '{{ docker_config_dir }}/alloy'
+alloy_port: 12345

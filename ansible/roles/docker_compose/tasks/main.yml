@@ -1,0 +1,67 @@
+---
+- name: Set ownership variables for docker compose
+  ansible.builtin.set_fact:
+    docker_compose_owner: "{{ docker_compose_user_name | default(users.app_user.name) }}"
+    docker_compose_group: "{{ docker_compose_user_group | default(users.app_user.group) }}"
+  become: true
+
+- name: Create volume directories
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    recurse: true
+    owner: '{{ docker_compose_owner }}'
+    group: '{{ docker_compose_group }}'
+    mode: '0750'
+  become: true
+  loop: '{{ docker_compose_volumes }}'
+
+- name: Create subdirectory for the compose file
+  ansible.builtin.file:
+    path: '{{ docker_compose_config_dir }}'
+    state: directory
+    recurse: true
+    owner: '{{ docker_compose_owner }}'
+    group: '{{ docker_compose_group }}'
+    mode: '0750'
+  become: true
+
+- name: Get UID of app user
+  ansible.builtin.command: "id -u {{ users.app_user.name }}"
+  register: appuser_uid_result
+  changed_when: false
+
+- name: Get GID of app user
+  ansible.builtin.command: "id -g {{ users.app_user.name }}"
+  register: appuser_gid_result
+  changed_when: false
+
+- name: Set UID and GID facts
+  ansible.builtin.set_fact:
+    users:
+      app_user: "{{ users.app_user | combine({'uid': appuser_uid_result.stdout, 'gid': appuser_gid_result.stdout}) }}"
+
+- name: Copy compose file
+  ansible.builtin.template:
+    src: 'compose.yaml.j2'
+    dest: '{{ docker_compose_config_dir }}/compose.yaml'
+    owner: '{{ docker_compose_owner }}'
+    group: '{{ docker_compose_group }}'
+    mode: '0640'
+  become: true
+
+- name: Copy .env file
+  ansible.builtin.template:
+    src: '.env.j2'
+    dest: '{{ docker_compose_config_dir }}/.env'
+    owner: '{{ docker_compose_owner }}'
+    group: '{{ docker_compose_group }}'
+    mode: '0600'
+  become: true
+  when: docker_compose_use_env is defined and docker_compose_use_env | bool
+
+- name: Start services
+  community.docker.docker_compose_v2:
+    project_src: '{{ docker_compose_config_dir }}'
+  become: true
+  when: ansible_check_mode is false

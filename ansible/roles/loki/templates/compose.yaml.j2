@@ -1,0 +1,16 @@
+services:
+  loki:
+    image: grafana/loki:3.1.2
+    restart: unless-stopped
+    user: '10001'
+    ports:
+      - "{{ loki_port }}:3100"
+    volumes:
+      - "{{ loki_docker_volumes.data }}:/loki"
+      - "{{ loki_config_folder }}/loki-config.yaml:/etc/loki/local-config.yaml"
+    networks:
+      - monitoring_network
+
+networks:
+  monitoring_network:
+    external: true
