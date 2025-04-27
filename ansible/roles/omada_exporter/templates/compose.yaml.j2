@@ -11,8 +11,8 @@ services:
       - OMADA_PASS=${OMADA_PASS}
       - OMADA_SITE=Home
     networks:
-      - monitoring_network
+      - {{ monitoring.network_name }}
 
 networks:
-  monitoring_network:
+  {{ monitoring.network_name }}:
     external: true

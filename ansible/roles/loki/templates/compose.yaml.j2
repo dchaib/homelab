@@ -9,8 +9,8 @@ services:
       - "{{ loki_docker_volumes.data }}:/loki"
       - "{{ loki_config_folder }}/loki-config.yaml:/etc/loki/local-config.yaml"
     networks:
-      - monitoring_network
+      - {{ monitoring.network_name }}
 
 networks:
-  monitoring_network:
+  {{ monitoring.network_name }}:
     external: true

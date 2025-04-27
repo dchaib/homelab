@@ -10,8 +10,8 @@ services:
       - "{{ freebox_exporter_docker_volumes.data }}:/data"
     command: ["/root/freebox-exporter-rs", "-c", "/etc/freebox-exporter-rs/config.toml" ,"auto"]
     networks:
-      - monitoring_network
+      - {{ monitoring.network_name }}
 
 networks:
-  monitoring_network:
+  {{ monitoring.network_name }}:
     external: true

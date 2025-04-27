@@ -24,6 +24,9 @@ homelab_domain_name: !vault |
   6465633438313965380a383933643563643338623165343639636363343736353965346262376562
   6233
 
+monitoring:
+  network_name: "monitoring_network"
+
 omada_controller_exporter_user: 'exporter'
 omada_controller_exporter_password: !vault |
   $ANSIBLE_VAULT;1.1;AES256

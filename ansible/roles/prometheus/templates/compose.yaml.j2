@@ -12,9 +12,8 @@ services:
       - "{{ prometheus_config_folder }}/prometheus.yml:/etc/prometheus/prometheus.yml"
       - "{{ prometheus_docker_volumes.data }}:/prometheus"
     networks:
-      - monitoring_network
+      - {{ monitoring.network_name }}
 
 networks:
-  monitoring_network:
-    driver: bridge
-    name: monitoring_network
+  {{ monitoring.network_name }}:
+    external: true

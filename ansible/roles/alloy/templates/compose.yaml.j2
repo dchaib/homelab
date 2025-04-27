@@ -19,8 +19,8 @@ services:
       "/etc/alloy/config.alloy",
     ]
     networks:
-      - monitoring_network
+      - {{ monitoring.network_name }}
 
 networks:
-  monitoring_network:
+  {{ monitoring.network_name }}:
     external: true
