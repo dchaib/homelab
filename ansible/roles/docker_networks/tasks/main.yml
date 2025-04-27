@@ -1,0 +1,7 @@
+---
+- name: Ensure monitoring network exists
+  community.docker.docker_network:
+    name: "{{ monitoring.network_name }}"
+    driver: bridge
+    state: present
+  become: true

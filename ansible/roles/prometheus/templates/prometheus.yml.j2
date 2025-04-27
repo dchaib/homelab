@@ -7,20 +7,20 @@ scrape_configs:
       - targets: ['localhost:9090']
   - job_name: 'freebox'
     static_configs:
-      - targets: ['freebox-exporter-freebox-exporter-1:9102']
+      - targets: ['{{ monitoring.freebox_exporter }}:9102']
     fallback_scrape_protocol: 'PrometheusText0.0.4'
     relabel_configs:
       - target_label: 'instance'
         replacement: 'freebox-delta'
   - job_name: 'omada-controller'
     static_configs:
-      - targets: ['omada-exporter-omada-exporter-1:9202']
+      - targets: ['{{ monitoring.omada_exporter }}:9202']
     relabel_configs:
       - target_label: 'instance'
         replacement: '22A10E-Home'
   - job_name: 'integrations/unix'
     static_configs:
-      - targets: ['192.168.1.114:9100']
+      - targets: ['{{ homeassistant.ip }}:{{ homeassistant.exporter.port }}']
     relabel_configs:
       - target_label: 'instance'
         replacement: 'homeassistant'

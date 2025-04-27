@@ -4,6 +4,7 @@
   roles:
     - users
     - docker
+    - docker_networks
 
 - name: Deploy Docker stacks
   hosts: all

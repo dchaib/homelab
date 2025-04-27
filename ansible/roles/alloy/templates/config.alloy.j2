@@ -19,7 +19,7 @@ prometheus.relabel "filter_metrics" {
 
   rule {
     target_label = "instance"
-    replacement  = "docker-host"
+    replacement  = "{{ inventory_hostname_short }}"
   }
 
   forward_to = [prometheus.remote_write.metrics_service.receiver]
@@ -39,7 +39,7 @@ discovery.relabel "integrations_cadvisor" {
 
     rule {
         target_label = "instance"
-        replacement  = "docker-host"
+        replacement  = "{{ inventory_hostname_short }}"
     }
 }
 
@@ -70,7 +70,7 @@ prometheus.scrape "integrations_cadvisor" {
 
 prometheus.remote_write "metrics_service" {
   endpoint {
-    url = "http://prometheus-prometheus-1:9090/api/v1/write"
+    url = "http://{{ monitoring.prometheus }}:9090/api/v1/write"
   }
 }
 
@@ -109,7 +109,7 @@ discovery.relabel "logs_integrations_docker" {
 
     rule {
         target_label = "instance"
-        replacement  = "docker-host"
+        replacement  = "{{ inventory_hostname_short }}"
     }
 
     rule {
@@ -134,6 +134,6 @@ loki.source.docker "logs_integrations_docker" {
 
 loki.write "grafana_loki" {
   endpoint {
-    url = "http://loki-loki-1:3100/loki/api/v1/push"
+    url = "http://{{ monitoring.loki }}:3100/loki/api/v1/push"
   }
 }

@@ -9,8 +9,8 @@
   become: true
 
 - name: Copy configuration file
-  ansible.builtin.copy:
-    src: 'config.alloy'
+  ansible.builtin.template:
+    src: 'config.alloy.j2'
     dest: '{{ alloy_config_folder }}/config.alloy'
     owner: '{{ users.app_user.name }}'
     group: '{{ users.app_user.group }}'

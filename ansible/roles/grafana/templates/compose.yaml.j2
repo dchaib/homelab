@@ -9,8 +9,8 @@ services:
       - "{{ grafana_docker_volumes.data }}:/var/lib/grafana"
       - "{{ grafana_config_folders.provisioning }}:/etc/grafana/provisioning:ro"
     networks:
-      - monitoring_network
+      - {{ monitoring.network_name }}
 
 networks:
-  monitoring_network:
+  {{ monitoring.network_name }}:
     external: true
