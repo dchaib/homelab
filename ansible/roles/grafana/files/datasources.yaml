@@ -4,7 +4,7 @@ datasources:
     type: loki
     access: proxy
     orgId: 1
-    url: http://loki-loki-1:3100
+    url: http://{{ monitoring.loki }}:3100
     basicAuth: false
     isDefault: false
     version: 1
@@ -12,7 +12,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     orgId: 1
-    url: http://prometheus-prometheus-1:9090
+    url: http://{{ monitoring.prometheus }}:9090
     basicAuth: false
     isDefault: true
     version: 1

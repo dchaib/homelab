@@ -26,6 +26,15 @@ homelab_domain_name: !vault |
 
 monitoring:
   network_name: "monitoring_network"
+  prometheus: "prometheus"
+  loki: "loki"
+  freebox_exporter: "freebox-exporter"
+  omada_exporter: "omada-exporter"
+
+homeassistant:
+  ip: "192.168.1.114"
+  exporter:
+    port: 9100
 
 omada_controller_exporter_user: 'exporter'
 omada_controller_exporter_password: !vault |
