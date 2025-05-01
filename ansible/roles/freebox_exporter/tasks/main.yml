@@ -3,7 +3,6 @@
   ansible.builtin.file:
     path: '{{ freebox_exporter_config_folder }}'
     state: directory
-    recurse: true
     owner: '{{ users.app_user.name }}'
     group: '{{ users.app_user.group }}'
     mode: '0750'
