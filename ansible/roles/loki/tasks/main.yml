@@ -31,7 +31,6 @@
   ansible.builtin.file:
     path: '{{ loki_config_folder }}'
     state: directory
-    recurse: true
     owner: loki
     group: loki
     mode: '0750'
