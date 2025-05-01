@@ -28,6 +28,7 @@
   ansible.builtin.getent:
     database: passwd
     key: "{{ users.app_user.name }}"
+  when: users.app_user.uid is not defined or users.app_user.gid is not defined
 
 - name: Set UID and GID in user variables
   ansible.builtin.set_fact:
@@ -37,6 +38,7 @@
           'uid': ansible_facts.getent_passwd[users.app_user.name][1],
           'gid': ansible_facts.getent_passwd[users.app_user.name][2]
         }) }}
+  when: users.app_user.uid is not defined or users.app_user.gid is not defined
 
 - name: Copy compose file
   ansible.builtin.template:
