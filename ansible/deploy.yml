@@ -30,3 +30,6 @@
     - role: omada_exporter
       tags:
         - omada_exporter
+    - role: traefik
+      tags:
+        - traefik
