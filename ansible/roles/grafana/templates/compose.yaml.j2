@@ -3,14 +3,23 @@ services:
     image: grafana/grafana-oss:11.6.1
     restart: unless-stopped
     user: "{{ users.app_user.uid }}:{{ users.app_user.gid }}"
-    ports:
-      - "{{ grafana_port }}:3000"
     volumes:
       - "{{ grafana_docker_volumes.data }}:/var/lib/grafana"
       - "{{ grafana_config_folders.provisioning }}:/etc/grafana/provisioning:ro"
     networks:
       - {{ monitoring.network_name }}
+      - {{ traefik.network_name }}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.{{ homelab_domain_name }}`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls=true"
+      - "traefik.http.routers.grafana.tls.certresolver=ovh"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+      - "traefik.docker.network={{ traefik.network_name }}"
 
 networks:
   {{ monitoring.network_name }}:
+    external: true
+  {{ traefik.network_name }}:
     external: true

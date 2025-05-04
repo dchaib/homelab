@@ -17,6 +17,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    networks:
+      - "{{ traefik.network_name }}"
     env_file:
       - .env
     volumes:
@@ -29,3 +31,7 @@ services:
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.tls.certresolver=ovh"
       - "traefik.http.routers.traefik.service=api@internal"
+
+networks:
+  {{ traefik.network_name }}:
+    external: true
