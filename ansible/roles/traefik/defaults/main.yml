@@ -1,0 +1,3 @@
+---
+traefik_docker_volumes:
+  letsencrypt: '{{ docker_volumes_dir }}/traefik/letsencrypt'
