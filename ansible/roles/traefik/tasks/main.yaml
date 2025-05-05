@@ -1,4 +1,30 @@
 ---
+- name: Create Traefik config directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ users.app_user.name }}"
+    group: "{{ users.app_user.group }}"
+    mode: '0750'
+  loop:
+    - "{{ traefik_config_folder }}"
+    - "{{ traefik_config_folder }}/dynamic"
+  become: true
+
+- name: Discover all dynamic config templates
+  ansible.builtin.set_fact:
+    traefik_dynamic_configs: "{{ lookup('fileglob', 'templates/dynamic/*.yml.j2', wantlist=True) }}"
+
+- name: Deploy all discovered dynamic configs
+  ansible.builtin.template:
+    src: "dynamic/{{ item | basename }}"
+    dest: "{{ traefik_config_folder }}/dynamic/{{ item | basename | regex_replace('.j2$', '') }}"
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  loop: "{{ traefik_dynamic_configs }}"
+  become: true
+
 - name: Deploy Traefik
   ansible.builtin.include_role:
     name: docker_compose
