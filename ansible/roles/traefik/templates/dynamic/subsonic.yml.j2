@@ -1,0 +1,15 @@
+http:
+  routers:
+    subsonic:
+      rule: "Host(`music.{{ homelab_domain_name }}`)"
+      entryPoints:
+        - websecure
+      service: subsonic
+      tls:
+        certResolver: ovh
+
+  services:
+    subsonic:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.1.76:4040"

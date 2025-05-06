@@ -1,7 +1,10 @@
 ---
-- name: Ensure monitoring network exists
+- name: Ensure Docker networks exist
   community.docker.docker_network:
-    name: "{{ monitoring.network_name }}"
+    name: "{{ item }}"
     driver: bridge
     state: present
+  loop:
+    - "{{ monitoring.network_name }}"
+    - "{{ traefik.network_name }}"
   become: true

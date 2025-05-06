@@ -1,0 +1,15 @@
+http:
+  routers:
+    homeassistant:
+      rule: "Host(`ha.{{ homelab_domain_name }}`)"
+      entryPoints:
+        - websecure
+      service: homeassistant
+      tls:
+        certResolver: ovh
+
+  services:
+    homeassistant:
+      loadBalancer:
+        servers:
+          - url: "http://{{homeassistant.ip}}:{{homeassistant.port}}"
