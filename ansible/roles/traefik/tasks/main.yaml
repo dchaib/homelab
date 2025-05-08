@@ -11,6 +11,15 @@
     - "{{ traefik_config_folder }}/dynamic"
   become: true
 
+- name: Deploy static config
+  ansible.builtin.template:
+    src: "traefik.yml.j2"
+    dest: "{{ traefik_config_folder }}/traefik.yml"
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+
 - name: Discover all dynamic config templates
   ansible.builtin.set_fact:
     traefik_dynamic_configs: "{{ lookup('fileglob', 'templates/dynamic/*.yml.j2', wantlist=True) }}"

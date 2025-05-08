@@ -1,0 +1,31 @@
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+
+  file:
+    directory: "/etc/traefik/dynamic"
+    watch: true
+
+certificatesResolvers:
+  ovh:
+    acme:
+      email: "{{ ovh.email }}"
+      storage: "/letsencrypt/acme.json"
+      dnsChallenge:
+        provider: ovh
+        delayBeforeCheck: 5
