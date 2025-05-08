@@ -7,6 +7,7 @@ services:
       - "443:443"
     networks:
       - "{{ traefik.network_name }}"
+      - "{{ monitoring.network_name }}"
     env_file:
       - .env
     volumes:
@@ -20,7 +21,10 @@ services:
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.tls.certresolver=ovh"
       - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.docker.network={{ traefik.network_name }}"
 
 networks:
   {{ traefik.network_name }}:
+    external: true
+  {{ monitoring.network_name }}:
     external: true
