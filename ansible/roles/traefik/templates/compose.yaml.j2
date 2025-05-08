@@ -2,25 +2,12 @@ services:
   traefik:
     image: "traefik:v3.4.0"
     restart: unless-stopped
-    command:
-      - "--api.dashboard=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--certificatesresolvers.ovh.acme.dnschallenge.provider=ovh"
-      - "--certificatesresolvers.ovh.acme.dnschallenge.delaybeforecheck=5"
-      - "--certificatesresolvers.ovh.acme.email=${EMAIL}"
-      - "--certificatesresolvers.ovh.acme.storage=/letsencrypt/acme.json"
-      - "--providers.file.directory=/etc/traefik/dynamic"
-      - "--providers.file.watch=true"
     ports:
       - "80:80"
       - "443:443"
     networks:
       - "{{ traefik.network_name }}"
+      - "{{ monitoring.network_name }}"
     env_file:
       - .env
     volumes:
@@ -34,7 +21,10 @@ services:
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.tls.certresolver=ovh"
       - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.docker.network={{ traefik.network_name }}"
 
 networks:
   {{ traefik.network_name }}:
+    external: true
+  {{ monitoring.network_name }}:
     external: true
