@@ -1,8 +1,10 @@
 ---
 - name: Set ownership variables for docker compose
   ansible.builtin.set_fact:
-    docker_compose_owner: "{{ docker_compose_user_name | default(users.app_user.name) }}"
-    docker_compose_group: "{{ docker_compose_user_group | default(users.app_user.group) }}"
+    docker_compose_owner: >-
+      {{ docker_compose_user_name | default(users.app_user.name) }}
+    docker_compose_group: >-
+      {{ docker_compose_user_group | default(users.app_user.group) }}
   become: true
 
 - name: Create volume directories
@@ -28,7 +30,9 @@
   ansible.builtin.getent:
     database: passwd
     key: "{{ users.app_user.name }}"
-  when: users.app_user.uid is not defined or users.app_user.gid is not defined
+  when: >-
+    users.app_user.uid is not defined
+    or users.app_user.gid is not defined
 
 - name: Set UID and GID in user variables
   ansible.builtin.set_fact:
@@ -38,7 +42,9 @@
           'uid': ansible_facts.getent_passwd[users.app_user.name][1],
           'gid': ansible_facts.getent_passwd[users.app_user.name][2]
         }) }}
-  when: users.app_user.uid is not defined or users.app_user.gid is not defined
+  when: >-
+    users.app_user.uid is not defined
+    or users.app_user.gid is not defined
 
 - name: Copy compose file
   ansible.builtin.template:
@@ -57,7 +63,9 @@
     group: '{{ docker_compose_group }}'
     mode: '0600'
   become: true
-  when: docker_compose_use_env is defined and docker_compose_use_env | bool
+  when:
+    - docker_compose_use_env is defined
+    - docker_compose_use_env | bool
 
 - name: Start services
   community.docker.docker_compose_v2:
