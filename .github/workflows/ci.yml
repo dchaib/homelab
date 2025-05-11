@@ -21,11 +21,13 @@ jobs:
         with:
           python-version: "3.x"
 
-      - name: Install test dependencies
-        run: pip3 install ansible ansible-lint
-
-      - name: Lint Ansible project
-        run: ansible-lint
+      - name: Run ansible-lint
+        uses: ansible/ansible-lint@v25.4.0
+        with:
+          args: ""
+          setup_python: "true"
+          working_directory: "ansible"
+          requirements_file: "ansible/requirements.yml"
 
       - name: Lint yaml files
         run: yamllint .
