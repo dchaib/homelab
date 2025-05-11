@@ -1,0 +1,28 @@
+---
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+
+      - name: Lint Ansible project
+        uses: ansible/ansible-lint@v25.4.0
+        with:
+          args: ""
+          setup_python: "true"
+          working_directory: "ansible"
+          requirements_file: "requirements.yml"
+
+      - name: Lint yaml files
+        run: yamllint .
