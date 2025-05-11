@@ -1,0 +1,44 @@
+---
+- name: Ensure UFW is installed
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    update_cache: true
+  become: true
+
+- name: Allow port 22 (SSH)
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+    comment: "SSH"
+  become: true
+
+- name: Allow port 29810
+  community.general.ufw:
+    rule: allow
+    port: "29810"
+    proto: udp
+    comment: "Omada controller"
+  become: true
+
+- name: Allow port 29814
+  community.general.ufw:
+    rule: allow
+    port: "29814"
+    proto: tcp
+    comment: "Omada controller"
+  become: true
+
+- name: Allow port 8043
+  community.general.ufw:
+    rule: allow
+    port: "8043"
+    proto: tcp
+    comment: "Omada controller (HTTPS)"
+  become: true
+
+- name: Ensure UFW is enabled
+  community.general.ufw:
+    state: enabled
+  become: true
