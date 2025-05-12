@@ -5,6 +5,9 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
+    relabel_configs:
+      - target_label: 'instance'
+        replacement: '{{ inventory_hostname_short }}'
   - job_name: 'freebox'
     static_configs:
       - targets: ['{{ monitoring.freebox_exporter }}:9102']
@@ -27,6 +30,12 @@ scrape_configs:
   - job_name: 'traefik'
     static_configs:
       - targets: ['traefik:8080']
+    relabel_configs:
+      - target_label: 'instance'
+        replacement: '{{ inventory_hostname_short }}'
   - job_name: 'loki'
     static_configs:
       - targets: ['{{ monitoring.loki }}:3100']
+    relabel_configs:
+      - target_label: 'instance'
+        replacement: '{{ inventory_hostname_short }}'
