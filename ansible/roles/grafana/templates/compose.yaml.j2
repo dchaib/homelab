@@ -1,6 +1,6 @@
 services:
   grafana:
-    image: grafana/grafana-oss:12.0.0
+    image: grafana/grafana-oss:12.0.1
     restart: unless-stopped
     user: "{{ users.app_user.uid }}:{{ users.app_user.gid }}"
     volumes:
