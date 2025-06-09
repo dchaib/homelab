@@ -2,6 +2,15 @@ livedebugging {
   enabled = false
 }
 
+prometheus.exporter.self "default" {
+}
+
+prometheus.scrape "metamonitoring" {
+  targets    = prometheus.exporter.self.default.targets
+  forward_to = [prometheus.relabel.filter_metrics.receiver]
+  scrape_interval = "15s"
+}
+
 prometheus.exporter.unix "local_system" { }
 
 prometheus.scrape "scrape_metrics" {
@@ -72,6 +81,12 @@ prometheus.remote_write "metrics_service" {
   endpoint {
     url = "http://{{ monitoring.prometheus }}:9090/api/v1/write"
   }
+}
+
+logging {
+  level    = "warn"
+  format   = "json"
+  write_to = [loki.write.grafana_loki.receiver]
 }
 
 local.file_match "local_files" {
