@@ -31,6 +31,9 @@
     - role: omada_exporter
       tags:
         - omada_exporter
+    - role: adguard_home
+      tags:
+        - adguard_home
     - role: traefik
       tags:
         - traefik
