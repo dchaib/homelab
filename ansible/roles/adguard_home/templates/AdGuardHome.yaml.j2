@@ -148,7 +148,7 @@ filtering:
   rewrites:
 {% for name, service in homelab_services.items() %}
   - domain: "{{ service.domain }}"
-    answer: "{{ service.ip }}"
+    answer: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 {% endfor %}
   safe_fs_patterns:
     - /opt/adguardhome/work/userfilters/*
