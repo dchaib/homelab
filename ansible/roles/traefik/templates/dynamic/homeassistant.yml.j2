@@ -1,7 +1,7 @@
 http:
   routers:
     homeassistant:
-      rule: "Host(`ha.{{ homelab_domain_name }}`)"
+      rule: "Host(`{{ homelab_services.homeassistant.domain }}`)"
       entryPoints:
         - websecure
       service: homeassistant

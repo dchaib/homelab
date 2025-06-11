@@ -13,7 +13,7 @@ services:
       - {{ traefik.network_name }}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.adguard_home.rule=Host(`adguardhome.{{ homelab_domain_name }}`)"
+      - "traefik.http.routers.adguard_home.rule=Host(`{{ homelab_services.adguard_home.domain }}`)"
       - "traefik.http.routers.adguard_home.entrypoints=websecure"
       - "traefik.http.routers.adguard_home.tls=true"
       - "traefik.http.routers.adguard_home.tls.certresolver=ovh"

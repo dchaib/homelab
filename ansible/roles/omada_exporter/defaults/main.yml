@@ -1,3 +1,3 @@
 ---
 omada_exporter_port: 9202
-omada_exporter_controller_host: 'https://sdn.{{ homelab_domain_name }}'
+omada_exporter_controller_host: 'https://{{ homelab_services.omada_controller.domain }}'

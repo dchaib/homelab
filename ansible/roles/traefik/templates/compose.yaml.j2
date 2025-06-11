@@ -16,7 +16,7 @@ services:
       - "{{ traefik_config_folder }}:/etc/traefik:ro"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.{{ homelab_domain_name }}`)"
+      - "traefik.http.routers.traefik.rule=Host(`{{ homelab_services.traefik.domain }}`)"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls=true"
       - "traefik.http.routers.traefik.tls.certresolver=ovh"

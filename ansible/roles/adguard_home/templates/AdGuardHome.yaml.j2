@@ -145,7 +145,11 @@ filtering:
   blocking_mode: default
   parental_block_host: family-block.dns.adguard.com
   safebrowsing_block_host: standard-block.dns.adguard.com
-  rewrites: []
+  rewrites:
+{% for name, service in homelab_services.items() %}
+  - domain: "{{ service.domain }}"
+    answer: "{{ service.ip }}"
+{% endfor %}
   safe_fs_patterns:
     - /opt/adguardhome/work/userfilters/*
   safebrowsing_cache_size: 1048576

@@ -11,7 +11,7 @@ services:
       - {{ traefik.network_name }}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.{{ homelab_domain_name }}`)"
+      - "traefik.http.routers.grafana.rule=Host(`{{ homelab_services.grafana.domain }}`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=ovh"
