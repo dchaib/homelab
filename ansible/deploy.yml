@@ -34,6 +34,9 @@
     - role: adguard_home
       tags:
         - adguard_home
+    - role: adguard_home_exporter
+      tags:
+        - adguard_home_exporter
     - role: traefik
       tags:
         - traefik

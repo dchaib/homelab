@@ -5,8 +5,10 @@ http:
   address: 0.0.0.0:80
   session_ttl: 720h
 users:
-  - name: {{ adguard_home_user.name }}
-    password: {{ adguard_home_user.password }}
+{% for name, user in adguard_home.users.items() %}
+  - name: "{{ user.name }}"
+    password: "{{ user.password_hash }}"
+{% endfor %}
 auth_attempts: 5
 block_auth_min: 15
 http_proxy: ""
