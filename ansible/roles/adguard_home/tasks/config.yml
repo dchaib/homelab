@@ -16,12 +16,20 @@
     adguard_config_changed: >-
       {{ adguard_rendered_checksum != adguard_current_config.stat.checksum | default('') }}
 
+- name: Check if AdGuard Home stack directory exists
+  stat:
+    path: '{{ docker_compose_dir }}/{{ adguard_home_stack_name }}/docker-compose.yml'
+  register: adguard_compose_file
+
 - name: Stop AdGuard Home if config changed
   community.docker.docker_compose_v2:
     project_src: '{{ docker_compose_dir }}/{{ adguard_home_stack_name }}'
     state: stopped
   become: true
-  when: ansible_check_mode is false and adguard_config_changed | default(false)
+  when: 
+    - ansible_check_mode is false
+    - adguard_config_changed | default(false)
+    - adguard_compose_file.stat.exists
 
 - name: Replace AdGuardHome.yaml if changed
   ansible.builtin.template:
