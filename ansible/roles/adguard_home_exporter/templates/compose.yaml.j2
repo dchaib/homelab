@@ -1,0 +1,16 @@
+services:
+  {{ monitoring.adguard_home_exporter }}:
+    image: ghcr.io/henrywhitaker3/adguard-exporter:v1.2.0
+    restart: unless-stopped
+    user: "{{ users.app_user.uid }}:{{ users.app_user.gid }}"
+    environment:
+      ADGUARD_SERVERS: "http://adguardhome"
+      ADGUARD_USERNAMES: ${ADGUARD_USERNAME}
+      ADGUARD_PASSWORDS: ${ADGUARD_PASSWORD}
+      INTERVAL: "15s"
+    networks:
+      - {{ monitoring.network_name }}
+
+networks:
+  {{ monitoring.network_name }}:
+    external: true

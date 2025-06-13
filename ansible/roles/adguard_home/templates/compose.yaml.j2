@@ -1,0 +1,28 @@
+services:
+  adguardhome:
+    image: "adguard/adguardhome:v0.107.62"
+    restart: unless-stopped
+    user: "{{ users.app_user.uid }}:{{ users.app_user.gid }}"
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - "{{ adguard_home_config_folder }}:/opt/adguardhome/conf"
+      - "{{ adguard_home_docker_volumes.data }}:/opt/adguardhome/work"
+    networks:
+      - {{ traefik.network_name }}
+      - {{ monitoring.network_name }}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.adguard_home.rule=Host(`{{ homelab_services.adguard_home.domain }}`)"
+      - "traefik.http.routers.adguard_home.entrypoints=websecure"
+      - "traefik.http.routers.adguard_home.tls=true"
+      - "traefik.http.routers.adguard_home.tls.certresolver=ovh"
+      - "traefik.http.services.adguard_home.loadbalancer.server.port=80"
+      - "traefik.docker.network={{ traefik.network_name }}"
+
+networks:
+  {{ traefik.network_name }}:
+    external: true
+  {{ monitoring.network_name }}:
+    external: true

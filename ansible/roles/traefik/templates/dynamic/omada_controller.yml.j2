@@ -1,7 +1,7 @@
 http:
   routers:
     omada:
-      rule: "Host(`sdn.{{ homelab_domain_name }}`)"
+      rule: "Host(`{{ homelab_services.omada_controller.domain }}`)"
       entryPoints:
         - websecure
       service: omada
@@ -12,7 +12,7 @@ http:
     omada:
       loadBalancer:
         servers:
-          - url: "https://{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}:8043"
+          - url: "https://{{ homelab_services.omada_controller.ip }}:8043"
         serversTransport: "insecure-transport"
 
   serversTransports:

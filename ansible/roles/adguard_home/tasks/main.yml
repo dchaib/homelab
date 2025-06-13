@@ -1,0 +1,19 @@
+---
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: '{{ adguard_home_config_folder }}'
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy configuration file
+  ansible.builtin.include_tasks: config.yml
+
+- name: Deploy AdGuard Home
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ adguard_home_stack_name }}'
+    docker_compose_volumes: '{{ adguard_home_docker_volumes.values() }}'

@@ -1,0 +1,42 @@
+---
+- name: Get current AdGuardHome config checksum (if exists)
+  ansible.builtin.stat:
+    path: '{{ adguard_home_config_folder }}/AdGuardHome.yaml'
+    checksum_algorithm: sha1
+  register: adguard_current_config
+  become: true
+
+- name: Render AdGuardHome config in memory and compute checksum
+  ansible.builtin.set_fact:
+    adguard_rendered_checksum: "{{ lookup('template', 'AdGuardHome.yaml.j2') | hash('sha1') }}"
+  no_log: true
+
+- name: Set flag if config has changed
+  ansible.builtin.set_fact:
+    adguard_config_changed: >-
+      {{ adguard_rendered_checksum != adguard_current_config.stat.checksum | default('') }}
+
+- name: Check if AdGuard Home stack directory exists
+  ansible.builtin.stat:
+    path: '{{ docker_compose_dir }}/{{ adguard_home_stack_name }}/docker-compose.yml'
+  register: adguard_compose_file
+
+- name: Stop AdGuard Home if config changed
+  community.docker.docker_compose_v2:
+    project_src: '{{ docker_compose_dir }}/{{ adguard_home_stack_name }}'
+    state: stopped
+  become: true
+  when:
+    - ansible_check_mode is false
+    - adguard_config_changed | default(false)
+    - adguard_compose_file.stat.exists
+
+- name: Replace AdGuardHome.yaml if changed
+  ansible.builtin.template:
+    src: 'AdGuardHome.yaml.j2'
+    dest: '{{ adguard_home_config_folder }}/AdGuardHome.yaml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+  when: adguard_config_changed | default(false)

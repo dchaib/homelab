@@ -1,0 +1,5 @@
+---
+adguard_home_stack_name: 'adguard-home'
+adguard_home_config_folder: '{{ docker_config_dir }}/{{ adguard_home_stack_name }}'
+adguard_home_docker_volumes:
+  data: '{{ docker_volumes_dir }}/{{ adguard_home_stack_name }}/work'

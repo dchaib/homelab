@@ -1,0 +1,23 @@
+---
+homelab_services:
+  adguard_home:
+    domain: "adguardhome.{{ homelab_domain_name }}"
+
+  grafana:
+    domain: "grafana.{{ homelab_domain_name }}"
+
+  homeassistant:
+    domain: "ha.{{ homelab_domain_name }}"
+    ip: "{{ homeassistant.ip }}"
+
+  omada_controller:
+    domain: "sdn.{{ homelab_domain_name }}"
+    ip: "{{ hostvars['docker-host.local']['ansible_default_ipv4']['address'] }}"
+
+  subsonic:
+    domain: "music.{{ homelab_domain_name }}"
+    ip: "192.168.1.76"
+    port: "4040"
+
+  traefik:
+    domain: "traefik.{{ homelab_domain_name }}"
