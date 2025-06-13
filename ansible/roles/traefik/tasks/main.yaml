@@ -22,16 +22,12 @@
 
 - name: Discover all dynamic config templates
   ansible.builtin.set_fact:
-    traefik_dynamic_configs: >-
-      {{ lookup('fileglob', 'templates/dynamic/*.yml.j2', wantlist=True) }}
+    traefik_dynamic_configs: "{{ lookup('fileglob', 'templates/dynamic/*.yml.j2', wantlist=True) }}"
 
 - name: Deploy all discovered dynamic configs
   ansible.builtin.template:
     src: "dynamic/{{ item | basename }}"
-    dest: >-
-      {{ traefik_config_folder }}/dynamic/{{
-        item | basename | regex_replace('.j2$', '')
-      }}
+    dest: "{{ traefik_config_folder }}/dynamic/{{ item | basename | regex_replace('.j2$', '') }}"
     owner: '{{ users.app_user.name }}'
     group: '{{ users.app_user.group }}'
     mode: '0640'

@@ -1,6 +1,5 @@
 ---
 # docker_compose_stack_name
-docker_compose_config_dir: >-
-  {{ docker_compose_dir }}/{{ docker_compose_stack_name }}
+docker_compose_config_dir: "{{ docker_compose_dir }}/{{ docker_compose_stack_name }}"
 # docker_compose_use_env: false
 docker_compose_volumes: []
