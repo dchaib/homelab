@@ -6,8 +6,8 @@ http:
   session_ttl: 720h
 users:
 {% for name, user in adguard_home.users.items() %}
-  - name: "{{ user.name }}"
-    password: "{{ user.password_hash }}"
+  - name: {{ user.name }}
+    password: {{ user.password_hash }}
 {% endfor %}
 auth_attempts: 5
 block_auth_min: 15
@@ -62,7 +62,7 @@ dns:
   bootstrap_prefer_ipv6: false
   upstream_timeout: 10s
   private_networks: []
-  use_private_ptr_resolvers: true
+  use_private_ptr_resolvers: false
   local_ptr_upstreams: []
   use_dns64: false
   dns64_prefixes: []
@@ -149,8 +149,8 @@ filtering:
   safebrowsing_block_host: standard-block.dns.adguard.com
   rewrites:
 {% for name, service in homelab_services.items() %}
-  - domain: "{{ service.domain }}"
-    answer: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+    - domain: {{ service.domain }}
+      answer: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
 {% endfor %}
   safe_fs_patterns:
     - /opt/adguardhome/work/userfilters/*
