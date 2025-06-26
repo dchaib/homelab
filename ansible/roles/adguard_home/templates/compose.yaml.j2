@@ -1,6 +1,6 @@
 services:
   adguardhome:
-    image: "adguard/adguardhome:v0.107.62"
+    image: "adguard/adguardhome:v0.107.63"
     restart: unless-stopped
     user: "{{ users.app_user.uid }}:{{ users.app_user.gid }}"
     ports:
