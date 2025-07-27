@@ -1,6 +1,6 @@
 services:
   {{ monitoring.freebox_exporter }}:
-    image: shackerd/freebox-exporter-rs:v0.0.19
+    image: shackerd/freebox-exporter-rs:v0.0.20
     restart: unless-stopped
     user: "{{ users.app_user.uid }}:{{ users.app_user.gid }}"
     ports:
