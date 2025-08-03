@@ -24,25 +24,21 @@
     mode: '0750'
   become: true
 
-- name: Get UID and GID of app user
+- name: Get UID and GID of app_user
   ansible.builtin.getent:
     database: passwd
     key: "{{ users.app_user.name }}"
   when: >-
-    users.app_user.uid is not defined
-    or users.app_user.gid is not defined
+    docker_compose_uid is not defined
+    or docker_compose_gid is not defined
 
-- name: Set UID and GID in user variables
+- name: Set UID and GID in variables
   ansible.builtin.set_fact:
-    users:
-      app_user: >-
-        {{ users.app_user | combine({
-          'uid': ansible_facts.getent_passwd[users.app_user.name][1],
-          'gid': ansible_facts.getent_passwd[users.app_user.name][2]
-        }) }}
+    docker_compose_uid: "{{ ansible_facts.getent_passwd[users.app_user.name][1] }}"
+    docker_compose_gid: "{{ ansible_facts.getent_passwd[users.app_user.name][2] }}"
   when: >-
-    users.app_user.uid is not defined
-    or users.app_user.gid is not defined
+    docker_compose_uid is not defined
+    or docker_compose_gid is not defined
 
 - name: Copy compose file
   ansible.builtin.template:
