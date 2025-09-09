@@ -18,7 +18,7 @@
 
 - name: Check if AdGuard Home stack directory exists
   ansible.builtin.stat:
-    path: '{{ docker_compose_dir }}/{{ adguard_home_stack_name }}/docker-compose.yml'
+    path: '{{ docker_compose_dir }}/{{ adguard_home_stack_name }}/compose.yaml'
   register: adguard_home_compose_file
 
 - name: Stop AdGuard Home if config changed
@@ -27,9 +27,9 @@
     state: stopped
   become: true
   when:
-    - ansible_check_mode is false
     - adguard_home_config_changed | default(false)
     - adguard_home_compose_file.stat.exists
+    - ansible_check_mode is false
 
 - name: Replace AdGuardHome.yaml if changed
   ansible.builtin.template:
