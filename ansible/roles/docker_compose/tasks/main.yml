@@ -65,4 +65,6 @@
   community.docker.docker_compose_v2:
     project_src: '{{ docker_compose_config_dir }}'
   become: true
-  when: ansible_check_mode is false
+  when:
+    - ansible_check_mode is false
+    - docker_compose_start_stack | bool

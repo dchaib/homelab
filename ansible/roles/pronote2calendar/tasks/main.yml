@@ -1,0 +1,47 @@
+---
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: '{{ pronote2calendar_config_folder }}'
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy configuration file
+  ansible.builtin.template:
+    src: 'config.json.j2'
+    dest: '{{ pronote2calendar_config_files.config }}'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+
+- name: Copy google service account key
+  ansible.builtin.copy:
+    src: credentials-google.json
+    dest: '{{ pronote2calendar_config_files.google_credentials }}'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+
+- name: Check if Pronote credentials file exists
+  ansible.builtin.stat:
+    path: "{{ pronote2calendar_config_files.pronote_credentials }}"
+  register: pronote_credentials_file_stat
+
+- name: Generate Pronote credentials file
+  ansible.builtin.import_tasks: pronote-credentials.yml
+  when:
+    - not pronote_credentials_file_stat.stat.exists
+    - not ansible_check_mode
+  vars:
+    credentials_file_path: "{{ pronote2calendar_config_files.pronote_credentials }}"
+
+- name: Deploy Pronote2Calendar
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ pronote2calendar_stack_name }}'
+    docker_compose_start_stack: false

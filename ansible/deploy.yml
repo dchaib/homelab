@@ -40,3 +40,6 @@
     - role: traefik
       tags:
         - traefik
+    - role: pronote2calendar
+      tags:
+        - pronote2calendar
