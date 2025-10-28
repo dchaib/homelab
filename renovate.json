@@ -8,5 +8,15 @@
     "managerFilePatterns": [
       "/(^|/)(?:docker-)?compose[^/]*\\.ya?ml(\\.j2)?$/"
     ]
-  }
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/ansible\/roles\/.*\/tasks\/.*\\.ya?ml$/"],
+      "matchStrings": [
+        "docker\\s+run(?:\\s+(?:(?:-[^\\s]+|--[^\\s]+)(?:\\s+[^\\s]+)?|\\s*))*\\s+(?<depName>(?:[a-zA-Z0-9][-a-zA-Z0-9_.]*(?:\\.[a-zA-Z0-9][-a-zA-Z0-9_.]*)*(?:/[a-zA-Z0-9][-a-zA-Z0-9_.]*)*))(?::(?<currentValue>[-a-zA-Z0-9_.]+))?(?:\\s|$)"
+      ],
+      "datasourceTemplate": "docker"
+    }
+  ]
 }

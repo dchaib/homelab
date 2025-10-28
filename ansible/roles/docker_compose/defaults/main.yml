@@ -3,3 +3,6 @@
 docker_compose_config_dir: "{{ docker_compose_dir }}/{{ docker_compose_stack_name }}"
 # docker_compose_use_env: false
 docker_compose_volumes: []
+
+# Whether to start the docker compose stack after deployment
+docker_compose_start_stack: true
