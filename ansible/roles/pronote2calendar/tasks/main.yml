@@ -29,12 +29,12 @@
 - name: Check if Pronote credentials file exists
   ansible.builtin.stat:
     path: "{{ pronote2calendar_config_files.pronote_credentials }}"
-  register: pronote_credentials_file_stat
+  register: pronote2calendar_credentials_file_stat
 
 - name: Generate Pronote credentials file
   ansible.builtin.import_tasks: pronote-credentials.yml
   when:
-    - not pronote_credentials_file_stat.stat.exists
+    - not pronote2calendar_credentials_file_stat.stat.exists
     - not ansible_check_mode
   vars:
     credentials_file_path: "{{ pronote2calendar_config_files.pronote_credentials }}"
