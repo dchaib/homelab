@@ -1,0 +1,19 @@
+---
+- name: Copy synchronization script
+  ansible.builtin.template:
+    src: 'run_pronote2calendar.sh.j2'
+    dest: '{{ cron_script_dir }}/run_pronote2calendar.sh'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Schedule synchronization
+  ansible.builtin.cron:
+    name: "Run pronote2calendar"
+    user: root
+    minute: "5"
+    hour: "6-22"
+    weekday: "1-5"
+    job: "{{ cron_script_dir }}/run_pronote2calendar.sh"
+  become: true

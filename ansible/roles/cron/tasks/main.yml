@@ -1,0 +1,9 @@
+---
+- name: Create script directory for cron jobs
+  ansible.builtin.file:
+    path: "{{ cron_script_dir }}"
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true

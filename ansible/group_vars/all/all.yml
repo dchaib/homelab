@@ -3,6 +3,8 @@ docker_compose_dir: '/opt/docker/compose-files'
 docker_config_dir: '/opt/docker/config'
 docker_volumes_dir: '/opt/docker/volumes'
 
+cron_script_dir: '/opt/scripts'
+
 admin_user: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   65373332356235343234393537373037653862313431656562626436336632643638613231303164
