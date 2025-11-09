@@ -1,6 +1,6 @@
 services:
   {{ monitoring.freebox_exporter }}:
-    image: shackerd/freebox-exporter-rs:v0.0.20
+    image: shackerd/freebox-exporter-rs:v0.0.22
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     ports:
