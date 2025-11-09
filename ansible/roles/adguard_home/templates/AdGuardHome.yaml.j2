@@ -151,7 +151,7 @@ filtering:
   rewrites:
 {% for name, service in homelab_services.items() %}
     - domain: {{ service.domain }}
-      answer: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}
+      answer: {{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}
       enabled: true
 {% endfor %}
   safe_fs_patterns:

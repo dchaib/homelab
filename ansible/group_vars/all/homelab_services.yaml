@@ -12,7 +12,7 @@ homelab_services:
 
   omada_controller:
     domain: "sdn.{{ homelab_domain_name }}"
-    ip: "{{ hostvars['docker-host.local']['ansible_default_ipv4']['address'] }}"
+    ip: "{{ hostvars['docker-host.local']['ansible_facts']['default_ipv4']['address'] }}"
 
   subsonic:
     domain: "music.{{ homelab_domain_name }}"
