@@ -45,3 +45,10 @@ scrape_configs:
     relabel_configs:
       - target_label: 'instance'
         replacement: '{{ inventory_hostname_short }}'
+  - job_name: 'authelia'
+    scheme: 'http'
+    static_configs:
+    - targets: ['authelia:9959']
+    relabel_configs:
+      - target_label: 'instance'
+        replacement: '{{ inventory_hostname_short }}'
