@@ -1,0 +1,34 @@
+server:
+  endpoints:
+    authz:
+      forward-auth:
+        implementation: 'ForwardAuth'
+
+authentication_backend:
+  password_reset:
+    disable: true
+  password_change:
+    disable: true
+  file:
+    path: '/config/users.yml'
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: '*.{{ homelab_domain_name }}'
+      policy: one_factor
+
+session:
+  secret: '{{ "{{ secret \"/config/secrets/SESSION_SECRET\" }}" }}'
+  cookies:
+    - domain: '{{ homelab_domain_name }}'
+      authelia_url: 'https://{{ homelab_services.authelia.domain }}'
+
+storage:
+  encryption_key: '{{ "{{ secret \"/config/secrets/STORAGE_ENCRYPTION_KEY\" }}" }}'
+  local:
+    path: /data/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /data/notification.txt

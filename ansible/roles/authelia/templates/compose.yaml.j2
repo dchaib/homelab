@@ -1,0 +1,24 @@
+services:
+  authelia:
+    image: "authelia/authelia:4.39.14"
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    volumes:
+      - "{{ authelia_config_folder }}:/config"
+      - "{{ authelia_docker_volumes.data }}:/data"
+    networks:
+      - "{{ traefik.network_name }}"
+      - "{{ monitoring.network_name }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`{{ homelab_services.authelia.domain }}`)"
+      - "traefik.http.routers.authelia.entrypoints=websecure"
+      - "traefik.http.routers.authelia.tls=true"
+      - "traefik.http.routers.authelia.tls.certresolver=ovh"
+      - "traefik.docker.network={{ traefik.network_name }}"
+
+networks:
+  {{ traefik.network_name }}:
+    external: true
+  {{ monitoring.network_name }}:
+    external: true

@@ -44,3 +44,6 @@
     - role: pronote2calendar
       tags:
         - pronote2calendar
+    - role: authelia
+      tags:
+        - authelia

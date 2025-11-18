@@ -16,7 +16,7 @@
     adguard_home_config_changed: >-
       {{ adguard_home_rendered_checksum != adguard_home_current_config.stat.checksum | default('') }}
 
-- name: Check if AdGuard Home stack directory exists
+- name: Check if AdGuard Home compose file exists
   ansible.builtin.stat:
     path: '{{ docker_compose_dir }}/{{ adguard_home_stack_name }}/compose.yaml'
   register: adguard_home_compose_file

@@ -21,3 +21,6 @@ homelab_services:
 
   traefik:
     domain: "traefik.{{ homelab_domain_name }}"
+
+  authelia:
+    domain: "auth.{{ homelab_domain_name }}"
