@@ -26,12 +26,14 @@ services:
   authelia_redis:
     image: "redis:8.2.3-alpine"
     restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     volumes:
       - "{{ authelia_config_folder }}/redis.conf:/usr/local/etc/redis/redis.conf:ro"
       - "{{ authelia_docker_volumes.redis }}:/data"
     networks:
       - authelia_internal_network
+      - "{{ monitoring.network_name }}"
 
 networks:
   authelia_internal_network:

@@ -47,3 +47,6 @@
     - role: authelia
       tags:
         - authelia
+    - role: redis_exporter
+      tags:
+        - redis_exporter
