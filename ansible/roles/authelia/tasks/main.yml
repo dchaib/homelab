@@ -22,12 +22,14 @@
   register: authelia_config_copy_result
 
 - name: Copy secrets
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: "{{ item }}"
-    dest: "{{ authelia_config_folder }}/secrets/{{ item | basename }}"
+    dest: "{{ authelia_config_folder }}/secrets/{{ item | basename | regex_replace('.j2$', '') }}"
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
     mode: '0600'
   with_fileglob:
-    - "files/secrets/*"
+    - "templates/secrets/*"
   become: true
   no_log: true
   register: authelia_secrets_copy_result
@@ -41,6 +43,17 @@
     mode: '0640'
   become: true
   register: authelia_users_copy_result
+
+- name: Copy Redis configuration
+  ansible.builtin.template:
+    src: 'redis.conf.j2'
+    dest: '{{ authelia_config_folder }}/redis.conf'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0600'
+  become: true
+  no_log: true
+  register: authelia_redis_config_copy_result
 
 - name: Check if Authelia compose file exists
   ansible.builtin.stat:
@@ -56,6 +69,7 @@
     - authelia_config_copy_result.changed
       or (authelia_secrets_copy_result.results | selectattr('changed', 'defined') | selectattr('changed', 'equalto', true) | list | length > 0)
       or authelia_users_copy_result.changed
+      or authelia_redis_config_copy_result.changed
     - authelia_compose_file.stat.exists
     - ansible_check_mode is false
 

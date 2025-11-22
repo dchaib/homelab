@@ -19,13 +19,14 @@ access_control:
       policy: one_factor
 
 session:
-  secret: '{{ "{{ secret \"/config/secrets/SESSION_SECRET\" }}" }}'
   cookies:
     - domain: '{{ homelab_domain_name }}'
       authelia_url: 'https://{{ homelab_services.authelia.domain }}'
+  redis:
+    host: 'authelia_redis'
+    port: 6379
 
 storage:
-  encryption_key: '{{ "{{ secret \"/config/secrets/STORAGE_ENCRYPTION_KEY\" }}" }}'
   local:
     path: /data/db.sqlite3
 

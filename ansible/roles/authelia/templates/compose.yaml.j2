@@ -6,7 +6,12 @@ services:
     volumes:
       - "{{ authelia_config_folder }}:/config"
       - "{{ authelia_docker_volumes.data }}:/data"
+    environment:
+      AUTHELIA_SESSION_SECRET_FILE: '/config/secrets/SESSION_SECRET'
+      AUTHELIA_SESSION_REDIS_PASSWORD_FILE: '/config/secrets/SESSION_REDIS_PASSWORD'
+      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: '/config/secrets/STORAGE_ENCRYPTION_KEY'
     networks:
+      - authelia_internal_network 
       - "{{ traefik.network_name }}"
       - "{{ monitoring.network_name }}"
     labels:
@@ -16,8 +21,21 @@ services:
       - "traefik.http.routers.authelia.tls=true"
       - "traefik.http.routers.authelia.tls.certresolver=ovh"
       - "traefik.docker.network={{ traefik.network_name }}"
+    depends_on:
+      - authelia_redis
+  authelia_redis:
+    image: "redis:8.2.3-alpine"
+    restart: unless-stopped
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - "{{ authelia_config_folder }}/redis.conf:/usr/local/etc/redis/redis.conf:ro"
+      - "{{ authelia_docker_volumes.redis }}:/data"
+    networks:
+      - authelia_internal_network
 
 networks:
+  authelia_internal_network:
+    driver: bridge
   {{ traefik.network_name }}:
     external: true
   {{ monitoring.network_name }}:
