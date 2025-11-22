@@ -1,0 +1,41 @@
+---
+- name: Create Redis exporter config directory
+  ansible.builtin.file:
+    path: "{{ redis_exporter_config_folder }}"
+    state: directory
+    owner: "{{ users.app_user.name }}"
+    group: "{{ users.app_user.group }}"
+    mode: '0750'
+  become: true
+
+- name: Copy configuration
+  ansible.builtin.template:
+    src: 'redis_passwords.json.j2'
+    dest: '{{ redis_exporter_config_folder }}/redis_passwords.json'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+  no_log: true
+  register: redis_exporter_config_copy_result
+
+- name: Check if Redis exporter compose file exists
+  ansible.builtin.stat:
+    path: '{{ docker_compose_dir }}/{{ redis_exporter_stack_name }}/compose.yaml'
+  register: redis_exporter_compose_file
+
+- name: Stop Redis exporter if config changed
+  community.docker.docker_compose_v2:
+    project_src: '{{ docker_compose_dir }}/{{ redis_exporter_stack_name }}'
+    state: stopped
+  become: true
+  when:
+    - redis_exporter_config_copy_result.changed
+    - redis_exporter_compose_file.stat.exists
+    - ansible_check_mode is false
+
+- name: Deploy Redis Exporter
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ redis_exporter_stack_name }}'

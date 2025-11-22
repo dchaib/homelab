@@ -1,0 +1,3 @@
+---
+redis_exporter_stack_name: 'redis_exporter'
+redis_exporter_config_folder: '{{ docker_config_dir }}/{{ redis_exporter_stack_name }}'

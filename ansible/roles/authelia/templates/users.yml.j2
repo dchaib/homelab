@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://www.authelia.com/schemas/latest/json-schema/user-database.json
+users:
+{% for user in authelia_users %}
+  {{ user.username }}:
+    displayname: {{ user.displayname }}
+    password: {{ user.password }}
+    email: {{ user.email }}
+{% if user.groups | length > 0 %}
+    groups:
+{% for group in user.groups %}
+      - {{ group }}
+{% endfor %}
+{% else %}
+    groups: []
+{% endif %}
+{% endfor %}
