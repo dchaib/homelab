@@ -1,0 +1,47 @@
+services:
+  authelia:
+    image: "authelia/authelia:4.39.14"
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    volumes:
+      - "{{ authelia_config_folder }}:/config"
+      - "{{ authelia_docker_volumes.data }}:/data"
+    environment:
+      AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE: '/config/secrets/IDENTITY_PROVIDERS_OIDC_HMAC_SECRET'
+      AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE: '/config/secrets/NOTIFIER_SMTP_PASSWORD'
+      AUTHELIA_SESSION_SECRET_FILE: '/config/secrets/SESSION_SECRET'
+      AUTHELIA_SESSION_REDIS_PASSWORD_FILE: '/config/secrets/SESSION_REDIS_PASSWORD'
+      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: '/config/secrets/STORAGE_ENCRYPTION_KEY'
+      X_AUTHELIA_CONFIG_FILTERS: 'template'
+    networks:
+      - authelia_internal_network 
+      - "{{ traefik.network_name }}"
+      - "{{ monitoring.network_name }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`{{ homelab_services.authelia.domain }}`)"
+      - "traefik.http.routers.authelia.entrypoints=websecure"
+      - "traefik.http.routers.authelia.tls=true"
+      - "traefik.http.routers.authelia.tls.certresolver=ovh"
+      - "traefik.docker.network={{ traefik.network_name }}"
+    depends_on:
+      - authelia_redis
+  authelia_redis:
+    image: "redis:8.2.3-alpine"
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    volumes:
+      - "{{ authelia_config_folder }}/redis.conf:/usr/local/etc/redis/redis.conf:ro"
+      - "{{ authelia_docker_volumes.redis }}:/data"
+    networks:
+      - authelia_internal_network
+      - "{{ monitoring.network_name }}"
+
+networks:
+  authelia_internal_network:
+    driver: bridge
+  {{ traefik.network_name }}:
+    external: true
+  {{ monitoring.network_name }}:
+    external: true

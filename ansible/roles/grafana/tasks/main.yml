@@ -23,3 +23,4 @@
   vars:
     docker_compose_stack_name: 'grafana'
     docker_compose_volumes: '{{ grafana_docker_volumes.values() }}'
+    docker_compose_use_env: true

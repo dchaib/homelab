@@ -44,3 +44,9 @@
     - role: pronote2calendar
       tags:
         - pronote2calendar
+    - role: authelia
+      tags:
+        - authelia
+    - role: redis_exporter
+      tags:
+        - redis_exporter

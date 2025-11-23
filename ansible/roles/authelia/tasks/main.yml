@@ -1,0 +1,95 @@
+---
+- name: Create Authelia config directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ users.app_user.name }}"
+    group: "{{ users.app_user.group }}"
+    mode: '0750'
+  loop:
+    - "{{ authelia_config_folder }}"
+    - "{{ authelia_config_folder }}/secrets"
+    - "{{ authelia_config_folder }}/secrets/oidc"
+    - "{{ authelia_config_folder }}/secrets/oidc/jwks"
+  become: true
+
+- name: Copy configuration
+  ansible.builtin.template:
+    src: 'configuration.yml.j2'
+    dest: '{{ authelia_config_folder }}/configuration.yml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+  register: authelia_config_copy_result
+
+- name: Copy secrets
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ authelia_config_folder }}/secrets/{{ item | basename | regex_replace('.j2$', '') }}"
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0600'
+  with_fileglob:
+    - "templates/secrets/*"
+  become: true
+  no_log: true
+  register: authelia_secrets_copy_result
+
+- name: Copy user list
+  ansible.builtin.template:
+    src: 'users.yml.j2'
+    dest: '{{ authelia_config_folder }}/users.yml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+  register: authelia_users_copy_result
+
+- name: Copy Redis configuration
+  ansible.builtin.template:
+    src: 'redis.conf.j2'
+    dest: '{{ authelia_config_folder }}/redis.conf'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0600'
+  become: true
+  no_log: true
+  register: authelia_redis_config_copy_result
+
+- name: Copy RSA key
+  ansible.builtin.copy:
+    src: 'rsa.2048.key'
+    dest: '{{ authelia_config_folder }}/secrets/oidc/jwks/rsa.2048.key'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0600'
+  become: true
+  no_log: true
+  register: authelia_rsa_key_copy_result
+
+- name: Check if Authelia compose file exists
+  ansible.builtin.stat:
+    path: '{{ docker_compose_dir }}/{{ authelia_stack_name }}/compose.yaml'
+  register: authelia_compose_file
+
+- name: Stop Authelia if config changed
+  community.docker.docker_compose_v2:
+    project_src: '{{ docker_compose_dir }}/{{ authelia_stack_name }}'
+    state: stopped
+  become: true
+  when:
+    - authelia_config_copy_result.changed
+      or (authelia_secrets_copy_result.results | selectattr('changed', 'defined') | selectattr('changed', 'equalto', true) | list | length > 0)
+      or authelia_users_copy_result.changed
+      or authelia_redis_config_copy_result.changed
+      or authelia_rsa_key_copy_result.changed
+    - authelia_compose_file.stat.exists
+    - ansible_check_mode is false
+
+- name: Deploy Authelia
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ authelia_stack_name }}'
+    docker_compose_volumes: '{{ authelia_docker_volumes.values() }}'
