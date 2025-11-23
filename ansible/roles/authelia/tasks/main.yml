@@ -9,6 +9,8 @@
   loop:
     - "{{ authelia_config_folder }}"
     - "{{ authelia_config_folder }}/secrets"
+    - "{{ authelia_config_folder }}/secrets/oidc"
+    - "{{ authelia_config_folder }}/secrets/oidc/jwks"
   become: true
 
 - name: Copy configuration
@@ -55,6 +57,17 @@
   no_log: true
   register: authelia_redis_config_copy_result
 
+- name: Copy RSA key
+  ansible.builtin.copy:
+    src: 'rsa.2048.key'
+    dest: '{{ authelia_config_folder }}/secrets/oidc/jwks/rsa.2048.key'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0600'
+  become: true
+  no_log: true
+  register: authelia_rsa_key_copy_result
+
 - name: Check if Authelia compose file exists
   ansible.builtin.stat:
     path: '{{ docker_compose_dir }}/{{ authelia_stack_name }}/compose.yaml'
@@ -70,6 +83,7 @@
       or (authelia_secrets_copy_result.results | selectattr('changed', 'defined') | selectattr('changed', 'equalto', true) | list | length > 0)
       or authelia_users_copy_result.changed
       or authelia_redis_config_copy_result.changed
+      or authelia_rsa_key_copy_result.changed
     - authelia_compose_file.stat.exists
     - ansible_check_mode is false
 

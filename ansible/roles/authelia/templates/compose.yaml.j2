@@ -7,10 +7,12 @@ services:
       - "{{ authelia_config_folder }}:/config"
       - "{{ authelia_docker_volumes.data }}:/data"
     environment:
+      AUTHELIA_IDENTITY_PROVIDERS_OIDC_HMAC_SECRET_FILE: '/config/secrets/IDENTITY_PROVIDERS_OIDC_HMAC_SECRET'
       AUTHELIA_NOTIFIER_SMTP_PASSWORD_FILE: '/config/secrets/NOTIFIER_SMTP_PASSWORD'
       AUTHELIA_SESSION_SECRET_FILE: '/config/secrets/SESSION_SECRET'
       AUTHELIA_SESSION_REDIS_PASSWORD_FILE: '/config/secrets/SESSION_REDIS_PASSWORD'
       AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: '/config/secrets/STORAGE_ENCRYPTION_KEY'
+      X_AUTHELIA_CONFIG_FILTERS: 'template'
     networks:
       - authelia_internal_network 
       - "{{ traefik.network_name }}"

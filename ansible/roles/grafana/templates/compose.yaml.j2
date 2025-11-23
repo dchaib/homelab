@@ -3,6 +3,8 @@ services:
     image: grafana/grafana-oss:12.1.1
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    env_file:
+      - .env
     volumes:
       - "{{ grafana_docker_volumes.data }}:/var/lib/grafana"
       - "{{ grafana_config_folders.provisioning }}:/etc/grafana/provisioning:ro"
@@ -15,6 +17,7 @@ services:
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls=true"
       - "traefik.http.routers.grafana.tls.certresolver=ovh"
+      - "traefik.http.routers.grafana.middlewares=authelia@docker"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
       - "traefik.docker.network={{ traefik.network_name }}"
 
