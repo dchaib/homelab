@@ -16,7 +16,7 @@ access_control:
   default_policy: deny
   rules:
     - domain: '*.{{ homelab_domain_name }}'
-      policy: one_factor
+      policy: two_factor
 
 session:
   cookies:
@@ -31,8 +31,10 @@ storage:
     path: /data/db.sqlite3
 
 notifier:
-  filesystem:
-    filename: /data/notification.txt
+  smtp:
+    address: 'smtp://mail.smtp2go.com:2525'
+    username: {{ authelia_smtp.username }}
+    sender: {{ authelia_smtp.sender }}
 
 telemetry:
   metrics:
