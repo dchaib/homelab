@@ -1,0 +1,47 @@
+pronote:
+  connection_type: token
+  account_type: parent
+  child: "{{ pronote2calendar.child_name }}"
+
+google_calendar:
+  calendar_id: "{{ pronote2calendar.calendar_id }}"
+
+sync:
+  weeks: 3
+
+adjustments:
+  time:
+    - weekdays: [1, 2, 4, 5]
+      start_times:
+        "08:00": "08:05"
+        "09:00": "09:05"
+        "10:15": "10:20"
+        "11:15": "11:20"
+        "13:45": "13:50"
+        "14:45": "14:50"
+        "16:00": "16:05"
+      end_times:
+        "14:40": "14:45"
+    - weekdays: [3]
+      start_times:
+        "09:00": "08:58"
+        "10:15": "10:12"
+        "11:15": "11:10"
+      end_times:
+        "09:00": "08:55"
+        "10:00": "09:53"
+        "11:15": "11:07"
+        "12:15": "12:05"
+  subject:
+    "ACCOMP. AUX DEVOIRS": "Accompagnement aux devoirs"
+    "ALLEMAND BIL": "Allemand"
+    "ANGLAIS BIL": "Anglais"
+    "ARTS PLASTIQUES": "Arts plastiques"
+    "ED.PHYSIQUE & SPORT.": "EPS"
+    "EDUCATION MUSICALE": "Musique"
+    "FRANCAIS": "Français"
+    "HIST.GEO. EN.MOR.CIV": "Histoire-Géographie"
+    "MATHEMATIQUES": "Mathématiques"
+    "PHYSIQUE-CHIMIE": "Physique-Chimie"
+    "SCIENCES VIE & TERRE": "SVT"
+    "VIE DE CLASSE": "Vie de classe"
