@@ -2,6 +2,6 @@
 pronote2calendar_stack_name: 'pronote2calendar'
 pronote2calendar_config_folder: '{{ docker_config_dir }}/{{ pronote2calendar_stack_name }}'
 pronote2calendar_config_files:
-  config: '{{ pronote2calendar_config_folder }}/config.json'
+  config: '{{ pronote2calendar_config_folder }}/config.yaml'
   google_credentials: '{{ pronote2calendar_config_folder }}/credentials-google.json'
   pronote_credentials: '{{ pronote2calendar_config_folder }}/credentials-pronote.json'

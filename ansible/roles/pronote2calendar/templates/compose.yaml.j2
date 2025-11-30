@@ -1,8 +1,8 @@
 services:
   pronote2calendar:
-    image: ghcr.io/dchaib/pronote2calendar:0.3.0
+    image: ghcr.io/dchaib/pronote2calendar:0.3.1
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     volumes:
-      - "{{ pronote2calendar_config_files.config }}:/app/config.json:ro"
+      - "{{ pronote2calendar_config_files.config }}:/app/config.yaml:ro"
       - "{{ pronote2calendar_config_files.google_credentials }}:/app/credentials-google.json:ro"
       - "{{ pronote2calendar_config_files.pronote_credentials }}:/app/credentials-pronote.json:rw"
