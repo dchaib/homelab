@@ -1,6 +1,6 @@
 services:
   {{ monitoring.prometheus}}:
-    image: prom/prometheus:v3.7.3
+    image: prom/prometheus:v3.8.0
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     command:
