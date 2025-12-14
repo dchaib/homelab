@@ -27,6 +27,7 @@ services:
       - "traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true"
       - "traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Email,Remote-Name"
       - "traefik.docker.network={{ traefik.network_name }}"
+      - "{{ traefik_logrotate_label }}"
 
 networks:
   {{ traefik.network_name }}:

@@ -4,3 +4,4 @@ traefik_config_folder: '{{ docker_config_dir }}/{{ traefik_stack_name }}'
 traefik_docker_volumes:
   letsencrypt: '{{ docker_volumes_dir }}/{{ traefik_stack_name }}/letsencrypt'
   logs: '{{ docker_volumes_dir }}/{{ traefik_stack_name }}/logs'
+traefik_logrotate_label: 'traefik.logrotate=true'

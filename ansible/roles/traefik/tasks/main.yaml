@@ -41,3 +41,18 @@
     docker_compose_stack_name: '{{ traefik_stack_name }}'
     docker_compose_volumes: '{{ traefik_docker_volumes.values() }}'
     docker_compose_use_env: true
+
+- name: Ensure logrotate is installed
+  ansible.builtin.package:
+    name: logrotate
+    state: present
+  become: true
+
+- name: Deploy Traefik logrotate config
+  ansible.builtin.template:
+    src: traefik.logrotate.j2
+    dest: /etc/logrotate.d/traefik
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
