@@ -12,6 +12,9 @@ entryPoints:
 
   websecure:
     address: ":443"
+    http:
+      middlewares:
+        - crowdsec@file
 
 providers:
   docker:
@@ -48,3 +51,9 @@ accessLog:
 
 metrics:
   prometheus: {}
+
+experimental:
+  plugins:
+    bouncer:
+      moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      version: v1.4.6
