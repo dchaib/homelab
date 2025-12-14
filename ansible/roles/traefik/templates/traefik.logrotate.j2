@@ -1,0 +1,18 @@
+{{ traefik_docker_volumes.logs }}/traefik.log {
+    daily
+    missingok
+    rotate 31
+    compress
+    delaycompress
+    notifempty
+    sharedscripts
+    create 0640 {{ users.app_user.name }} {{ users.app_user.group }}
+    postrotate
+        containers=$(docker ps --filter "label={{ traefik_logrotate_label }}" --format '{{ '{{' }}.ID{{ '}}' }}') || containers=""
+        if [ -n "$containers" ]; then
+            for c in $containers; do
+                docker kill --signal=USR1 "$c"
+            done
+        fi
+    endscript
+}

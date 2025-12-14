@@ -12,6 +12,9 @@ entryPoints:
 
   websecure:
     address: ":443"
+    http:
+      middlewares:
+        - crowdsec@file
 
 providers:
   docker:
@@ -30,5 +33,27 @@ certificatesResolvers:
         provider: ovh
         delayBeforeCheck: 5
 
+accessLog:
+  filePath: "/logs/traefik.log"
+  format: json
+  filters:
+    statusCodes:
+      - "200-299"
+      - "400-599"
+  fields:
+    headers:
+      defaultMode: drop
+      names:
+        User-Agent: keep
+        X-Real-Ip: keep
+        X-Forwarded-For: keep
+        X-Forwarded-Proto: keep
+
 metrics:
   prometheus: {}
+
+experimental:
+  plugins:
+    bouncer:
+      moduleName: github.com/maxlerebourg/crowdsec-bouncer-traefik-plugin
+      version: v1.4.6

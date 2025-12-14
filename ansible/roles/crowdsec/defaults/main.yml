@@ -1,0 +1,6 @@
+---
+crowdsec_stack_name: crowdsec
+crowdsec_config_folder: '{{ docker_config_dir }}/{{ crowdsec_stack_name }}'
+crowdsec_docker_volumes:
+  db: '{{ docker_volumes_dir }}/{{ crowdsec_stack_name }}/db'
+  config: '{{ docker_volumes_dir }}/{{ crowdsec_stack_name }}/config'

@@ -58,3 +58,9 @@ scrape_configs:
     relabel_configs:
       - target_label: 'instance'
         replacement: '{{ inventory_hostname_short }}'
+  - job_name: 'crowdsec'
+    static_configs:
+      - targets: ['crowdsec:6060']
+    relabel_configs:
+      - target_label: 'instance'
+        replacement: '{{ inventory_hostname_short }}'

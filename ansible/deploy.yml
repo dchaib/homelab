@@ -50,3 +50,6 @@
     - role: redis_exporter
       tags:
         - redis_exporter
+    - role: crowdsec
+      tags:
+        - crowdsec

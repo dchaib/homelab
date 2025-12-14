@@ -1,0 +1,22 @@
+---
+- name: Deploy CrowdSec
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ crowdsec_stack_name }}'
+    docker_compose_volumes: '{{ crowdsec_docker_volumes.values() }}'
+    docker_compose_use_env: true
+
+- name: Discover all acquisition configuration templates
+  ansible.builtin.set_fact:
+    crowdsec_acquis_configs: "{{ lookup('fileglob', 'templates/acquis/*.yaml.j2', wantlist=True) }}"
+
+- name: Deploy all discovered dynamic configs
+  ansible.builtin.template:
+    src: "acquis/{{ item | basename }}"
+    dest: "{{ crowdsec_docker_volumes.config }}/acquis.d/{{ item | basename | regex_replace('.j2$', '') }}"
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  loop: "{{ crowdsec_acquis_configs }}"
+  become: true
