@@ -14,6 +14,7 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "{{ traefik_docker_volumes.letsencrypt }}:/letsencrypt:rw"
       - "{{ traefik_config_folder }}:/etc/traefik:ro"
+      - "{{ traefik_docker_volumes.logs }}:/logs:rw"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`{{ homelab_services.traefik.domain }}`)"
