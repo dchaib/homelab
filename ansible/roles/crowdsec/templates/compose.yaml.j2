@@ -4,6 +4,7 @@ services:
     restart: unless-stopped
     networks:
       - "{{ traefik.network_name }}"
+      - "{{ monitoring.network_name }}"
     volumes:
       - "{{ crowdsec_docker_volumes.db }}:/var/lib/crowdsec/data/"
       - "{{ crowdsec_docker_volumes.config }}:/etc/crowdsec/"
@@ -13,4 +14,6 @@ services:
 
 networks:
   {{ traefik.network_name }}:
+    external: true
+  {{ monitoring.network_name }}:
     external: true
