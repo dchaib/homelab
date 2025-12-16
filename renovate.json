@@ -17,6 +17,14 @@
         "docker\\s+run(?:\\s+(?:(?:-[^\\s]+|--[^\\s]+)(?:\\s+[^\\s]+)?|\\s*))*\\s+(?<depName>(?:[a-zA-Z0-9][-a-zA-Z0-9_.]*(?:\\.[a-zA-Z0-9][-a-zA-Z0-9_.]*)*(?:/[a-zA-Z0-9][-a-zA-Z0-9_.]*)*))(?::(?<currentValue>[-a-zA-Z0-9_.]+))?(?:\\s|$)"
       ],
       "datasourceTemplate": "docker"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/ansible\/roles\/traefik\/templates\/traefik.yml.j2$/"],
+      "matchStrings": [
+        "moduleName: [\"']?github\\.com/(?<depName>[^\"']+)[\"']?,?\\s+version:\\s+[\"']?(?<currentValue>[^\\s\"']+)[\"']?"
+      ],
+      "datasourceTemplate": "github-releases"
     }
   ]
 }
