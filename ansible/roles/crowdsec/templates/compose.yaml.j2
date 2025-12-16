@@ -10,7 +10,7 @@ services:
       - "{{ crowdsec_docker_volumes.config }}:/etc/crowdsec/"
       - "{{ traefik.log_folder }}:/var/log/traefik:ro"
     environment:
-      - COLLECTIONS=crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios
+      - COLLECTIONS=crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/appsec-generic-rules crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-crs
 
 networks:
   {{ traefik.network_name }}:

@@ -11,6 +11,10 @@ http:
           crowdsecLapiHost: crowdsec:8080
           crowdsecLapiScheme: http
           crowdsecLapiTLSInsecureVerify: false
+          crowdsecAppsecEnabled: true
+          crowdsecAppsecHost: crowdsec:7422
+          crowdsecAppsecFailureBlock: true
+          crowdsecAppsecUnreachableBlock: true
           forwardedHeadersTrustedIPs:
             - 10.0.0.0/8
             - 172.16.0.0/12
