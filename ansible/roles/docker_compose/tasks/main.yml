@@ -24,6 +24,21 @@
     mode: '0750'
   become: true
 
+- name: Check if compose file exists
+  ansible.builtin.stat:
+    path: '{{ docker_compose_config_dir }}/compose.yaml'
+  register: docker_compose_file
+
+- name: Stop if asked to restart and stack is already deployed
+  community.docker.docker_compose_v2:
+    project_src: '{{ docker_compose_config_dir }}'
+    state: stopped
+  become: true
+  when:
+    - docker_compose_restart | bool
+    - docker_compose_file.stat.exists
+    - ansible_check_mode is false
+
 - name: Get UID and GID of app_user
   ansible.builtin.getent:
     database: passwd

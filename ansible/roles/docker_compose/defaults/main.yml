@@ -6,3 +6,6 @@ docker_compose_volumes: []
 
 # Whether to start the docker compose stack after deployment
 docker_compose_start_stack: true
+
+# Whether to restart the docker compose stack if already deployed
+docker_compose_restart: false
