@@ -68,28 +68,14 @@
   no_log: true
   register: authelia_rsa_key_copy_result
 
-- name: Check if Authelia compose file exists
-  ansible.builtin.stat:
-    path: '{{ docker_compose_dir }}/{{ authelia_stack_name }}/compose.yaml'
-  register: authelia_compose_file
-
-- name: Stop Authelia if config changed
-  community.docker.docker_compose_v2:
-    project_src: '{{ docker_compose_dir }}/{{ authelia_stack_name }}'
-    state: stopped
-  become: true
-  when:
-    - authelia_config_copy_result.changed
-      or (authelia_secrets_copy_result.results | selectattr('changed', 'defined') | selectattr('changed', 'equalto', true) | list | length > 0)
-      or authelia_users_copy_result.changed
-      or authelia_redis_config_copy_result.changed
-      or authelia_rsa_key_copy_result.changed
-    - authelia_compose_file.stat.exists
-    - ansible_check_mode is false
-
 - name: Deploy Authelia
   ansible.builtin.include_role:
     name: docker_compose
   vars:
     docker_compose_stack_name: '{{ authelia_stack_name }}'
     docker_compose_volumes: '{{ authelia_docker_volumes.values() }}'
+    docker_compose_restart: '{{ authelia_config_copy_result.changed
+      or (authelia_secrets_copy_result.results | selectattr("changed", "defined") | selectattr("changed", "equalto", true) | list | length > 0)
+      or authelia_users_copy_result.changed
+      or authelia_redis_config_copy_result.changed
+      or authelia_rsa_key_copy_result.changed }}'

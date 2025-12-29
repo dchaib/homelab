@@ -16,6 +16,7 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
+  register: prometheus_configuration_copy_result
 
 - name: Deploy Prometheus
   ansible.builtin.include_role:
@@ -23,3 +24,4 @@
   vars:
     docker_compose_stack_name: '{{ prometheus_name }}'
     docker_compose_volumes: '{{ prometheus_docker_volumes.values() }}'
+    docker_compose_restart: '{{ prometheus_configuration_copy_result.changed }}'
