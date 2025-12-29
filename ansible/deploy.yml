@@ -53,3 +53,6 @@
     - role: crowdsec
       tags:
         - crowdsec
+    - role: ntfy
+      tags:
+        - ntfy

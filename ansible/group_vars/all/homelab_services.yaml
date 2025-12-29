@@ -24,3 +24,6 @@ homelab_services:
 
   authelia:
     domain: "auth.{{ homelab_domain_name }}"
+
+  ntfy:
+    domain: "ntfy.{{ homelab_domain_name }}"

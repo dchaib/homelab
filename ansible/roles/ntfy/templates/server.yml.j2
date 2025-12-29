@@ -1,0 +1,14 @@
+base-url: https://{{ homelab_services.ntfy.domain }}
+cache-file: "/var/cache/ntfy/cache.db"
+attachment-cache-dir: "/var/cache/ntfy/attachments"
+behind-proxy: true
+auth-file: "/var/lib/ntfy/user.db"
+auth-default-access: "deny-all"
+auth-users:
+{% for user in ntfy_auth.users %}
+  - {{ user.username }}:{{ user.password_hash }}:{{ user.role }}
+{% endfor %}
+# auth-access:
+# auth-tokens:
+enable-metrics: true
+metrics-listen-http: ":9094"
