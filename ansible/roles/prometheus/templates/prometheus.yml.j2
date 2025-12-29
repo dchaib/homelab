@@ -64,3 +64,9 @@ scrape_configs:
     relabel_configs:
       - target_label: 'instance'
         replacement: '{{ inventory_hostname_short }}'
+  - job_name: 'ntfy'
+    static_configs:
+      - targets: ['ntfy:9094']
+    relabel_configs:
+      - target_label: 'instance'
+        replacement: '{{ inventory_hostname_short }}'
