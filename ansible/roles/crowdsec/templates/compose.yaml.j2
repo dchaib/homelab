@@ -2,6 +2,7 @@ services:
   crowdsec:
     image: "crowdsecurity/crowdsec:v1.7.4"
     restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     networks:
       - "{{ traefik.network_name }}"
       - "{{ monitoring.network_name }}"
