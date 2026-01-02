@@ -1,0 +1,7 @@
+---
+apprise_stack_name: apprise
+apprise_config_folder: '{{ docker_config_dir }}/{{ apprise_stack_name }}'
+apprise_docker_volumes:
+  storage: '{{ docker_volumes_dir }}/{{ apprise_stack_name }}/storage'
+  attach: '{{ docker_volumes_dir }}/{{ apprise_stack_name }}/attach'
+  plugin: '{{ docker_volumes_dir }}/{{ apprise_stack_name }}/plugin'

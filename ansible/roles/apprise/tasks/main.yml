@@ -1,0 +1,27 @@
+---
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: '{{ apprise_config_folder }}'
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy configuration file
+  ansible.builtin.template:
+    src: 'apprise.yml.j2'
+    dest: '{{ apprise_config_folder }}/apprise.yml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+  register: apprise_configuration_copy_result
+
+- name: Deploy apprise
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ apprise_stack_name }}'
+    docker_compose_volumes: '{{ apprise_docker_volumes.values() }}'
+    docker_compose_restart: '{{ apprise_configuration_copy_result.changed }}'

@@ -27,3 +27,6 @@ homelab_services:
 
   ntfy:
     domain: "ntfy.{{ homelab_domain_name }}"
+
+  apprise:
+    domain: "apprise.{{ homelab_domain_name }}"
