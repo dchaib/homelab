@@ -15,6 +15,11 @@ authentication_backend:
 access_control:
   default_policy: deny
   rules:
+    - domain:
+        - '{{ homelab_services.apprise.domain }}'
+      policy: one_factor
+      subject:
+        - ['group:apprise', 'group:service']
     - domain: '*.{{ homelab_domain_name }}'
       policy: two_factor
 

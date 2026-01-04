@@ -56,3 +56,6 @@
     - role: ntfy
       tags:
         - ntfy
+    - role: apprise
+      tags:
+        - apprise

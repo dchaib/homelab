@@ -1,0 +1,32 @@
+services:
+  apprise:
+    image: caronc/apprise:1.3.0
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    environment:
+      APPRISE_STORAGE_DIR: /storage
+      APPRISE_STATEFUL_MODE: simple
+      APPRISE_CONFIG_LOCK: yes
+    volumes:
+      - {{ apprise_config_folder }}:/config
+      - {{ apprise_docker_volumes.storage }}:/storage
+      - {{ apprise_docker_volumes.attach }}:/attach
+      - {{ apprise_docker_volumes.plugin }}:/plugin
+    networks:
+      - {{ monitoring.network_name }}
+      - {{ traefik.network_name }}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apprise.rule=Host(`{{ homelab_services.apprise.domain }}`)"
+      - "traefik.http.routers.apprise.entrypoints=websecure"
+      - "traefik.http.routers.apprise.tls=true"
+      - "traefik.http.routers.apprise.tls.certresolver=ovh"
+      - "traefik.http.routers.apprise.middlewares=authelia@docker"
+      - "traefik.http.services.apprise.loadbalancer.server.port=8000"
+      - "traefik.docker.network={{ traefik.network_name }}"
+
+networks:
+  {{ monitoring.network_name }}:
+    external: true
+  {{ traefik.network_name }}:
+    external: true
