@@ -18,24 +18,10 @@
   become: true
   register: ntfy_configuration_copy_result
 
-- name: Check if ntfy compose file exists
-  ansible.builtin.stat:
-    path: '{{ docker_compose_dir }}/{{ ntfy_stack_name }}/compose.yaml'
-  register: ntfy_compose_file
-
-- name: Stop ntfy if config changed
-  community.docker.docker_compose_v2:
-    project_src: '{{ docker_compose_dir }}/{{ ntfy_stack_name }}'
-    state: stopped
-  become: true
-  when:
-    - ntfy_configuration_copy_result.changed
-    - ntfy_compose_file.stat.exists
-    - ansible_check_mode is false
-
 - name: Deploy ntfy
   ansible.builtin.include_role:
     name: docker_compose
   vars:
     docker_compose_stack_name: '{{ ntfy_stack_name }}'
     docker_compose_volumes: '{{ ntfy_docker_volumes.values() }}'
+    docker_compose_restart: '{{ ntfy_configuration_copy_result.changed }}'

@@ -8,7 +8,21 @@ auth-users:
 {% for user in ntfy_auth.users %}
   - {{ user.username }}:{{ user.password_hash }}:{{ user.role }}
 {% endfor %}
-# auth-access:
-# auth-tokens:
+auth-access:
+{% for user in ntfy_auth.users %}
+{% if user.access is defined %}
+{% for access in user.access %}
+  - {{ user.username }}:{{ access.topic }}:{{ access.permission }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+auth-tokens:
+{% for user in ntfy_auth.users %}
+{% if user.tokens is defined %}
+{% for token in user.tokens %}
+  - {{ user.username }}:{{ token.token }}:{{ token.label }}
+{% endfor %}
+{% endif %}
+{% endfor %}
 enable-metrics: true
 metrics-listen-http: ":9094"

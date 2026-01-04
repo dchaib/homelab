@@ -1,0 +1,17 @@
+# Reference:
+# https://github.com/caronc/apprise/wiki/config_yaml
+
+version: 1
+
+urls:
+  # https://github.com/caronc/apprise/wiki/Notify_ntfy
+  - ntfy://{{ apprise_ntfy.token }}@{{ apprise_ntfy.host }}:80/alerts:
+    - tag: alerts
+
+  # https://github.com/caronc/apprise/wiki/Notify_smtp2go
+  - smtp2go://{{ apprise_smtp2go.username }}@{{ apprise_smtp2go.domain }}/{{ apprise_smtp2go.apikey }}/{{ apprise_smtp2go.to }}?sender={{ apprise_smtp2go.sender | urlencode }}:
+    - tag: email
+
+  # https://github.com/caronc/apprise/wiki/Notify_freemobile
+  - freemobile://{{ apprise_freemobile.user }}@{{ apprise_freemobile.apikey }}:
+    - tag: sms
