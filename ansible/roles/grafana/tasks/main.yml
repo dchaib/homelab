@@ -9,8 +9,8 @@
   become: true
 
 - name: Copy datasource provisioning
-  ansible.builtin.copy:
-    src: 'datasources.yaml'
+  ansible.builtin.template:
+    src: 'provisioning/datasources/datasources.yaml.j2'
     dest: "{{ grafana_config_folders.provisioning }}/datasources/datasources.yaml"
     owner: '{{ users.app_user.name }}'
     group: '{{ users.app_user.group }}'

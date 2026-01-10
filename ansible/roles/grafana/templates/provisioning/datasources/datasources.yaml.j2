@@ -8,7 +8,7 @@ datasources:
     url: http://{{ monitoring.loki }}:3100
     basicAuth: false
     isDefault: false
-    version: 1
+    version: 2
     editable: false
   - name: Prometheus
     type: prometheus
@@ -16,5 +16,5 @@ datasources:
     url: http://{{ monitoring.prometheus }}:9090
     basicAuth: false
     isDefault: true
-    version: 1
+    version: 2
     editable: false
