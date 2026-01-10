@@ -16,6 +16,26 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
+  register: grafana_provisioning_datasources_copy_result
+
+- name: Create alerting provisioning directory
+  ansible.builtin.file:
+    path: '{{ grafana_config_folders.provisioning }}/alerting'
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy alerting provisioning
+  ansible.builtin.template:
+    src: 'provisioning/alerting/alerting.yaml.j2'
+    dest: "{{ grafana_config_folders.provisioning }}/alerting/alerting.yaml"
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+  register: grafana_provisioning_alerting_copy_result
 
 - name: Deploy Grafana
   ansible.builtin.include_role:
@@ -24,3 +44,5 @@
     docker_compose_stack_name: 'grafana'
     docker_compose_volumes: '{{ grafana_docker_volumes.values() }}'
     docker_compose_use_env: true
+    docker_compose_restart: '{{ grafana_provisioning_datasources_copy_result.changed
+      or grafana_provisioning_alerting_copy_result.changed }}'
