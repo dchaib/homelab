@@ -52,7 +52,20 @@ scrape_configs:
     relabel_configs:
       - target_label: 'instance'
         replacement: '{{ inventory_hostname_short }}'
-  - job_name: 'redis'
+  - job_name: 'redis_exporter_targets'
+    static_configs:
+      - targets:
+        - redis://authelia_redis:6379
+        - redis://broker:6379
+    metrics_path: /scrape
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: '{{ monitoring.redis_exporter }}:9121'
+  - job_name: 'redis_exporter'
     static_configs:
       - targets: ['{{ monitoring.redis_exporter }}:9121']
     relabel_configs:
