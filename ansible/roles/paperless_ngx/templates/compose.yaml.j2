@@ -9,16 +9,16 @@ services:
       - paperless_ngx_internal_network
       - "{{ monitoring.network_name }}"
   webserver:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.5
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.6
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     depends_on:
       - broker
     volumes:
-      - {{ paperless_ngx_docker_volumes.data }}:/usr/src/paperless/data
-      - {{ paperless_ngx_docker_volumes.media }}:/usr/src/paperless/media
-      - {{ paperless_ngx_docker_volumes.export }}:/usr/src/paperless/export
-      - {{ paperless_ngx_docker_volumes.consume }}:/usr/src/paperless/consume
+{% set paperless_subfolders = ['data', 'media', 'export', 'consume'] %}
+{% for subfolder in paperless_subfolders %}
+      - smb_paperless_{{ subfolder }}:/usr/src/paperless/{{ subfolder }}
+{% endfor %}
     env_file: .env
     environment:
       PAPERLESS_REDIS: redis://broker:6379
@@ -42,3 +42,13 @@ networks:
     external: true
   {{ monitoring.network_name }}:
     external: true
+
+volumes:
+{% for subfolder in paperless_subfolders %}
+  smb_paperless_{{ subfolder }}:
+    driver: local
+    driver_opts:
+      type: cifs
+      o: "credentials={{ paperless_ngx_config_folder }}/smb_creds,vers=3.0,uid={{ docker_compose_uid }},gid={{ docker_compose_gid }}"
+      device: "{{ paperless_ngx_smb_share.path }}/{{ subfolder }}"
+{% endfor %}

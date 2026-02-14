@@ -1,4 +1,25 @@
 ---
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: '{{ paperless_ngx_config_folder }}'
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Create SMB credentials file
+  ansible.builtin.copy:
+    content: |
+      username={{ paperless_ngx_smb_share.username }}
+      password={{ paperless_ngx_smb_share.password }}
+      domain={{ paperless_ngx_smb_share.domain }}
+    dest: '{{ paperless_ngx_config_folder }}/smb_creds'
+    mode: '0600'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+  become: true
+
 - name: Deploy paperless-ngx
   ansible.builtin.include_role:
     name: docker_compose
