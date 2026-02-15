@@ -2,6 +2,7 @@
 paperless_ngx_stack_name: paperless_ngx
 paperless_ngx_config_folder: '{{ docker_config_dir }}/{{ paperless_ngx_stack_name }}'
 paperless_ngx_docker_volumes:
+  data: '{{ docker_volumes_dir }}/{{ paperless_ngx_stack_name }}/data'
   redisdata: '{{ docker_volumes_dir }}/{{ paperless_ngx_stack_name }}/redisdata'
 
 paperless_ngx_smb_share:

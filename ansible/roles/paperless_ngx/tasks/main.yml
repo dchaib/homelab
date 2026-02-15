@@ -16,8 +16,27 @@
       domain={{ paperless_ngx_smb_share.domain }}
     dest: '{{ paperless_ngx_config_folder }}/smb_creds'
     mode: '0600'
-    owner: '{{ users.app_user.name }}'
-    group: '{{ users.app_user.group }}'
+    owner: root
+    group: root
+  become: true
+
+- name: Get UID and GID of app_user for SMB mount
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ users.app_user.name }}"
+
+- name: Set UID and GID in variables
+  ansible.builtin.set_fact:
+    paperless_ngx_uid: "{{ ansible_facts.getent_passwd[users.app_user.name][1] }}"
+    paperless_ngx_gid: "{{ ansible_facts.getent_passwd[users.app_user.name][2] }}"
+
+- name: Mount SMB share on host
+  ansible.posix.mount:
+    path: /mnt/paperless
+    src: "{{ paperless_ngx_smb_share.path }}"
+    fstype: cifs
+    opts: "credentials={{ paperless_ngx_config_folder }}/smb_creds,vers=3.0,uid={{ paperless_ngx_uid }},gid={{ paperless_ngx_gid }},file_mode=0777,dir_mode=0777"
+    state: mounted
   become: true
 
 - name: Deploy paperless-ngx

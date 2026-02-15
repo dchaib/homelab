@@ -15,10 +15,10 @@ services:
     depends_on:
       - broker
     volumes:
-{% set paperless_subfolders = ['data', 'media', 'export', 'consume'] %}
-{% for subfolder in paperless_subfolders %}
-      - smb_paperless_{{ subfolder }}:/usr/src/paperless/{{ subfolder }}
-{% endfor %}
+      - {{ paperless_ngx_docker_volumes.data }}:/usr/src/paperless/data
+      - /mnt/paperless/media:/usr/src/paperless/media
+      - /mnt/paperless/export:/usr/src/paperless/export
+      - /mnt/paperless/consume:/usr/src/paperless/consume
     env_file: .env
     environment:
       PAPERLESS_REDIS: redis://broker:6379
@@ -43,12 +43,3 @@ networks:
   {{ monitoring.network_name }}:
     external: true
 
-volumes:
-{% for subfolder in paperless_subfolders %}
-  smb_paperless_{{ subfolder }}:
-    driver: local
-    driver_opts:
-      type: cifs
-      o: "credentials={{ paperless_ngx_config_folder }}/smb_creds,vers=3.0,uid={{ docker_compose_uid }},gid={{ docker_compose_gid }}"
-      device: "{{ paperless_ngx_smb_share.path }}/{{ subfolder }}"
-{% endfor %}
