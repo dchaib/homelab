@@ -22,6 +22,9 @@ services:
     env_file: .env
     environment:
       PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_URL: "https://{{ homelab_services.paperless_ngx.domain }}"
+      PAPERLESS_APPS: 'allauth.socialaccount.providers.openid_connect'
+      PAPERLESS_SOCIALACCOUNT_PROVIDERS: '{"openid_connect":{"SCOPE":["openid","profile","email"],"OAUTH_PKCE_ENABLED":true,"APPS":[{"provider_id":"authelia","name":"Authelia","client_id":"{{ auth_oidc_clients.paperless_ngx.client_id }}","secret":"{{ auth_oidc_clients.paperless_ngx.client_secret }}","settings":{"server_url":"https://{{ homelab_services.authelia.domain }}","token_auth_method":"client_secret_basic"}}]}}'
     networks:
       - paperless_ngx_internal_network 
       - "{{ traefik.network_name }}"
