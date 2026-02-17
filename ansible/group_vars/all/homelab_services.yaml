@@ -32,4 +32,4 @@ homelab_services:
     domain: "apprise.{{ homelab_domain_name }}"
 
   paperless_ngx:
-    domain: "docs.{{ homelab_domain_name }}"
+    domain: "paperless.{{ homelab_domain_name }}"
