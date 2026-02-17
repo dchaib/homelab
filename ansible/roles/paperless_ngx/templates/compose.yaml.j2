@@ -5,6 +5,8 @@ services:
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     volumes:
       - {{ paperless_ngx_docker_volumes.redisdata }}:/data
+      - {{ paperless_ngx_config_folder }}/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     networks:
       - paperless_ngx_internal_network
       - "{{ monitoring.network_name }}"
@@ -21,7 +23,7 @@ services:
       - /mnt/paperless/consume:/usr/src/paperless/consume
     env_file: .env
     environment:
-      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_REDIS: redis://:${REDIS_PASSWORD}@broker:6379
       PAPERLESS_URL: "https://{{ homelab_services.paperless_ngx.domain }}"
       PAPERLESS_APPS: 'allauth.socialaccount.providers.openid_connect'
       PAPERLESS_SOCIALACCOUNT_PROVIDERS: '{"openid_connect":{"SCOPE":["openid","profile","email"],"OAUTH_PKCE_ENABLED":true,"APPS":[{"provider_id":"authelia","name":"Authelia","client_id":"{{ auth_oidc_clients.paperless_ngx.client_id }}","secret":"{{ auth_oidc_clients.paperless_ngx.client_secret }}","settings":{"server_url":"https://{{ homelab_services.authelia.domain }}","token_auth_method":"client_secret_basic"}}]}}'
@@ -45,4 +47,3 @@ networks:
     external: true
   {{ monitoring.network_name }}:
     external: true
-
