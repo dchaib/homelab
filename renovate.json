@@ -22,7 +22,7 @@
       "customType": "regex",
       "managerFilePatterns": ["/ansible\/roles\/traefik\/templates\/traefik.yml.j2$/"],
       "matchStrings": [
-        "moduleName: [\"']?github\\.com/(?<depName>[^\"']+)[\"']?,?\\s+version:\\s+[\"']?(?<currentValue>[^\\s\"']+)[\"']?"
+        "moduleName: [\"']?github\\.com/(?<depName>[^\"'\\s]+)[\"']?,?\\s+version:\\s+[\"']?(?<currentValue>[^\\s\"']+)[\"']?"
       ],
       "datasourceTemplate": "github-releases"
     }
