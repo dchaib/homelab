@@ -1,0 +1,49 @@
+services:
+  broker:
+    image: redis:8.4.0-alpine
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    volumes:
+      - {{ paperless_ngx_docker_volumes.redisdata }}:/data
+      - {{ paperless_ngx_config_folder }}/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - paperless_ngx_internal_network
+      - "{{ monitoring.network_name }}"
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.6
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    depends_on:
+      - broker
+    volumes:
+      - {{ paperless_ngx_docker_volumes.data }}:/usr/src/paperless/data
+      - /mnt/paperless/media:/usr/src/paperless/media
+      - /mnt/paperless/export:/usr/src/paperless/export
+      - /mnt/paperless/consume:/usr/src/paperless/consume
+    env_file: .env
+    environment:
+      PAPERLESS_REDIS: redis://:${REDIS_PASSWORD}@broker:6379
+      PAPERLESS_URL: "https://{{ homelab_services.paperless_ngx.domain }}"
+      PAPERLESS_APPS: 'allauth.socialaccount.providers.openid_connect'
+      PAPERLESS_SOCIALACCOUNT_PROVIDERS: '{"openid_connect":{"SCOPE":["openid","profile","email"],"OAUTH_PKCE_ENABLED":true,"APPS":[{"provider_id":"authelia","name":"Authelia","client_id":"{{ auth_oidc_clients.paperless_ngx.client_id }}","secret":"{{ auth_oidc_clients.paperless_ngx.client_secret }}","settings":{"server_url":"https://{{ homelab_services.authelia.domain }}","token_auth_method":"client_secret_basic"}}]}}'
+    networks:
+      - paperless_ngx_internal_network 
+      - "{{ traefik.network_name }}"
+      - "{{ monitoring.network_name }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.paperless_ngx.rule=Host(`{{ homelab_services.paperless_ngx.domain }}`)"
+      - "traefik.http.routers.paperless_ngx.entrypoints=websecure"
+      - "traefik.http.routers.paperless_ngx.tls=true"
+      - "traefik.http.routers.paperless_ngx.tls.certresolver=ovh"
+      - "traefik.http.services.paperless_ngx.loadbalancer.server.port=8000"
+      - "traefik.docker.network={{ traefik.network_name }}"
+
+networks:
+  paperless_ngx_internal_network:
+    driver: bridge
+  {{ traefik.network_name }}:
+    external: true
+  {{ monitoring.network_name }}:
+    external: true

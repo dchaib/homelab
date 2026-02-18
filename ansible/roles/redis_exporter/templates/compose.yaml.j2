@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     environment:
-      - REDIS_ADDR=authelia_redis:6379
+      - REDIS_ADDR=
       - REDIS_PASSWORD_FILE=/config/redis_passwords.json
     volumes:
       - "{{ redis_exporter_config_folder }}:/config:ro"

@@ -30,3 +30,6 @@ homelab_services:
 
   apprise:
     domain: "apprise.{{ homelab_domain_name }}"
+
+  paperless_ngx:
+    domain: "paperless.{{ homelab_domain_name }}"
