@@ -1,6 +1,6 @@
 services:
   broker:
-    image: redis:8.4.0-alpine
+    image: redis:8.6.0-alpine
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     volumes:

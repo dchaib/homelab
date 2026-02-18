@@ -27,7 +27,7 @@ services:
     depends_on:
       - authelia_redis
   authelia_redis:
-    image: "redis:8.4.0-alpine"
+    image: "redis:8.6.0-alpine"
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
