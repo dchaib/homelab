@@ -35,7 +35,13 @@
     path: /mnt/paperless
     src: "{{ paperless_ngx_smb_share.path }}"
     fstype: cifs
-    opts: "credentials={{ paperless_ngx_config_folder }}/smb_creds,vers=3.0,uid={{ paperless_ngx_uid }},gid={{ paperless_ngx_gid }},file_mode=0777,dir_mode=0777"
+    opts: "\
+      credentials={{ paperless_ngx_config_folder }}/smb_creds,\
+      vers=3.0,\
+      uid={{ paperless_ngx_uid }},\
+      gid={{ paperless_ngx_gid }},\
+      file_mode=0777,\
+      dir_mode=0777"
     state: mounted
   become: true
 
