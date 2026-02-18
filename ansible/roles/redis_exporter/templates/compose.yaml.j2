@@ -1,6 +1,6 @@
 services:
   {{ monitoring.redis_exporter }}:
-    image: oliver006/redis_exporter:v1.80.1
+    image: oliver006/redis_exporter:v1.81.0
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     environment:
