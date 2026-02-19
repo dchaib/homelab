@@ -19,6 +19,7 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
+  register: traefik_static_config_copy_result
 
 - name: Discover all dynamic config templates
   ansible.builtin.set_fact:
@@ -41,6 +42,7 @@
     docker_compose_stack_name: '{{ traefik_stack_name }}'
     docker_compose_volumes: '{{ traefik_docker_volumes.values() }}'
     docker_compose_use_env: true
+    docker_compose_restart: '{{ traefik_static_config_copy_result.changed }}'
 
 - name: Ensure logrotate is installed
   ansible.builtin.package:
