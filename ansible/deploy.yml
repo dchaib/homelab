@@ -62,3 +62,8 @@
     - role: paperless_ngx
       tags:
         - paperless_ngx
+        - backup
+
+    - role: backup
+      tags:
+        - backup

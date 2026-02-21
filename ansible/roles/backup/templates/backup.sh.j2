@@ -1,0 +1,21 @@
+#!/bin/sh
+set -e
+
+{% if item.docker_compose_stack_name %}
+COMPOSE_FILE="{{ docker_compose_dir }}/{{ item.docker_compose_stack_name }}/compose.yaml"
+
+docker compose -f "$COMPOSE_FILE" down
+{% endif %}
+
+SRC="{{ item.data_path }}"
+DEST="{{ item.dest }}"
+
+# ensure destination exists
+mkdir -p "$DEST"
+
+# perform copy
+rsync -a "$SRC/" "$DEST/"
+
+{% if item.docker_compose_stack_name %}
+docker compose -f "$COMPOSE_FILE" up -d
+{% endif %}

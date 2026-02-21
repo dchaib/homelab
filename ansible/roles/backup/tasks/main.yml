@@ -1,0 +1,56 @@
+---
+- name: Create configuration directory
+  ansible.builtin.file:
+    path: '/etc/samba'
+    state: directory
+    owner: 'root'
+    group: 'root'
+    mode: '0755'
+  become: true
+
+- name: Create SMB credentials file
+  ansible.builtin.copy:
+    content: |
+      username={{ backup_smb_share.username }}
+      password={{ backup_smb_share.password }}
+      domain={{ backup_smb_share.domain }}
+    dest: '/etc/samba/backup.credentials'
+    mode: '0600'
+    owner: root
+    group: root
+  become: true
+
+- name: Mount SMB share on host
+  ansible.posix.mount:
+    path: "{{ backup_folder }}"
+    src: "{{ backup_smb_share.path }}"
+    fstype: cifs
+    opts: "credentials=/etc/samba/backup.credentials,vers=3.0"
+    state: mounted
+  become: true
+
+- name: Create backup scripts
+  ansible.builtin.template:
+    src: 'backup.sh.j2'
+    dest: '{{ cron_script_dir }}/backup_{{ item.name }}.sh'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  loop: "{{ backup_jobs }}"
+  loop_control:
+    label: "{{ item.name }}"
+  become: true
+  when: backup_jobs | length > 0
+
+- name: Schedule backup jobs
+  ansible.builtin.cron:
+    name: "Backup {{ item.name }}"
+    user: root
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    job: "{{ cron_script_dir }}/backup_{{ item.name }}.sh"
+  loop: "{{ backup_jobs }}"
+  loop_control:
+    label: "{{ item.name }}"
+  become: true
+  when: backup_jobs | length > 0
