@@ -1,0 +1,8 @@
+---
+- name: Deploy Healthchecks
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ healthchecks_stack_name }}'
+    docker_compose_volumes: '{{ healthchecks_docker_volumes.values() }}'
+    docker_compose_use_env: true

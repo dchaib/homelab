@@ -33,3 +33,6 @@ homelab_services:
 
   paperless_ngx:
     domain: "paperless.{{ homelab_domain_name }}"
+  
+  healthchecks:
+    domain: "hc.{{ homelab_domain_name }}"

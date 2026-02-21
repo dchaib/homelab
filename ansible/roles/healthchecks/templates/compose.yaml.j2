@@ -1,0 +1,24 @@
+services:
+  healthchecks:
+    image: healthchecks/healthchecks:v4.0
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    env_file:
+        - .env
+    volumes:
+      - "{{ healthchecks_docker_volumes.data }}:/data"
+    networks:
+      - "{{ traefik.network_name }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.healthchecks.rule=Host(`{{ homelab_services.healthchecks.domain }}`)"
+      - "traefik.http.routers.healthchecks.entrypoints=websecure"
+      - "traefik.http.routers.healthchecks.tls=true"
+      - "traefik.http.routers.healthchecks.tls.certresolver=ovh"
+      - "traefik.http.routers.healthchecks.middlewares=authelia@docker"
+      - "traefik.http.services.healthchecks.loadbalancer.server.port=8000"
+      - "traefik.docker.network={{ traefik.network_name }}"
+
+networks:
+  {{ traefik.network_name }}:
+    external: true
