@@ -66,6 +66,7 @@
     - role: healthchecks
       tags:
         - healthchecks
+        - backup
 
     - role: backup
       tags:
