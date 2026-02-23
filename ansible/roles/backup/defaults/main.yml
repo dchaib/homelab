@@ -26,9 +26,11 @@ backup_jobs:
     hour: 2
     minute: 0
     docker_compose_stack_name: "{{ paperless_ngx_stack_name }}"
+    healthchecks_slug: paperless-ngx-backup
   - name: healthchecks
     data_path: "{{ healthchecks_docker_volumes.data }}"
     dest: "{{ backup_folder }}/healthchecks"
     hour: 2
     minute: 10
     docker_compose_stack_name: "{{ healthchecks_stack_name }}"
+    healthchecks_slug: healthchecks-backup

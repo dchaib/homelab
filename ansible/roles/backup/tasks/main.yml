@@ -48,7 +48,7 @@
     user: root
     minute: "{{ item.minute }}"
     hour: "{{ item.hour }}"
-    job: "{{ cron_script_dir }}/backup_{{ item.name }}.sh"
+    job: "{{ hc_wrapper_script }} {{ item.healthchecks_slug }} {{ cron_script_dir }}/backup_{{ item.name }}.sh"
   loop: "{{ backup_jobs }}"
   loop_control:
     label: "{{ item.name }}"
