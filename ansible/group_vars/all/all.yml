@@ -4,6 +4,7 @@ docker_config_dir: '/opt/docker/config'
 docker_volumes_dir: '/opt/docker/volumes'
 
 cron_script_dir: '/opt/scripts'
+hc_wrapper_script: '{{ cron_script_dir }}/hc_wrapper.sh'
 
 admin_user: !vault |
   $ANSIBLE_VAULT;1.1;AES256

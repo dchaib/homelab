@@ -1,0 +1,9 @@
+---
+- name: Deploy Healthchecks wrapper script
+  ansible.builtin.template:
+    src: hc_wrapper.sh.j2
+    dest: '{{ hc_wrapper_script }}'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
