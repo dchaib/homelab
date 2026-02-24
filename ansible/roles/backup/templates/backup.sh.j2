@@ -18,4 +18,36 @@ rsync -a "$SRC/" "$DEST/"
 
 {% if item.docker_compose_stack_name %}
 docker compose -f "$COMPOSE_FILE" up -d
+
+echo "Waiting for containers to become healthy..."
+
+CONTAINERS=$(docker compose -f "$COMPOSE_FILE" ps -q)
+
+for cid in $CONTAINERS; do
+    echo "Checking container $cid"
+
+    # Check if container has healthcheck defined
+    HAS_HEALTH=$(docker inspect --format='{% raw %}{{if .State.Health}}yes{{else}}no{{end}}{% endraw %}' "$cid" 2>/dev/null || echo "no")
+
+    if [ "$HAS_HEALTH" = "yes" ]; then
+        while true; do
+            STATUS=$(docker inspect --format='{% raw %}{{.State.Health.Status}}{% endraw %}' "$cid" 2>/dev/null || echo "unknown")
+
+            echo "Current status: $STATUS"
+
+            if [ "$STATUS" = "healthy" ]; then
+                break
+            fi
+
+            if [ "$STATUS" = "unhealthy" ]; then
+                echo "Container became unhealthy!"
+                exit 1
+            fi
+
+            sleep 2
+        done
+    fi
+done
+
+echo "All containers healthy."
 {% endif %}
