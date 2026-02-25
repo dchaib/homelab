@@ -94,7 +94,7 @@ storage:
 
 notifier:
   smtp:
-    address: 'smtp://mail.smtp2go.com:2525'
+    address: 'smtp://{{ authelia_smtp.server }}:{{ authelia_smtp.port }}'
     username: {{ authelia_smtp.username }}
     sender: {{ authelia_smtp.sender }}
 
