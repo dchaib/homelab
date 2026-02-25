@@ -89,3 +89,10 @@ scrape_configs:
     relabel_configs:
       - target_label: 'instance'
         replacement: '{{ inventory_hostname_short }}'
+  - job_name: 'healthchecks'
+    metrics_path: /projects/{{ healthchecks.project_id }}/metrics/{{ healthchecks.api_key_ro }}
+    static_configs:
+      - targets: ['healthchecks:8000']
+    relabel_configs:
+      - target_label: 'instance'
+        replacement: '{{ inventory_hostname_short }}'

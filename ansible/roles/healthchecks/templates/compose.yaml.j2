@@ -9,6 +9,7 @@ services:
       - "{{ healthchecks_docker_volumes.data }}:/data"
     networks:
       - "{{ traefik.network_name }}"
+      - "{{ monitoring.network_name }}"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.healthchecks.rule=Host(`{{ homelab_services.healthchecks.domain }}`)"
@@ -21,4 +22,6 @@ services:
 
 networks:
   {{ traefik.network_name }}:
+    external: true
+  {{ monitoring.network_name }}:
     external: true
