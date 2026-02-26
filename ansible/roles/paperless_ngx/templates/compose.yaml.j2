@@ -11,7 +11,7 @@ services:
       - paperless_ngx_internal_network
       - "{{ monitoring.network_name }}"
   webserver:
-    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.7
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.8
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     depends_on:
