@@ -1,0 +1,2 @@
+---
+healthchecks_wrapper_ping_key: "{{ healthchecks.ping_key }}"

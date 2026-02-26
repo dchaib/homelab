@@ -63,6 +63,13 @@
       tags:
         - paperless_ngx
         - backup
+    - role: healthchecks
+      tags:
+        - healthchecks
+        - backup
+    - role: healthchecks_wrapper
+      tags:
+        - healthchecks_wrapper
 
     - role: backup
       tags:

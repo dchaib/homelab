@@ -1,0 +1,102 @@
+#!/usr/bin/env sh
+#
+# hc-wrapper.sh
+#
+# Usage:
+#   hc-wrapper.sh <slug> <command> [args...]
+
+set -eu
+
+###############################################################################
+# Set variables
+###############################################################################
+
+HC_BASE_URL="${HC_BASE_URL:-https://{{ homelab_services.healthchecks.domain }}}"
+HC_PING_KEY="${HC_PING_KEY:-{{ healthchecks_wrapper_ping_key }}}"
+HC_RETRIES="${HC_RETRIES:-3}"
+HC_TIMEOUT="${HC_TIMEOUT:-10}"
+HC_MAX_TIME="${HC_MAX_TIME:-600}"
+HC_LOG_OUTPUT="${HC_LOG_OUTPUT:-0}"
+
+###############################################################################
+# Validate arguments
+###############################################################################
+
+if [ "$#" -lt 2 ]; then
+    echo "Usage: $0 <slug> <command> [args...]" >&2
+    exit 2
+fi
+
+SLUG="$1"
+shift
+
+PING_URL="${HC_BASE_URL%/}/ping/${HC_PING_KEY}/${SLUG}"
+START_URL="${PING_URL}/start"
+FAIL_URL="${PING_URL}/fail"
+
+###############################################################################
+# Curl helper
+###############################################################################
+
+curl_ping() {
+    url="$1"
+    shift || true
+
+    curl \
+        --silent \
+        --show-error \
+        --fail \
+        --retry "$HC_RETRIES" \
+        --connect-timeout "$HC_TIMEOUT" \
+        --max-time "$HC_MAX_TIME" \
+        "$url" \
+        "$@" \
+        >/dev/null 2>&1 || true
+}
+
+###############################################################################
+# Send start signal
+###############################################################################
+
+curl_ping "$START_URL"
+
+###############################################################################
+# Run job
+###############################################################################
+
+if [ "$HC_LOG_OUTPUT" -eq 1 ]; then
+    OUTPUT_FILE="$(mktemp)"
+    if "$@" >"$OUTPUT_FILE" 2>&1; then
+        EXIT_CODE=0
+    else
+        EXIT_CODE=$?
+    fi
+else
+    if "$@"; then
+        EXIT_CODE=0
+    else
+        EXIT_CODE=$?
+    fi
+fi
+
+###############################################################################
+# Send result
+###############################################################################
+
+if [ "$EXIT_CODE" -eq 0 ]; then
+    if [ "$HC_LOG_OUTPUT" -eq 1 ]; then
+        curl_ping "$PING_URL" --data-binary @"$OUTPUT_FILE"
+        rm -f "$OUTPUT_FILE"
+    else
+        curl_ping "$PING_URL"
+    fi
+else
+    if [ "$HC_LOG_OUTPUT" -eq 1 ]; then
+        curl_ping "$FAIL_URL" --data-binary @"$OUTPUT_FILE"
+        rm -f "$OUTPUT_FILE"
+    else
+        curl_ping "$FAIL_URL"
+    fi
+fi
+
+exit "$EXIT_CODE"

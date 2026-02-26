@@ -41,6 +41,8 @@ authelia_hmac_secret: !vault |
   3764
 
 authelia_smtp:
+  server: 'mail-eu.smtp2go.com'
+  port: 2525
   username: !vault |
     $ANSIBLE_VAULT;1.1;AES256
     32333933383664616365323735663337613864303936316138313064646232386236356436643866

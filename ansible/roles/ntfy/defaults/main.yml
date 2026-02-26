@@ -49,3 +49,5 @@ ntfy_auth:
           label: apprise
         - token: '{{ ntfy_tokens.grafana }}'
           label: grafana
+        - token: '{{ ntfy_tokens.healthchecks }}'
+          label: healthchecks

@@ -16,6 +16,11 @@ access_control:
   default_policy: deny
   rules:
     - domain:
+        - '{{ homelab_services.healthchecks.domain }}'
+      resources:
+        - '^/ping/.*$'
+      policy: bypass
+    - domain:
         - '{{ homelab_services.apprise.domain }}'
       policy: one_factor
       subject:
@@ -89,7 +94,7 @@ storage:
 
 notifier:
   smtp:
-    address: 'smtp://mail.smtp2go.com:2525'
+    address: 'smtp://{{ authelia_smtp.server }}:{{ authelia_smtp.port }}'
     username: {{ authelia_smtp.username }}
     sender: {{ authelia_smtp.sender }}
 

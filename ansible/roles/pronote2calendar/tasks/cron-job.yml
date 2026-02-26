@@ -15,5 +15,5 @@
     minute: "5"
     hour: "6-22"
     weekday: "1-5"
-    job: "{{ cron_script_dir }}/run_pronote2calendar.sh"
+    job: "{{ hc_wrapper_script }} pronote2calendar {{ cron_script_dir }}/run_pronote2calendar.sh"
   become: true
