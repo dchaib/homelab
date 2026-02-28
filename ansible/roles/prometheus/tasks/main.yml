@@ -1,10 +1,38 @@
 ---
+- name: Create Prometheus group
+  ansible.builtin.group:
+    name: prometheus
+    gid: 65532
+    state: present
+  become: true
+
+- name: Create Prometheus user
+  ansible.builtin.user:
+    name: prometheus
+    group: prometheus
+    groups:
+      - '{{ users.app_user.group }}'
+    uid: 65532
+    shell: /usr/sbin/nologin
+    system: true
+    create_home: false
+    state: present
+  become: true
+
+- name: Add app user to Prometheus group
+  ansible.builtin.user:
+    name: "{{ users.app_user.name }}"
+    groups:
+      - prometheus
+    append: true
+  become: true
+
 - name: Create configuration directory
   ansible.builtin.file:
     path: '{{ prometheus_config_folder }}'
     state: directory
-    owner: '{{ users.app_user.name }}'
-    group: '{{ users.app_user.group }}'
+    owner: 'prometheus'
+    group: 'prometheus'
     mode: '0750'
   become: true
 
@@ -12,8 +40,8 @@
   ansible.builtin.template:
     src: 'prometheus.yml.j2'
     dest: '{{ prometheus_config_folder }}/prometheus.yml'
-    owner: '{{ users.app_user.name }}'
-    group: '{{ users.app_user.group }}'
+    owner: 'prometheus'
+    group: 'prometheus'
     mode: '0640'
   become: true
   register: prometheus_configuration_copy_result
@@ -25,3 +53,5 @@
     docker_compose_stack_name: '{{ prometheus_name }}'
     docker_compose_volumes: '{{ prometheus_docker_volumes.values() }}'
     docker_compose_restart: '{{ prometheus_configuration_copy_result.changed }}'
+    docker_compose_user_name: prometheus
+    docker_compose_user_group: prometheus
