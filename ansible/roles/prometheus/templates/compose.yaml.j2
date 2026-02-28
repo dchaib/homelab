@@ -1,15 +1,14 @@
 services:
   {{ monitoring.prometheus}}:
-    image: prom/prometheus:v3.10.0
+    image: prom/prometheus:v3.10.0-distroless
     restart: unless-stopped
-    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.enable-remote-write-receiver'
     ports:
       - "{{ prometheus_port }}:9090"
     volumes:
-      - "{{ prometheus_config_folder }}/prometheus.yml:/etc/prometheus/prometheus.yml"
+      - "{{ prometheus_config_folder }}/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
       - "{{ prometheus_docker_volumes.data }}:/prometheus"
     networks:
       - {{ monitoring.network_name }}
