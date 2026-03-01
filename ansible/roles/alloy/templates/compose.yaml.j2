@@ -15,6 +15,7 @@ services:
       - /dev/disk/:/dev/disk:ro
     command: [
       "run",
+      "--disable-reporting",
       "--server.http.listen-addr=0.0.0.0:12345",
       "/etc/alloy/config.alloy",
     ]
