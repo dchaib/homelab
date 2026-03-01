@@ -7,11 +7,11 @@
 
 - name: Create volume directories
   ansible.builtin.file:
-    path: '{{ item }}'
+    path: "{{ item.path | default(item) }}"
     state: directory
     owner: '{{ docker_compose_owner }}'
     group: '{{ docker_compose_group }}'
-    mode: '0750'
+    mode: "{{ item.mode | default(docker_compose_default_volume_mode) }}"
   become: true
   loop: '{{ docker_compose_volumes }}'
 
