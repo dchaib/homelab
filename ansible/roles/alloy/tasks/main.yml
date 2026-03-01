@@ -16,9 +16,11 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
+  register: alloy_copy_configuration_result
 
 - name: Deploy Alloy
   ansible.builtin.include_role:
     name: docker_compose
   vars:
     docker_compose_stack_name: 'alloy'
+    docker_compose_restart: '{{ alloy_copy_configuration_result.changed }}'
