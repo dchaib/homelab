@@ -7,7 +7,7 @@ services:
       - "{{ loki_port }}:3100"
     volumes:
       - "{{ loki_docker_volumes.data }}:/loki"
-      - "{{ loki_config_folder }}/loki-config.yaml:/etc/loki/local-config.yaml"
+      - "{{ loki_config_folder }}/loki-config.yaml:/etc/loki/local-config.yaml:ro"
     networks:
       - {{ monitoring.network_name }}
 
