@@ -21,12 +21,6 @@ prometheus.scrape "scrape_metrics" {
 
 prometheus.relabel "filter_metrics" {
   rule {
-    action        = "drop"
-    source_labels = ["env"]
-    regex         = "dev"
-  }
-
-  rule {
     target_label = "instance"
     replacement  = "{{ inventory_hostname_short }}"
   }
@@ -91,27 +85,18 @@ logging {
 
 local.file_match "local_files" {
   path_targets = [{"__path__" = "/var/log/*.log"}]
-  sync_period = "5s"
+  sync_period = "15s"
 }
 
 loki.source.file "log_scrape" {
   targets    = local.file_match.local_files.targets
-  forward_to = [loki.process.filter_logs.receiver]
-  tail_from_end = true
-}
-
-loki.process "filter_logs" {
-  stage.drop {
-    source = ""
-    expression  = ".*Connection closed by authenticating user root"
-    drop_counter_reason = "noisy"
-  }
   forward_to = [loki.write.grafana_loki.receiver]
+  tail_from_end = true
 }
 
 discovery.docker "logs_integrations_docker" {
   host = "unix:///var/run/docker.sock"
-  refresh_interval = "5s"
+  refresh_interval = "15s"
 }
 
 discovery.relabel "logs_integrations_docker" {
@@ -144,7 +129,7 @@ loki.source.docker "logs_integrations_docker" {
   targets          = discovery.docker.logs_integrations_docker.targets
   forward_to       = [loki.write.grafana_loki.receiver]
   relabel_rules    = discovery.relabel.logs_integrations_docker.rules
-  refresh_interval = "5s"
+  refresh_interval = "15s"
 }
 
 loki.write "grafana_loki" {

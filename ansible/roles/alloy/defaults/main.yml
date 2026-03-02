@@ -1,3 +1,6 @@
 ---
-alloy_config_folder: '{{ docker_config_dir }}/alloy'
+alloy_stack_name: 'alloy'
+alloy_config_folder: '{{ docker_config_dir }}/{{ alloy_stack_name }}'
+alloy_docker_volumes:
+  data: '{{ docker_volumes_dir }}/{{ alloy_stack_name }}/data'
 alloy_port: 12345

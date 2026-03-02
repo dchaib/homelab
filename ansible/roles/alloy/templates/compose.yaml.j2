@@ -6,6 +6,7 @@ services:
       - '{{ alloy_port }}:12345'
     volumes:
       - '{{ alloy_config_folder }}/config.alloy:/etc/alloy/config.alloy:ro'
+      - '{{ alloy_docker_volumes.data }}:/var/lib/alloy'
 #      - "./endpoints.json:/etc/alloy/endpoints.json"
       - "/:/rootfs:ro"
       - "/var/run:/var/run:ro"
@@ -17,6 +18,7 @@ services:
       "run",
       "--disable-reporting",
       "--server.http.listen-addr=0.0.0.0:12345",
+      "--storage.path=/var/lib/alloy",
       "/etc/alloy/config.alloy",
     ]
     networks:
