@@ -8,7 +8,7 @@ prometheus.exporter.self "default" {
 prometheus.scrape "metamonitoring" {
   targets    = prometheus.exporter.self.default.targets
   forward_to = [prometheus.relabel.filter_metrics.receiver]
-  scrape_interval = "15s"
+  scrape_interval = "{{ monitoring.scraping_interval }}"
 }
 
 prometheus.exporter.unix "local_system" { }
@@ -16,7 +16,7 @@ prometheus.exporter.unix "local_system" { }
 prometheus.scrape "scrape_metrics" {
   targets         = prometheus.exporter.unix.local_system.targets
   forward_to      = [prometheus.relabel.filter_metrics.receiver]
-  scrape_interval = "15s"
+  scrape_interval = "{{ monitoring.scraping_interval }}"
 }
 
 prometheus.relabel "filter_metrics" {
@@ -68,7 +68,7 @@ prometheus.relabel "integrations_cadvisor" {
 prometheus.scrape "integrations_cadvisor" {
     targets    = discovery.relabel.integrations_cadvisor.output
     forward_to = [prometheus.relabel.integrations_cadvisor.receiver]
-    scrape_interval = "15s"
+    scrape_interval = "{{ monitoring.scraping_interval }}"
 }
 
 prometheus.remote_write "metrics_service" {
@@ -85,7 +85,7 @@ logging {
 
 local.file_match "local_files" {
   path_targets = [{"__path__" = "/var/log/*.log"}]
-  sync_period = "15s"
+  sync_period = "{{ monitoring.scraping_interval }}"
 }
 
 loki.source.file "log_scrape" {
@@ -96,7 +96,7 @@ loki.source.file "log_scrape" {
 
 discovery.docker "logs_integrations_docker" {
   host = "unix:///var/run/docker.sock"
-  refresh_interval = "15s"
+  refresh_interval = "{{ monitoring.scraping_interval }}"
 }
 
 discovery.relabel "logs_integrations_docker" {
@@ -129,7 +129,7 @@ loki.source.docker "logs_integrations_docker" {
   targets          = discovery.docker.logs_integrations_docker.targets
   forward_to       = [loki.write.grafana_loki.receiver]
   relabel_rules    = discovery.relabel.logs_integrations_docker.rules
-  refresh_interval = "15s"
+  refresh_interval = "{{ monitoring.scraping_interval }}"
 }
 
 loki.write "grafana_loki" {

@@ -12,9 +12,13 @@ datasources:
     editable: false
   - name: Prometheus
     type: prometheus
+    access: proxy
     orgId: 1
     url: http://{{ monitoring.prometheus }}:9090
-    basicAuth: false
+    basicAuth: false    
     isDefault: true
-    version: 2
+    version: 4
     editable: false
+    jsonData:
+      prometheusType: Prometheus
+      timeInterval: "{{ monitoring.scraping_interval }}"

@@ -7,7 +7,7 @@ services:
       ADGUARD_SERVERS: "http://adguardhome"
       ADGUARD_USERNAMES: ${ADGUARD_USERNAME}
       ADGUARD_PASSWORDS: ${ADGUARD_PASSWORD}
-      INTERVAL: "15s"
+      INTERVAL: "{{ monitoring.scraping_interval }}"
     networks:
       - {{ monitoring.network_name }}
 
