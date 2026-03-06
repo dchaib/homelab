@@ -28,6 +28,7 @@ homelab_domain_name: !vault |
   6233
 
 monitoring:
+  scraping_interval: "60s"
   network_name: "monitoring_network"
   prometheus: "prometheus"
   loki: "loki"
