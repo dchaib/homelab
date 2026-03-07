@@ -10,6 +10,7 @@ services:
       - OMADA_USER=${OMADA_USER}
       - OMADA_PASS=${OMADA_PASS}
       - OMADA_SITE=Home
+      - OMADA_INSECURE=true
     networks:
       - {{ monitoring.network_name }}
 
