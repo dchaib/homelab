@@ -1,6 +1,6 @@
 services:
   healthchecks:
-    image: healthchecks/healthchecks:v4.0
+    image: healthchecks/healthchecks:v4.1
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     env_file:
