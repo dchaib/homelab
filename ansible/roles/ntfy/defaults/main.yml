@@ -44,6 +44,8 @@ ntfy_auth:
       access:
         - topic: alerts
           permission: wo
+        - topic: pronote
+          permission: wo
       tokens: |
         {% set result = [] %}
         {% for item in ntfy_tokens | dict2items %}
