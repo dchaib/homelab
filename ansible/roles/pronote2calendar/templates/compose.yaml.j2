@@ -6,3 +6,9 @@ services:
       - "{{ pronote2calendar_config_files.config }}:/app/config.yaml:ro"
       - "{{ pronote2calendar_config_files.google_credentials }}:/app/credentials-google.json:ro"
       - "{{ pronote2calendar_config_files.pronote_credentials }}:/app/credentials-pronote.json:rw"
+    networks:
+      - {{ notification.network_name }}
+
+networks:
+  {{ notification.network_name }}:
+    external: true
