@@ -44,10 +44,11 @@ ntfy_auth:
       access:
         - topic: alerts
           permission: wo
-      tokens:
-        - token: '{{ ntfy_tokens.apprise }}'
-          label: apprise
-        - token: '{{ ntfy_tokens.grafana }}'
-          label: grafana
-        - token: '{{ ntfy_tokens.healthchecks }}'
-          label: healthchecks
+        - topic: pronote
+          permission: wo
+      tokens: |
+        {% set result = [] %}
+        {% for item in ntfy_tokens | dict2items %}
+        {%   set _ = result.append({'label': item.key, 'token': item.value}) %}
+        {% endfor %}
+        {{ result }}

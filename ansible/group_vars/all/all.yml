@@ -37,6 +37,9 @@ monitoring:
   adguard_home_exporter: "adguard-home-exporter"
   redis_exporter: "redis-exporter"
 
+notification:
+  network_name: "notification_network"
+
 homeassistant:
   ip: "192.168.1.114"
   port: 8123

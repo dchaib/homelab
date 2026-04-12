@@ -7,7 +7,7 @@ google_calendar:
   calendar_id: "{{ pronote2calendar.calendar_id }}"
 
 sync:
-  weeks: 3
+  weeks: 4
 
 adjustments:
   time:
@@ -45,3 +45,8 @@ adjustments:
     "PHYSIQUE-CHIMIE": "Physique-Chimie"
     "SCIENCES VIE & TERRE": "SVT"
     "VIE DE CLASSE": "Vie de classe"
+
+notifications:
+  enabled: true
+  destinations:
+    - ntfy://{{ ntfy_tokens.pronote2calendar }}@ntfy:80/pronote

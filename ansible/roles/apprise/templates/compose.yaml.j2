@@ -15,6 +15,7 @@ services:
     networks:
       - {{ monitoring.network_name }}
       - {{ traefik.network_name }}
+      - {{ notification.network_name }}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.apprise.rule=Host(`{{ homelab_services.apprise.domain }}`)"
@@ -29,4 +30,6 @@ networks:
   {{ monitoring.network_name }}:
     external: true
   {{ traefik.network_name }}:
+    external: true
+  {{ notification.network_name }}:
     external: true
