@@ -1,6 +1,6 @@
 services:
   {{ monitoring.prometheus}}:
-    image: prom/prometheus:v3.11.1-distroless
+    image: prom/prometheus:v3.11.2-distroless
     restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
