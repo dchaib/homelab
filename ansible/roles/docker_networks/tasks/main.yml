@@ -7,5 +7,4 @@
   loop:
     - "{{ monitoring.network_name }}"
     - "{{ traefik.network_name }}"
-    - "{{ notification.network_name }}"
   become: true
