@@ -6,6 +6,18 @@
     update_cache: true
   become: true
 
+- name: Set default incoming policy
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+  become: true
+
+- name: Set default outgoing policy
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
+  become: true
+
 - name: Allow port 22 (SSH)
   community.general.ufw:
     rule: allow
@@ -36,6 +48,16 @@
     port: "8043"
     proto: tcp
     comment: "Omada controller (HTTPS)"
+  become: true
+
+- name: Allow Docker containers to reach host on HTTPS
+  community.general.ufw:
+    rule: allow
+    from_ip: "172.16.0.0/12"
+    to_ip: "any"
+    port: "443"
+    proto: tcp
+    comment: "Allow Docker containers to reach host on HTTPS"
   become: true
 
 - name: Ensure UFW is enabled
