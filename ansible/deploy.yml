@@ -66,6 +66,7 @@
     - role: vaultwarden
       tags:
         - vaultwarden
+        - backup
     - role: healthchecks
       tags:
         - healthchecks
