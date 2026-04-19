@@ -1,0 +1,22 @@
+services:
+  vaultwarden:
+    image: vaultwarden/server:1.35.4-alpine
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    volumes:
+      - {{ vaultwarden_docker_volumes.data }}:/data
+    env_file: .env
+    networks:
+      - "{{ traefik.network_name }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vaultwarden.rule=Host(`{{ homelab_services.vaultwarden.domain }}`)"
+      - "traefik.http.routers.vaultwarden.entrypoints=websecure"
+      - "traefik.http.routers.vaultwarden.tls=true"
+      - "traefik.http.routers.vaultwarden.tls.certresolver=ovh"
+      - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
+      - "traefik.docker.network={{ traefik.network_name }}"
+
+networks:
+  {{ traefik.network_name }}:
+    external: true

@@ -63,6 +63,9 @@
       tags:
         - paperless_ngx
         - backup
+    - role: vaultwarden
+      tags:
+        - vaultwarden
     - role: healthchecks
       tags:
         - healthchecks

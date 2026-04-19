@@ -1,0 +1,8 @@
+---
+- name: Deploy Vaultwarden
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ vaultwarden_stack_name }}'
+    docker_compose_volumes: '{{ vaultwarden_docker_volumes.values() }}'
+    docker_compose_use_env: true

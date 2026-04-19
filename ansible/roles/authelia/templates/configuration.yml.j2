@@ -28,6 +28,11 @@ access_control:
     - domain: '*.{{ homelab_domain_name }}'
       policy: two_factor
 
+definitions:
+  user_attributes:
+    vaultwarden_roles:
+      expression: '"vaultwarden_admins" in groups ? ["admin"] : "vaultwarden_users" in groups ? ["user"] : [""]'
+
 identity_providers:
   oidc:
     jwks:
@@ -35,6 +40,13 @@ identity_providers:
     claims_policies:
       grafana:
         id_token: ['email', 'name', 'groups', 'preferred_username']
+      vaultwarden:
+        id_token: ['vaultwarden_roles']
+        custom_claims:
+          vaultwarden_roles: {}
+    scopes:
+      vaultwarden:
+        claims: ['vaultwarden_roles']
     clients:
       - client_id: '{{ auth_oidc_clients.grafana.client_id }}'
         client_name: 'Grafana'
@@ -76,6 +88,30 @@ identity_providers:
           - 'code'
         grant_types:
           - 'authorization_code'
+        access_token_signed_response_alg: 'none'
+        userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_basic'
+      - client_id: '{{ auth_oidc_clients.vaultwarden.client_id }}'
+        client_name: 'Vaultwarden'
+        client_secret: '{{ auth_oidc_clients.vaultwarden.client_digest }}'
+        public: false
+        authorization_policy: 'two_factor'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        claims_policy: 'vaultwarden'
+        redirect_uris:
+          - 'https://{{ homelab_services.vaultwarden.domain }}/identity/connect/oidc-signin'
+        scopes:
+          - 'openid'
+          - 'offline_access'
+          - 'profile'
+          - 'email'
+          - 'vaultwarden'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'refresh_token'
         access_token_signed_response_alg: 'none'
         userinfo_signed_response_alg: 'none'
         token_endpoint_auth_method: 'client_secret_basic'
