@@ -1,0 +1,4 @@
+---
+vaultwarden_stack_name: vaultwarden
+vaultwarden_docker_volumes:
+  data: '{{ docker_volumes_dir }}/{{ vaultwarden_stack_name }}/data'

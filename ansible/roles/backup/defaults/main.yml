@@ -27,10 +27,17 @@ backup_jobs:
     minute: 0
     docker_compose_stack_name: "{{ paperless_ngx_stack_name }}"
     healthchecks_slug: paperless-ngx-backup
+  - name: vaultwarden
+    data_path: "{{ vaultwarden_docker_volumes.data }}"
+    dest: "{{ backup_folder }}/vaultwarden"
+    hour: 2
+    minute: 10
+    docker_compose_stack_name: "{{ vaultwarden_stack_name }}"
+    healthchecks_slug: vaultwarden-backup
   - name: healthchecks
     data_path: "{{ healthchecks_docker_volumes.data }}"
     dest: "{{ backup_folder }}/healthchecks"
     hour: 2
-    minute: 10
+    minute: 20
     docker_compose_stack_name: "{{ healthchecks_stack_name }}"
     healthchecks_slug: healthchecks-backup
