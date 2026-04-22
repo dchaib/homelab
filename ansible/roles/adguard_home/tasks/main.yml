@@ -9,7 +9,14 @@
   become: true
 
 - name: Copy configuration file
-  ansible.builtin.include_tasks: config.yml
+  ansible.builtin.template:
+    src: 'AdGuardHome.yaml.j2'
+    dest: '{{ adguard_home_config_folder }}/AdGuardHome.yaml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+  notify: "Restart docker compose stack"
 
 - name: Deploy AdGuard Home
   ansible.builtin.include_role:

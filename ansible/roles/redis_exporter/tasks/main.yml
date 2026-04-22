@@ -17,11 +17,10 @@
     mode: '0640'
   become: true
   no_log: true
-  register: redis_exporter_config_copy_result
+  notify: "Restart docker compose stack"
 
 - name: Deploy Redis Exporter
   ansible.builtin.include_role:
     name: docker_compose
   vars:
     docker_compose_stack_name: '{{ redis_exporter_stack_name }}'
-    docker_compose_restart: '{{ redis_exporter_config_copy_result.changed }}'

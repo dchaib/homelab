@@ -21,7 +21,7 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
-  register: authelia_config_copy_result
+  notify: "Restart docker compose stack"
 
 - name: Copy secrets
   ansible.builtin.template:
@@ -34,7 +34,7 @@
     - "templates/secrets/*"
   become: true
   no_log: true
-  register: authelia_secrets_copy_result
+  notify: "Restart docker compose stack"
 
 - name: Copy user list
   ansible.builtin.template:
@@ -44,7 +44,7 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
-  register: authelia_users_copy_result
+  notify: "Restart docker compose stack"
 
 - name: Copy Redis configuration
   ansible.builtin.template:
@@ -55,7 +55,7 @@
     mode: '0600'
   become: true
   no_log: true
-  register: authelia_redis_config_copy_result
+  notify: "Restart docker compose stack"
 
 - name: Copy RSA key
   ansible.builtin.copy:
@@ -66,7 +66,7 @@
     mode: '0600'
   become: true
   no_log: true
-  register: authelia_rsa_key_copy_result
+  notify: "Restart docker compose stack"
 
 - name: Deploy Authelia
   ansible.builtin.include_role:
@@ -74,8 +74,3 @@
   vars:
     docker_compose_stack_name: '{{ authelia_stack_name }}'
     docker_compose_volumes: '{{ authelia_docker_volumes.values() }}'
-    docker_compose_restart: '{{ authelia_config_copy_result.changed
-      or (authelia_secrets_copy_result.results | selectattr("changed", "defined") | selectattr("changed", "equalto", true) | list | length > 0)
-      or authelia_users_copy_result.changed
-      or authelia_redis_config_copy_result.changed
-      or authelia_rsa_key_copy_result.changed }}'

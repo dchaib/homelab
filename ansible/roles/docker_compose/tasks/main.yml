@@ -3,6 +3,7 @@
   ansible.builtin.set_fact:
     docker_compose_owner: "{{ docker_compose_user_name | default(users.app_user.name) }}"
     docker_compose_group: "{{ docker_compose_user_group | default(users.app_user.group) }}"
+    docker_compose_config_dir: "{{ docker_compose_dir }}/{{ docker_compose_stack_name }}"
   become: true
 
 - name: Create volume directories
@@ -23,22 +24,6 @@
     group: '{{ docker_compose_group }}'
     mode: '0750'
   become: true
-
-- name: Check if compose file exists
-  ansible.builtin.stat:
-    path: '{{ docker_compose_config_dir }}/compose.yaml'
-  become: true
-  register: docker_compose_file
-
-- name: Stop if asked to restart and stack is already deployed
-  community.docker.docker_compose_v2:
-    project_src: '{{ docker_compose_config_dir }}'
-    state: stopped
-  become: true
-  when:
-    - docker_compose_restart | bool
-    - docker_compose_file.stat.exists
-    - ansible_check_mode is false
 
 - name: Get UID and GID of app_user
   ansible.builtin.getent:
@@ -76,6 +61,20 @@
   when:
     - docker_compose_use_env is defined
     - docker_compose_use_env | bool
+
+# Flush any "Restart docker compose stack" notifications queued by the calling
+# role's config-copying tasks (bind-mounted files that need a process restart).
+# Responsibility split:
+#   - Handler (flushed here): restarts the container when a bind-mounted config
+#     file changes (e.g. authelia's configuration.yml, prometheus.yml, ...).
+#   - "Start services" below: handles compose.yaml/env spec changes (image bumps,
+#     new env vars) via "docker compose up -d", and ensures the container is
+#     running after a crash or manual stop.
+# Flushing here rather than at play end ensures docker_compose_config_dir still
+# refers to THIS stack. A later include_role: docker_compose call overwrites it.
+# See the handler definition in deploy.yml for the full explanation.
+- name: Apply any pending restarts before starting services
+  ansible.builtin.meta: flush_handlers
 
 - name: Start services
   community.docker.docker_compose_v2:

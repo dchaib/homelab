@@ -16,6 +16,7 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
+  notify: "Restart docker compose stack"
 
 - name: Deploy Freebox Exporter
   ansible.builtin.include_role:
