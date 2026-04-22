@@ -10,6 +10,31 @@
 
 - name: Deploy Docker stacks
   hosts: all
+  handlers:
+    # Restarts whichever Docker Compose stack is currently being deployed.
+    #
+    # HOW IT WORKS: this handler is notified by config-copying tasks in service
+    # roles (e.g. "Copy configuration") for files that are bind-mounted into the
+    # container and require a process restart to take effect. It relies on
+    # docker_compose_config_dir, which is set by include_role: docker_compose for
+    # each stack in turn. compose.yaml and .env spec changes are intentionnally NOT
+    # notified here - "Start services" (docker compose up -d) handles those.
+    #
+    # IMPORTANT: the handler is flushed via "meta: flush_handlers" *inside*
+    # roles/docker_compose/tasks/main.yml, before the "Start services" task.
+    # This guarantees two things:
+    #   1. The handler fires while docker_compose_config_dir still points to the
+    #      current stack (not a later one that would overwrite the variable).
+    #   2. "Start services" (docker compose up -d) runs after the restart, so it
+    #      finds the container already running and is a no-op — no double restart.
+    #
+    # Do not move the flush out of roles/docker_compose/tasks/main.yml.
+    - name: Restart docker compose stack
+      community.docker.docker_compose_v2:
+        project_src: "{{ docker_compose_config_dir }}"
+        state: restarted
+      become: true
+      when: ansible_check_mode is false
   roles:
     - role: prometheus
       tags:

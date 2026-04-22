@@ -16,7 +16,7 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
-  register: ntfy_configuration_copy_result
+  notify: "Restart docker compose stack"
 
 - name: Deploy ntfy
   ansible.builtin.include_role:
@@ -24,4 +24,3 @@
   vars:
     docker_compose_stack_name: '{{ ntfy_stack_name }}'
     docker_compose_volumes: '{{ ntfy_docker_volumes.values() }}'
-    docker_compose_restart: '{{ ntfy_configuration_copy_result.changed }}'

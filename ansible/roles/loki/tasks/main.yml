@@ -44,7 +44,7 @@
     group: loki
     mode: '0640'
   become: true
-  register: loki_copy_configuration_result
+  notify: "Restart docker compose stack"
 
 - name: Deploy Loki
   ansible.builtin.include_role:
@@ -52,6 +52,5 @@
   vars:
     docker_compose_stack_name: loki
     docker_compose_volumes: '{{ loki_docker_volumes.values() }}'
-    docker_compose_restart: '{{ loki_copy_configuration_result.changed }}'
     docker_compose_user_name: loki
     docker_compose_user_group: loki
