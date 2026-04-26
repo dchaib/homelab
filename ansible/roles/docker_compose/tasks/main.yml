@@ -4,7 +4,6 @@
     docker_compose_owner: "{{ docker_compose_user_name | default(users.app_user.name) }}"
     docker_compose_group: "{{ docker_compose_user_group | default(users.app_user.group) }}"
     docker_compose_config_dir: "{{ docker_compose_dir }}/{{ docker_compose_stack_name }}"
-  become: true
 
 - name: Create volume directories
   ansible.builtin.file:

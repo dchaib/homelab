@@ -1,4 +1,5 @@
 ---
+omada_controller_stack_name: omada-controller
 omada_controller_docker_volumes:
-  data: '{{ docker_volumes_dir }}/omada-controller/data'
-  logs: '{{ docker_volumes_dir }}/omada-controller/logs'
+  data: '{{ docker_volumes_dir }}/{{ omada_controller_stack_name }}/data'
+  logs: '{{ docker_volumes_dir }}/{{ omada_controller_stack_name }}/logs'

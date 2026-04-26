@@ -3,5 +3,5 @@
   ansible.builtin.include_role:
     name: docker_compose
   vars:
-    docker_compose_stack_name: 'adguard-home-exporter'
+    docker_compose_stack_name: '{{ adguard_home_exporter_stack_name }}'
     docker_compose_use_env: true

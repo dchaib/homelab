@@ -1,16 +1,12 @@
 ---
-- name: Discover all acquisition configuration templates
-  ansible.builtin.set_fact:
-    crowdsec_acquis_configs: "{{ lookup('fileglob', 'templates/acquis/*.yaml.j2', wantlist=True) }}"
-
-- name: Deploy all discovered dynamic configs
+- name: Deploy all dynamic configs
   ansible.builtin.template:
     src: "acquis/{{ item | basename }}"
     dest: "{{ crowdsec_docker_volumes.config }}/acquis.d/{{ item | basename | regex_replace('.j2$', '') }}"
     owner: '{{ users.app_user.name }}'
     group: '{{ users.app_user.group }}'
     mode: '0640'
-  loop: "{{ crowdsec_acquis_configs }}"
+  loop: "{{ query('fileglob', 'templates/acquis/*.yaml.j2') }}"
   become: true
   notify: "Restart docker compose stack"
 

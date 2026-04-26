@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
 
+set -eu
+
 cd "{{ docker_compose_dir }}/{{ pronote2calendar_stack_name }}"
 docker compose up -d

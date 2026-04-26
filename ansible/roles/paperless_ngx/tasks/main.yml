@@ -19,6 +19,7 @@
     owner: root
     group: root
   become: true
+  no_log: true
 
 - name: Get UID and GID of app_user for SMB mount
   ansible.builtin.getent:
