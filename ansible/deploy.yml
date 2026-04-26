@@ -1,6 +1,8 @@
 ---
 - name: Setup
   hosts: all
+  tags:
+    - setup
   roles:
     - users
     - ufw
