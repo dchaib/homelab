@@ -35,7 +35,7 @@
   ansible.builtin.import_tasks: pronote-credentials.yml
   when:
     - not pronote2calendar_credentials_file_stat.stat.exists
-    - not ansible_check_mode
+    - ansible_check_mode is false
   vars:
     credentials_file_path: "{{ pronote2calendar_config_files.pronote_credentials }}"
 
