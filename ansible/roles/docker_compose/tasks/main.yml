@@ -65,7 +65,7 @@
 # Flush any "Restart docker compose stack" notifications queued by the calling
 # role's config-copying tasks (bind-mounted files that need a process restart).
 # Responsibility split:
-#   - Handler (flushed here): restarts the container when a bind-mounted config
+#   - Handler (flushed here): stops the container when a bind-mounted config
 #     file changes (e.g. authelia's configuration.yml, prometheus.yml, ...).
 #   - "Start services" below: handles compose.yaml/env spec changes (image bumps,
 #     new env vars) via "docker compose up -d", and ensures the container is
