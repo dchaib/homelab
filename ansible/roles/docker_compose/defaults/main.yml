@@ -1,6 +1,5 @@
 ---
 # docker_compose_stack_name
-docker_compose_config_dir: "{{ docker_compose_dir }}/{{ docker_compose_stack_name }}"
 # docker_compose_use_env: false
 docker_compose_volumes: []
 
@@ -8,6 +7,3 @@ docker_compose_default_volume_mode: '0750'
 
 # Whether to start the docker compose stack after deployment
 docker_compose_start_stack: true
-
-# Whether to restart the docker compose stack if already deployed
-docker_compose_restart: false

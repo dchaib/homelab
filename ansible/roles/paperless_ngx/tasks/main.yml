@@ -54,7 +54,7 @@
     mode: '0600'
   become: true
   no_log: true
-  register: paperless_ngx_redis_config_copy_result
+  notify: "Restart docker compose stack"
 
 - name: Deploy paperless-ngx
   ansible.builtin.include_role:
@@ -63,4 +63,3 @@
     docker_compose_stack_name: '{{ paperless_ngx_stack_name }}'
     docker_compose_volumes: '{{ paperless_ngx_docker_volumes.values() }}'
     docker_compose_use_env: true
-    docker_compose_restart: '{{ paperless_ngx_redis_config_copy_result.changed }}'
