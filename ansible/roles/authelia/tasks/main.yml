@@ -30,8 +30,7 @@
     owner: '{{ users.app_user.name }}'
     group: '{{ users.app_user.group }}'
     mode: '0600'
-  with_fileglob:
-    - "templates/secrets/*"
+  loop: "{{ query('fileglob', 'templates/secrets/*') }}"
   become: true
   no_log: true
   notify: "Restart docker compose stack"
