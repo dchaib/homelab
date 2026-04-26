@@ -19,6 +19,7 @@
     owner: root
     group: root
   become: true
+  no_log: true
 
 - name: Mount SMB share on host
   ansible.posix.mount:
