@@ -22,5 +22,5 @@
   ansible.builtin.include_role:
     name: docker_compose
   vars:
-    docker_compose_stack_name: 'freebox-exporter'
+    docker_compose_stack_name: '{{ freebox_exporter_stack_name }}'
     docker_compose_volumes: '{{ freebox_exporter_docker_volumes.values() }}'
