@@ -1,6 +1,6 @@
 services:
   {{ monitoring.freebox_exporter }}:
-    image: ghcr.io/shackerd/freebox-exporter-rs:v0.0.24
+    image: ghcr.io/shackerd/freebox-exporter-rs:v0.0.25
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     ports:
