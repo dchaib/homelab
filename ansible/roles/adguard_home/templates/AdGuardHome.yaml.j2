@@ -161,12 +161,12 @@ filtering:
   rewrites:
 {% for name, service in homelab_services.items() %}
     - domain: {{ service.domain }}
-      answer: >-
-        {{
-          service.dns_ip
-          if service.dns_ip is defined
-          else hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address']
-        }}
+      answer: {{ hostvars[inventory_hostname]['ansible_facts']['default_ipv4']['address'] }}
+      enabled: true
+{% endfor %}
+{% for name, host in homelab_hosts.items() %}
+    - domain: {{ host.domain }}
+      answer: {{ host.ip }}
       enabled: true
 {% endfor %}
   safe_fs_patterns:

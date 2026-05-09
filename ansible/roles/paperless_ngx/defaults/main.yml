@@ -24,7 +24,7 @@ paperless_ngx_smb_share:
     33393466313963376231353932306264623738613565653336346562616432666565313564353537
     3531633065666430340a616562376639333166623339623361616262633763623537333137393033
     3534
-  path: //{{ homelab_services.nas.domain }}/Paperless
+  path: //{{ homelab_hosts.nas.domain }}/Paperless
 
 paperless_ngx_secret_key: !vault |
   $ANSIBLE_VAULT;1.1;AES256

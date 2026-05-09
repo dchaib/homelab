@@ -30,7 +30,3 @@ homelab_services:
     domain: "traefik.{{ homelab_domain_name }}"
   vaultwarden:
     domain: "vaultwarden.{{ homelab_domain_name }}"
-
-  nas:
-    domain: "nas.{{ homelab_domain_name }}"
-    dns_ip: "192.168.1.76"
