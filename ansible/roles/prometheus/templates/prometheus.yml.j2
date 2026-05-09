@@ -23,7 +23,7 @@ scrape_configs:
         replacement: '22A10E-Home'
   - job_name: 'integrations/unix'
     static_configs:
-      - targets: ['{{ homeassistant.ip }}:{{ homeassistant.exporter.port }}']
+      - targets: ['{{ homelab_services.homeassistant.ip }}:9100']
     relabel_configs:
       - target_label: 'instance'
         replacement: 'homeassistant'

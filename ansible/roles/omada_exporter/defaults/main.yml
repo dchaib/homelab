@@ -1,4 +1,4 @@
 ---
 omada_exporter_stack_name: 'omada-exporter'
 omada_exporter_port: 9202
-omada_exporter_controller_host: 'https://{{ homelab_services.omada_controller.ip }}:8043'
+omada_exporter_controller_host: 'https://{{ homelab_services.omada_controller.ip }}:{{ homelab_services.omada_controller.port }}'

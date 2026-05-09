@@ -37,12 +37,6 @@ monitoring:
   adguard_home_exporter: "adguard-home-exporter"
   redis_exporter: "redis-exporter"
 
-homeassistant:
-  ip: "192.168.1.114"
-  port: 8123
-  exporter:
-    port: 9100
-
 omada_controller:
   users:
     exporter:

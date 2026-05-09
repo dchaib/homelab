@@ -2,43 +2,34 @@
 homelab_services:
   adguard_home:
     domain: "adguardhome.{{ homelab_domain_name }}"
-
+  apprise:
+    domain: "apprise.{{ homelab_domain_name }}"
+  authelia:
+    domain: "auth.{{ homelab_domain_name }}"
   grafana:
     domain: "grafana.{{ homelab_domain_name }}"
-
+  healthchecks:
+    domain: "hc.{{ homelab_domain_name }}"
   homeassistant:
     domain: "ha.{{ homelab_domain_name }}"
-    ip: "{{ homeassistant.ip }}"
-
+    ip: "192.168.1.114"
+    port: 8123
+  ntfy:
+    domain: "ntfy.{{ homelab_domain_name }}"
   omada_controller:
     domain: "sdn.{{ homelab_domain_name }}"
     ip: "{{ hostvars['docker-host.local']['ansible_facts']['default_ipv4']['address'] }}"
-
+    port: 8043
+  paperless_ngx:
+    domain: "paperless.{{ homelab_domain_name }}"
   subsonic:
     domain: "music.{{ homelab_domain_name }}"
     ip: "192.168.1.76"
-    port: "4040"
-
+    port: 4040
   traefik:
     domain: "traefik.{{ homelab_domain_name }}"
-
-  authelia:
-    domain: "auth.{{ homelab_domain_name }}"
-
-  ntfy:
-    domain: "ntfy.{{ homelab_domain_name }}"
-
-  apprise:
-    domain: "apprise.{{ homelab_domain_name }}"
-
-  paperless_ngx:
-    domain: "paperless.{{ homelab_domain_name }}"
-
   vaultwarden:
     domain: "vaultwarden.{{ homelab_domain_name }}"
-
-  healthchecks:
-    domain: "hc.{{ homelab_domain_name }}"
 
   nas:
     domain: "nas.{{ homelab_domain_name }}"
