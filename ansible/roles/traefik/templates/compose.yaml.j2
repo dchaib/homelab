@@ -6,8 +6,8 @@ services:
       - "80:80"
       - "443:443"
     networks:
-      - "{{ traefik.network_name }}"
-      - "{{ monitoring.network_name }}"
+      - "{{ docker_networks.traefik }}"
+      - "{{ docker_networks.monitoring }}"
     env_file:
       - .env
     volumes:
@@ -26,11 +26,11 @@ services:
       - "traefik.http.middlewares.authelia.forwardAuth.address=http://authelia:9091/api/authz/forward-auth"
       - "traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader=true"
       - "traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Email,Remote-Name"
-      - "traefik.docker.network={{ traefik.network_name }}"
+      - "traefik.docker.network={{ docker_networks.traefik }}"
       - "{{ traefik_logrotate_label }}"
 
 networks:
-  {{ traefik.network_name }}:
+  {{ docker_networks.traefik }}:
     external: true
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

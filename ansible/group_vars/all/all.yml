@@ -1,8 +1,4 @@
 ---
-docker_compose_dir: '/opt/docker/compose-files'
-docker_config_dir: '/opt/docker/config'
-docker_volumes_dir: '/opt/docker/volumes'
-
 cron_script_dir: '/opt/scripts'
 hc_wrapper_script: '{{ cron_script_dir }}/hc_wrapper.sh'
 
@@ -29,7 +25,6 @@ homelab_domain_name: !vault |
 
 monitoring:
   scraping_interval: "60s"
-  network_name: "monitoring_network"
   prometheus: "prometheus"
   loki: "loki"
   freebox_exporter: "freebox-exporter"
@@ -84,7 +79,6 @@ ovh:
     63336465666663366639356363613337346164386465356663656439666662626461
 
 traefik:
-  network_name: "traefik_network"
   log_folder: '{{ docker_volumes_dir }}/traefik/logs'
 
 adguard_home:

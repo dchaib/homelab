@@ -22,8 +22,8 @@ services:
       "/etc/alloy/config.alloy",
     ]
     networks:
-      - {{ monitoring.network_name }}
+      - {{ docker_networks.monitoring }}
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

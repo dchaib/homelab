@@ -9,8 +9,8 @@ services:
       ADGUARD_PASSWORDS: ${ADGUARD_PASSWORD}
       INTERVAL: "{{ monitoring.scraping_interval }}"
     networks:
-      - {{ monitoring.network_name }}
+      - {{ docker_networks.monitoring }}
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

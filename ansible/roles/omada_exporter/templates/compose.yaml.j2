@@ -12,8 +12,8 @@ services:
       - OMADA_SITE=Home
       - OMADA_INSECURE=true
     networks:
-      - {{ monitoring.network_name }}
+      - {{ docker_networks.monitoring }}
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

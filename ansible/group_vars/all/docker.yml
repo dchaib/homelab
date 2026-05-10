@@ -1,0 +1,8 @@
+---
+docker_compose_dir: '/opt/docker/compose-files'
+docker_config_dir: '/opt/docker/config'
+docker_volumes_dir: '/opt/docker/volumes'
+
+docker_networks:
+  monitoring: "monitoring_network"
+  traefik: "traefik_network"

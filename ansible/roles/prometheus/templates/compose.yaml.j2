@@ -11,8 +11,8 @@ services:
       - "{{ prometheus_config_folder }}/prometheus.yml:/etc/prometheus/prometheus.yml:ro"
       - "{{ prometheus_docker_volumes.data }}:/prometheus"
     networks:
-      - {{ monitoring.network_name }}
+      - {{ docker_networks.monitoring }}
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

@@ -9,8 +9,8 @@ services:
     volumes:
       - "{{ redis_exporter_config_folder }}:/config:ro"
     networks:
-      - {{ monitoring.network_name }}
+      - {{ docker_networks.monitoring }}
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

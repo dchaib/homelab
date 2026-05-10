@@ -4,7 +4,5 @@
     name: "{{ item }}"
     driver: bridge
     state: present
-  loop:
-    - "{{ monitoring.network_name }}"
-    - "{{ traefik.network_name }}"
+  loop: "{{ docker_networks.values() }}"
   become: true

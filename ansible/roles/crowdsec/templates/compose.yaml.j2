@@ -4,8 +4,8 @@ services:
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     networks:
-      - "{{ traefik.network_name }}"
-      - "{{ monitoring.network_name }}"
+      - "{{ docker_networks.traefik }}"
+      - "{{ docker_networks.monitoring }}"
     volumes:
       - "{{ crowdsec_docker_volumes.db }}:/var/lib/crowdsec/data/"
       - "{{ crowdsec_docker_volumes.config }}:/etc/crowdsec/"
@@ -14,7 +14,7 @@ services:
       - COLLECTIONS=crowdsecurity/traefik crowdsecurity/http-cve crowdsecurity/base-http-scenarios crowdsecurity/appsec-generic-rules crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-crs
 
 networks:
-  {{ traefik.network_name }}:
+  {{ docker_networks.traefik }}:
     external: true
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

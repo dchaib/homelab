@@ -13,8 +13,8 @@ services:
       - {{ apprise_docker_volumes.attach }}:/attach
       - {{ apprise_docker_volumes.plugin }}:/plugin
     networks:
-      - {{ monitoring.network_name }}
-      - {{ traefik.network_name }}
+      - {{ docker_networks.monitoring }}
+      - {{ docker_networks.traefik }}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.apprise.rule=Host(`{{ homelab_services.apprise.domain }}`)"
@@ -23,10 +23,10 @@ services:
       - "traefik.http.routers.apprise.tls.certresolver=ovh"
       - "traefik.http.routers.apprise.middlewares=authelia@docker"
       - "traefik.http.services.apprise.loadbalancer.server.port=8000"
-      - "traefik.docker.network={{ traefik.network_name }}"
+      - "traefik.docker.network={{ docker_networks.traefik }}"
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true
-  {{ traefik.network_name }}:
+  {{ docker_networks.traefik }}:
     external: true
