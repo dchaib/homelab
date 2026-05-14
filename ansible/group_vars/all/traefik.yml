@@ -1,0 +1,3 @@
+---
+traefik:
+  log_folder: '{{ docker_volumes_dir }}/traefik/logs'

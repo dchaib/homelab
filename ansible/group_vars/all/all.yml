@@ -32,9 +32,6 @@ monitoring:
   adguard_home_exporter: "adguard-home-exporter"
   redis_exporter: "redis-exporter"
 
-traefik:
-  log_folder: '{{ docker_volumes_dir }}/traefik/logs'
-
 pronote2calendar:
   child_name: !vault |
           $ANSIBLE_VAULT;1.1;AES256
