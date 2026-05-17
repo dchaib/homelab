@@ -6,7 +6,7 @@ contactPoints:
         - uid: ef9ocu1di677ka
           type: webhook
           settings:
-            authorization_credentials: '{{ ntfy_tokens.grafana }}'
+            authorization_credentials: '{{ ntfy.tokens.grafana }}'
             url: http://ntfy/alerts?template=grafana
           disableResolveMessage: false
 policies:

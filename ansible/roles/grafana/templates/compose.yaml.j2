@@ -9,8 +9,8 @@ services:
       - "{{ grafana_docker_volumes.data }}:/var/lib/grafana"
       - "{{ grafana_config_folders.provisioning }}:/etc/grafana/provisioning:ro"
     networks:
-      - {{ monitoring.network_name }}
-      - {{ traefik.network_name }}
+      - {{ docker_networks.monitoring }}
+      - {{ docker_networks.traefik }}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`{{ homelab_services.grafana.domain }}`)"
@@ -19,10 +19,10 @@ services:
       - "traefik.http.routers.grafana.tls.certresolver=ovh"
       - "traefik.http.routers.grafana.middlewares=authelia@docker"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
-      - "traefik.docker.network={{ traefik.network_name }}"
+      - "traefik.docker.network={{ docker_networks.traefik }}"
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true
-  {{ traefik.network_name }}:
+  {{ docker_networks.traefik }}:
     external: true

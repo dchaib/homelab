@@ -12,7 +12,7 @@ http:
     omada:
       loadBalancer:
         servers:
-          - url: "https://{{ homelab_services.omada_controller.ip }}:8043"
+          - url: "https://{{ homelab_services.omada_controller.ip }}:{{ homelab_services.omada_controller.port }}"
         serversTransport: "insecure-transport"
 
   serversTransports:

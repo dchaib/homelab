@@ -4,13 +4,13 @@ services:
     restart: unless-stopped
     user: '10001'
     ports:
-      - "{{ loki_port }}:3100"
+      - "3100:3100"
     volumes:
       - "{{ loki_docker_volumes.data }}:/loki"
       - "{{ loki_config_folder }}/loki-config.yaml:/etc/loki/local-config.yaml:ro"
     networks:
-      - {{ monitoring.network_name }}
+      - {{ docker_networks.monitoring }}
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

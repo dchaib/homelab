@@ -130,9 +130,9 @@ storage:
 
 notifier:
   smtp:
-    address: 'smtp://{{ authelia_smtp.server }}:{{ authelia_smtp.port }}'
-    username: '{{ authelia_smtp.username }}'
-    sender: '{{ authelia_smtp.sender }}'
+    address: 'smtp://{{ authelia.smtp.server }}:{{ authelia.smtp.port }}'
+    username: '{{ authelia.smtp.username }}'
+    sender: '{{ authelia.smtp.sender }}'
 
 telemetry:
   metrics:

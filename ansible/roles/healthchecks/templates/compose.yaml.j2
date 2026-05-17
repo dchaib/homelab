@@ -8,8 +8,8 @@ services:
     volumes:
       - "{{ healthchecks_docker_volumes.data }}:/data"
     networks:
-      - "{{ traefik.network_name }}"
-      - "{{ monitoring.network_name }}"
+      - "{{ docker_networks.traefik }}"
+      - "{{ docker_networks.monitoring }}"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.healthchecks.rule=Host(`{{ homelab_services.healthchecks.domain }}`)"
@@ -18,10 +18,10 @@ services:
       - "traefik.http.routers.healthchecks.tls.certresolver=ovh"
       - "traefik.http.routers.healthchecks.middlewares=authelia@docker"
       - "traefik.http.services.healthchecks.loadbalancer.server.port=8000"
-      - "traefik.docker.network={{ traefik.network_name }}"
+      - "traefik.docker.network={{ docker_networks.traefik }}"
 
 networks:
-  {{ traefik.network_name }}:
+  {{ docker_networks.traefik }}:
     external: true
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

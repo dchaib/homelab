@@ -5,11 +5,11 @@ behind-proxy: true
 auth-file: "/var/lib/ntfy/user.db"
 auth-default-access: "deny-all"
 auth-users:
-{% for user in ntfy_auth.users %}
+{% for user in ntfy.users %}
   - {{ user.username }}:{{ user.password_hash }}:{{ user.role }}
 {% endfor %}
 auth-access:
-{% for user in ntfy_auth.users %}
+{% for user in ntfy.users %}
 {% if user.access is defined %}
 {% for access in user.access %}
   - {{ user.username }}:{{ access.topic }}:{{ access.permission }}
@@ -17,7 +17,7 @@ auth-access:
 {% endif %}
 {% endfor %}
 auth-tokens:
-{% for user in ntfy_auth.users %}
+{% for user in ntfy.users %}
 {% if user.tokens is defined %}
 {% for token in user.tokens %}
   - {{ user.username }}:{{ token.token }}:{{ token.label }}

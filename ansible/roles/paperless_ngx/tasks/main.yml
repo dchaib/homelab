@@ -11,9 +11,9 @@
 - name: Create SMB credentials file
   ansible.builtin.copy:
     content: |
-      username={{ paperless_ngx_smb_share.username }}
-      password={{ paperless_ngx_smb_share.password }}
-      domain={{ paperless_ngx_smb_share.domain }}
+      username={{ paperless_ngx.smb_share.username }}
+      password={{ paperless_ngx.smb_share.password }}
+      domain={{ paperless_ngx.smb_share.domain }}
     dest: '{{ paperless_ngx_config_folder }}/smb_creds'
     mode: '0600'
     owner: root
@@ -34,7 +34,7 @@
 - name: Mount SMB share on host
   ansible.posix.mount:
     path: /mnt/paperless
-    src: "{{ paperless_ngx_smb_share.path }}"
+    src: "{{ paperless_ngx.smb_share.path }}"
     fstype: cifs
     opts: "\
       credentials={{ paperless_ngx_config_folder }}/smb_creds,\

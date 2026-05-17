@@ -15,15 +15,15 @@ services:
       X_AUTHELIA_CONFIG_FILTERS: 'template'
     networks:
       - authelia_internal_network 
-      - "{{ traefik.network_name }}"
-      - "{{ monitoring.network_name }}"
+      - "{{ docker_networks.traefik }}"
+      - "{{ docker_networks.monitoring }}"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.authelia.rule=Host(`{{ homelab_services.authelia.domain }}`)"
       - "traefik.http.routers.authelia.entrypoints=websecure"
       - "traefik.http.routers.authelia.tls=true"
       - "traefik.http.routers.authelia.tls.certresolver=ovh"
-      - "traefik.docker.network={{ traefik.network_name }}"
+      - "traefik.docker.network={{ docker_networks.traefik }}"
     depends_on:
       - authelia_redis
   authelia_redis:
@@ -36,12 +36,12 @@ services:
       - "{{ authelia_docker_volumes.redis }}:/data"
     networks:
       - authelia_internal_network
-      - "{{ monitoring.network_name }}"
+      - "{{ docker_networks.monitoring }}"
 
 networks:
   authelia_internal_network:
     driver: bridge
-  {{ traefik.network_name }}:
+  {{ docker_networks.traefik }}:
     external: true
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true

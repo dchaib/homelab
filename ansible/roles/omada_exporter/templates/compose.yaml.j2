@@ -3,8 +3,6 @@ services:
     image: chhaley/omada_exporter:0.13.1
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
-    ports:
-      - "{{ omada_exporter_port }}:9202"
     environment:
       - OMADA_HOST={{ omada_exporter_controller_host }}
       - OMADA_USER=${OMADA_USER}
@@ -12,8 +10,8 @@ services:
       - OMADA_SITE=Home
       - OMADA_INSECURE=true
     networks:
-      - {{ monitoring.network_name }}
+      - {{ docker_networks.monitoring }}
 
 networks:
-  {{ monitoring.network_name }}:
+  {{ docker_networks.monitoring }}:
     external: true
