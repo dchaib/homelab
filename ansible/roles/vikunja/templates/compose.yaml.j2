@@ -1,0 +1,23 @@
+services:
+  vikunja:
+    image: vikunja/vikunja:2.3.0
+    restart: unless-stopped
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    env_file: .env
+    volumes:
+      - {{ vikunja_docker_volumes.files }}:/app/vikunja/files
+      - {{ vikunja_docker_volumes.db }}:/db
+    networks:
+      - "{{ docker_networks.traefik }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vikunja.rule=Host(`{{ homelab_services.vikunja.domain }}`)"
+      - "traefik.http.routers.vikunja.entrypoints=websecure"
+      - "traefik.http.routers.vikunja.tls=true"
+      - "traefik.http.routers.vikunja.tls.certresolver=ovh"
+      - "traefik.http.services.vikunja.loadbalancer.server.port=3456"
+      - "traefik.docker.network={{ docker_networks.traefik }}"
+
+networks:
+  {{ docker_networks.traefik }}:
+    external: true
