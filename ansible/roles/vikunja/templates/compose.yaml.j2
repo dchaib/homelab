@@ -9,6 +9,7 @@ services:
       - {{ vikunja_docker_volumes.db }}:/db
     networks:
       - "{{ docker_networks.traefik }}"
+      - "{{ docker_networks.monitoring }}"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.vikunja.rule=Host(`{{ homelab_services.vikunja.domain }}`)"
@@ -20,4 +21,6 @@ services:
 
 networks:
   {{ docker_networks.traefik }}:
+    external: true
+  {{ docker_networks.monitoring }}:
     external: true

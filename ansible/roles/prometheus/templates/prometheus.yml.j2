@@ -96,3 +96,13 @@ scrape_configs:
     relabel_configs:
       - target_label: 'instance'
         replacement: '{{ inventory_hostname_short }}'
+  - job_name: 'vikunja'
+    metrics_path: '/api/v1/metrics'
+    basic_auth:
+      username: '{{ vikunja.metrics.username }}'
+      password: '{{ vikunja.metrics.password }}'
+    static_configs:
+      - targets: ['vikunja:3456']
+    relabel_configs:
+      - target_label: 'instance'
+        replacement: '{{ inventory_hostname_short }}'
