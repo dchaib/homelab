@@ -30,3 +30,5 @@ homelab_services:
     domain: "traefik.{{ homelab_domain_name }}"
   vaultwarden:
     domain: "vaultwarden.{{ homelab_domain_name }}"
+  vikunja:
+    domain: "vikunja.{{ homelab_domain_name }}"

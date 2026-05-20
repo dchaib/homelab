@@ -34,10 +34,17 @@ backup_jobs:
     minute: 10
     docker_compose_stack_name: "{{ vaultwarden_stack_name }}"
     healthchecks_slug: vaultwarden-backup
+  - name: vikunja
+    data_path: "{{ vikunja_docker_volumes.db }}"
+    dest: "{{ backup_folder }}/vikunja"
+    hour: 2
+    minute: 20
+    docker_compose_stack_name: "{{ vikunja_stack_name }}"
+    healthchecks_slug: vikunja-backup
   - name: healthchecks
     data_path: "{{ healthchecks_docker_volumes.data }}"
     dest: "{{ backup_folder }}/healthchecks"
-    hour: 2
-    minute: 20
+    hour: 3
+    minute: 0
     docker_compose_stack_name: "{{ healthchecks_stack_name }}"
     healthchecks_slug: healthchecks-backup

@@ -95,6 +95,10 @@
       tags:
         - vaultwarden
         - backup
+    - role: vikunja
+      tags:
+        - vikunja
+        - backup
     - role: healthchecks
       tags:
         - healthchecks

@@ -1,0 +1,5 @@
+---
+vikunja_stack_name: vikunja
+vikunja_docker_volumes:
+  db: '{{ docker_volumes_dir }}/{{ vikunja_stack_name }}/db'
+  files: '{{ docker_volumes_dir }}/{{ vikunja_stack_name }}/files'
