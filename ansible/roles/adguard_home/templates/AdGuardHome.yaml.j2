@@ -10,7 +10,7 @@ http:
       - POST /dns-query/{ClientID}
     insecure_enabled: false
   address: 0.0.0.0:80
-  session_ttl: 720h
+  session_ttl: 30d
 users:
 {% for name, user in adguard_home.users.items() %}
   - name: {{ user.name }}
@@ -99,7 +99,7 @@ tls:
 querylog:
   dir_path: ""
   ignored: []
-  interval: 2160h
+  interval: 90d
   size_memory: 1000
   enabled: true
   ignored_enabled: false
@@ -107,7 +107,7 @@ querylog:
 statistics:
   dir_path: ""
   ignored: []
-  interval: 24h
+  interval: 1d
   enabled: true
   ignored_enabled: false
 filters:
