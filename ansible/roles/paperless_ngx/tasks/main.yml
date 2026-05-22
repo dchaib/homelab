@@ -64,3 +64,14 @@
     docker_compose_stack_name: '{{ paperless_ngx_stack_name }}'
     docker_compose_volumes: '{{ paperless_ngx_docker_volumes.values() }}'
     docker_compose_use_env: true
+
+- name: Set up backup for paperless-ngx
+  ansible.builtin.include_role:
+    name: backup_cron
+  vars:
+    backup_cron_name: paperless_ngx
+    backup_cron_data_path: "{{ paperless_ngx_docker_volumes.data }}"
+    backup_cron_docker_compose_stack_name: "{{ paperless_ngx_stack_name }}"
+    backup_cron_healthchecks_slug: "{{ backup.jobs.paperless_ngx.healthchecks_slug }}"
+    backup_cron_hour: "{{ backup.jobs.paperless_ngx.hour }}"
+    backup_cron_minute: "{{ backup.jobs.paperless_ngx.minute }}"

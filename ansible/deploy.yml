@@ -9,6 +9,7 @@
     - docker
     - docker_networks
     - cron
+    - backup
 
 - name: Deploy Docker stacks
   hosts: all
@@ -90,23 +91,15 @@
     - role: paperless_ngx
       tags:
         - paperless_ngx
-        - backup
     - role: vaultwarden
       tags:
         - vaultwarden
-        - backup
     - role: vikunja
       tags:
         - vikunja
-        - backup
     - role: healthchecks
       tags:
         - healthchecks
-        - backup
     - role: healthchecks_wrapper
       tags:
         - healthchecks_wrapper
-
-    - role: backup
-      tags:
-        - backup

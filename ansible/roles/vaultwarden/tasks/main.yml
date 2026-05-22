@@ -6,3 +6,14 @@
     docker_compose_stack_name: '{{ vaultwarden_stack_name }}'
     docker_compose_volumes: '{{ vaultwarden_docker_volumes.values() }}'
     docker_compose_use_env: true
+
+- name: Set up backup for vaultwarden
+  ansible.builtin.include_role:
+    name: backup_cron
+  vars:
+    backup_cron_name: vaultwarden
+    backup_cron_data_path: "{{ vaultwarden_docker_volumes.data }}"
+    backup_cron_docker_compose_stack_name: "{{ vaultwarden_stack_name }}"
+    backup_cron_healthchecks_slug: "{{ backup.jobs.vaultwarden.healthchecks_slug }}"
+    backup_cron_hour: "{{ backup.jobs.vaultwarden.hour }}"
+    backup_cron_minute: "{{ backup.jobs.vaultwarden.minute }}"

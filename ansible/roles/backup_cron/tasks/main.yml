@@ -1,0 +1,18 @@
+---
+- name: Create backup scripts for {{ backup_cron_name }}
+  ansible.builtin.template:
+    src: 'backup.sh.j2'
+    dest: '{{ cron_script_dir }}/backup_{{ backup_cron_name }}.sh'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Schedule backup jobs
+  ansible.builtin.cron:
+    name: "Backup {{ backup_cron_name }}"
+    user: root
+    minute: "{{ backup_cron_minute }}"
+    hour: "{{ backup_cron_hour }}"
+    job: "{{ hc_wrapper_script }} {{ backup_cron_healthchecks_slug }} {{ cron_script_dir }}/backup_{{ backup_cron_name }}.sh"
+  become: true
