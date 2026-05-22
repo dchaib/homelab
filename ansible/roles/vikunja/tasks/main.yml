@@ -6,3 +6,16 @@
     docker_compose_stack_name: '{{ vikunja_stack_name }}'
     docker_compose_volumes: '{{ vikunja_docker_volumes.values() }}'
     docker_compose_use_env: true
+
+- name: Set up backup for vikunja
+  ansible.builtin.include_role:
+    name: backup_cron
+  vars:
+    backup_cron_name: vikunja
+    backup_cron_data_paths:
+      db: "{{ vikunja_docker_volumes.db }}"
+      files: "{{ vikunja_docker_volumes.files }}"
+    backup_cron_docker_compose_stack_name: "{{ vikunja_stack_name }}"
+    backup_cron_healthchecks_slug: "{{ backup.jobs.vikunja.healthchecks_slug }}"
+    backup_cron_hour: "{{ backup.jobs.vikunja.hour }}"
+    backup_cron_minute: "{{ backup.jobs.vikunja.minute }}"
