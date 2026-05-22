@@ -7,14 +7,16 @@ COMPOSE_FILE="{{ docker_compose_dir }}/{{ backup_cron_docker_compose_stack_name 
 docker compose -f "$COMPOSE_FILE" down
 {% endif %}
 
-SRC="{{ backup_cron_data_path }}"
-DEST="{{ backup.folder }}/{{ backup_cron_name }}"
+{% for name, path in backup_cron_data_paths.items() %}
+SRC="{{ path }}"
+DEST="{{ backup.folder }}/{{ backup_cron_name }}/{{ name }}"
 
 # ensure destination exists
 mkdir -p "$DEST"
 
 # perform copy
 rsync -a "$SRC/" "$DEST/"
+{% endfor %}
 
 {% if backup_cron_docker_compose_stack_name %}
 docker compose -f "$COMPOSE_FILE" up -d

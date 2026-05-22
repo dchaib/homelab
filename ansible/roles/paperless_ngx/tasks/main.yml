@@ -70,7 +70,8 @@
     name: backup_cron
   vars:
     backup_cron_name: paperless_ngx
-    backup_cron_data_path: "{{ paperless_ngx_docker_volumes.data }}"
+    backup_cron_data_paths:
+      data: "{{ paperless_ngx_docker_volumes.data }}"
     backup_cron_docker_compose_stack_name: "{{ paperless_ngx_stack_name }}"
     backup_cron_healthchecks_slug: "{{ backup.jobs.paperless_ngx.healthchecks_slug }}"
     backup_cron_hour: "{{ backup.jobs.paperless_ngx.hour }}"

@@ -12,7 +12,8 @@
     name: backup_cron
   vars:
     backup_cron_name: healthchecks
-    backup_cron_data_path: "{{ healthchecks_docker_volumes.data }}"
+    backup_cron_data_paths:
+      data: "{{ healthchecks_docker_volumes.data }}"
     backup_cron_docker_compose_stack_name: "{{ healthchecks_stack_name }}"
     backup_cron_healthchecks_slug: "{{ backup.jobs.healthchecks.healthchecks_slug }}"
     backup_cron_hour: "{{ backup.jobs.healthchecks.hour }}"
