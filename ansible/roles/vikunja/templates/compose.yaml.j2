@@ -1,6 +1,6 @@
 services:
   vikunja:
-    image: vikunja/vikunja:2.3.0
+    image: vikunja/vikunja:2.4.0
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
     env_file: .env
