@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: tofu
+        working-directory: terraform
     steps:
       - name: Check out the codebase
         uses: actions/checkout@v7
@@ -46,7 +46,9 @@ jobs:
       - name: Set up OpenTofu
         uses: opentofu/setup-opentofu@v2
         with:
-          tofu_version_file: .tool-versions
+          # Support for .tool-versions is implemented but not yet released.
+          # tofu_version_file: .tool-versions
+          tofu_version: 1.12.6
 
       - name: Check OpenTofu formatting
         run: tofu fmt -check -recursive -diff
