@@ -1,2 +1,8 @@
 .ansible/
 .vscode/
+
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
