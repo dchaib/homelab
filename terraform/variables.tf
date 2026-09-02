@@ -28,12 +28,24 @@ variable "haos_image" {
 variable "ha_vm" {
   description = "Home Assistant virtual machine configuration."
   type = object({
-    vm_id        = optional(number)
+    vm_id        = number
     name         = string
     cpu_cores    = optional(number, 2)
     memory_mb    = optional(number, 4096)
     disk_size_gb = optional(number, 32)
+    ipv4_address = optional(string)
   })
+
+  validation {
+    condition     = var.ha_vm.vm_id >= 0 && var.ha_vm.vm_id <= 65535 && var.ha_vm.vm_id == floor(var.ha_vm.vm_id)
+    error_message = "ha_vm.vm_id must be an integer between 0 and 65535."
+  }
+
+  validation {
+    condition     = var.ha_vm.ipv4_address == null || can(cidrnetmask("${var.ha_vm.ipv4_address}/32"))
+    error_message = "ha_vm.ipv4_address must be a valid IPv4 address (for example, 192.168.1.10)."
+  }
+
 }
 
 variable "debian_image" {
@@ -47,12 +59,24 @@ variable "debian_image" {
 variable "services_vm" {
   description = "Services virtual machine configuration."
   type = object({
-    vm_id        = optional(number)
+    vm_id        = number
     name         = string
     cpu_cores    = optional(number, 2)
     memory_mb    = optional(number, 4096)
     disk_size_gb = optional(number, 32)
+    ipv4_address = optional(string)
   })
+
+  validation {
+    condition     = var.services_vm.vm_id >= 0 && var.services_vm.vm_id <= 65535 && var.services_vm.vm_id == floor(var.services_vm.vm_id)
+    error_message = "services_vm.vm_id must be an integer between 0 and 65535."
+  }
+
+  validation {
+    condition     = var.services_vm.ipv4_address == null || can(cidrnetmask("${var.services_vm.ipv4_address}/32"))
+    error_message = "services_vm.ipv4_address must be a valid IPv4 address (for example, 192.168.1.10)."
+  }
+
 }
 
 variable "vm_user_admin" {
