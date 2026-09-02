@@ -94,9 +94,3 @@ variable "vm_user_ansible" {
     authorized_keys = list(string)
   })
 }
-
-variable "lan_ipv4_prefix" {
-  description = "IPv4 prefix."
-  type        = string
-  default     = "192.168."
-}
