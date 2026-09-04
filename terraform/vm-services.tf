@@ -1,10 +1,4 @@
 locals {
-  services_vm_mac_address = format(
-    "02:00:00:00:%02X:%02X",
-    floor(var.services_vm.vm_id / 256) % 256,
-    var.services_vm.vm_id % 256,
-  )
-
   services_vm_cloud_init = templatefile("${path.module}/templates/services-vm-cloud-init.yaml.tftpl", {
     hostname                = var.services_vm.name
     admin_username          = var.vm_user_admin.username
@@ -107,13 +101,4 @@ resource "proxmox_virtual_environment_vm" "services_vm" {
   }
 
   depends_on = [freebox_dhcp_lease.services_vm]
-}
-
-resource "freebox_dhcp_lease" "services_vm" {
-  count = var.services_vm.ipv4_address == null ? 0 : 1
-
-  mac      = local.services_vm_mac_address
-  ip       = var.services_vm.ipv4_address
-  hostname = var.services_vm.name
-  comment  = "Managed by Terraform"
 }
