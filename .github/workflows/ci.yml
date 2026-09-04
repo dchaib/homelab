@@ -9,8 +9,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: Lint
+  lint-ansible:
+    name: Lint Ansible
     runs-on: ubuntu-latest
     steps:
       - name: Check out the codebase
@@ -32,3 +32,37 @@ jobs:
       - name: Lint Ansible project
         run: |
           cd ansible && ansible-lint
+
+  lint-tofu:
+    name: Lint OpenTofu
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v7
+
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@v2
+        with:
+          # Support for .tool-versions is implemented but not yet released.
+          # tofu_version_file: .tool-versions
+          tofu_version: 1.12.6
+
+      - name: Check OpenTofu formatting
+        run: tofu fmt -check -recursive -diff
+
+      - name: Initialize OpenTofu
+        run: tofu init -backend=false -input=false
+
+      - name: Validate OpenTofu configuration
+        run: tofu validate
+
+      - name: Set up TFLint
+        uses: terraform-linters/setup-tflint@v6
+        with:
+          tflint_version_file: .tool-versions
+
+      - name: Lint OpenTofu configuration
+        run: tflint --format compact --recursive
