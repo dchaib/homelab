@@ -12,7 +12,7 @@ homelab_services:
     domain: "hc.{{ homelab_domain_name }}"
   homeassistant:
     domain: "ha.{{ homelab_domain_name }}"
-    ip: "192.168.1.114"
+    ip: "192.168.1.211"
     port: 8123
   ntfy:
     domain: "ntfy.{{ homelab_domain_name }}"
