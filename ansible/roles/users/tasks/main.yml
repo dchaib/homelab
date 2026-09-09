@@ -2,6 +2,7 @@
 - name: Create groups
   ansible.builtin.group:
     name: "{{ item.value.group }}"
+    gid: "{{ item.value.gid }}"
     state: present
   loop: "{{ users | dict2items }}"
   loop_control:
@@ -11,6 +12,7 @@
 - name: Create users
   ansible.builtin.user:
     name: "{{ item.value.name }}"
+    uid: "{{ item.value.uid }}"
     group: "{{ item.value.group }}"
     shell: /usr/sbin/nologin
     system: true
