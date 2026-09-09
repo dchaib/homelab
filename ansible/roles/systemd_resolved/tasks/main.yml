@@ -1,0 +1,36 @@
+---
+- name: Create systemd-resolved configuration directory
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Disable systemd-resolved DNS stub listener
+  ansible.builtin.copy:
+    dest: /etc/systemd/resolved.conf.d/disable-stub-listener.conf
+    content: |
+      [Resolve]
+      DNSStubListener=no
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Restart systemd-resolved
+
+- name: Ensure systemd-resolved is enabled and running
+  ansible.builtin.service:
+    name: systemd-resolved
+    enabled: true
+    state: started
+  become: true
+
+- name: Configure resolv.conf to use upstream DNS servers
+  ansible.builtin.file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    force: true
+  become: true

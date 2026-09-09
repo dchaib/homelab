@@ -1,0 +1,7 @@
+---
+- name: Install CIFS utilities
+  ansible.builtin.apt:
+    name: cifs-utils
+    state: present
+    update_cache: true
+  become: true

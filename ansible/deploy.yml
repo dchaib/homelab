@@ -6,6 +6,9 @@
   roles:
     - users
     - ufw
+    - cifs
+    - role: systemd_resolved
+      when: dns_server_host | default(false) | bool
     - docker
     - docker_networks
     - cron

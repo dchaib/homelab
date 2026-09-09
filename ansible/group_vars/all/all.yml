@@ -13,7 +13,9 @@ admin_user: !vault |
 users:
   app_user:
     name: appuser
+    uid: 20000
     group: appgroup
+    gid: 20000
 
 homelab_domain_name: !vault |
   $ANSIBLE_VAULT;1.1;AES256

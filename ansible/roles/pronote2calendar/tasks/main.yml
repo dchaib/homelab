@@ -30,6 +30,7 @@
   ansible.builtin.stat:
     path: "{{ pronote2calendar_config_files.pronote_credentials }}"
   register: pronote2calendar_credentials_file_stat
+  become: true
 
 - name: Generate Pronote credentials file
   ansible.builtin.import_tasks: pronote-credentials.yml

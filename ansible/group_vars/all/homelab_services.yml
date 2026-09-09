@@ -18,7 +18,7 @@ homelab_services:
     domain: "ntfy.{{ homelab_domain_name }}"
   omada_controller:
     domain: "sdn.{{ homelab_domain_name }}"
-    ip: "{{ hostvars['docker-host.local']['ansible_facts']['default_ipv4']['address'] }}"
+    ip: "{{ hostvars['services-01.home.arpa']['ansible_facts']['default_ipv4']['address'] }}"
     port: 8043
   paperless_ngx:
     domain: "paperless.{{ homelab_domain_name }}"
