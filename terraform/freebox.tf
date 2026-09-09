@@ -29,3 +29,16 @@ resource "freebox_dhcp_lease" "services_vm" {
   hostname = var.services_vm.name
   comment  = "Managed by Terraform"
 }
+
+resource "freebox_port_forwarding" "services_vm_https" {
+  count = var.services_vm.ipv4_address == null ? 0 : 1
+
+  enabled          = true
+  ip_protocol      = "tcp"
+  source_ip        = "0.0.0.0"
+  port_range_start = 443
+  port_range_end   = 443
+  target_ip        = freebox_dhcp_lease.services_vm[0].ip
+  target_port      = 443
+  comment          = "HTTPS to ${var.services_vm.name} - Managed by Terraform"
+}
