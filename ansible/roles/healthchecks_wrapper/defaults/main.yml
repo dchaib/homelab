@@ -1,2 +1,3 @@
 ---
 healthchecks_wrapper_ping_key: "{{ healthchecks.ping_key }}"
+healthchecks_wrapper_resolved_ip: '127.0.0.1'

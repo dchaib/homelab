@@ -12,6 +12,7 @@ set -eu
 ###############################################################################
 
 HC_BASE_URL="${HC_BASE_URL:-https://{{ homelab_services.healthchecks.domain }}}"
+HC_RESOLVE="${HC_RESOLVE:-{{ homelab_services.healthchecks.domain }}:443:{{ healthchecks_wrapper_resolved_ip }}}"
 HC_PING_KEY="${HC_PING_KEY:-{{ healthchecks_wrapper_ping_key }}}"
 HC_RETRIES="${HC_RETRIES:-3}"
 HC_TIMEOUT="${HC_TIMEOUT:-10}"
@@ -49,6 +50,7 @@ curl_ping() {
         --retry "$HC_RETRIES" \
         --connect-timeout "$HC_TIMEOUT" \
         --max-time "$HC_MAX_TIME" \
+        --resolve "$HC_RESOLVE" \
         "$url" \
         "$@" \
         >/dev/null 2>&1 || true
