@@ -42,10 +42,10 @@
     comment: "Omada controller"
   become: true
 
-- name: Allow port 8043
+- name: Allow Omada Controller HTTPS port
   community.general.ufw:
     rule: allow
-    port: "8043"
+    port: "{{ omada_controller.management_https_port }}"
     proto: tcp
     comment: "Omada controller (HTTPS)"
   become: true

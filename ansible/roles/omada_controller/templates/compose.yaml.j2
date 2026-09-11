@@ -12,7 +12,7 @@ services:
       - PUID=508
       - PGID=508
       - MANAGE_HTTP_PORT=8088
-      - MANAGE_HTTPS_PORT=8043
+      - MANAGE_HTTPS_PORT={{ omada_controller.management_https_port }}
       - PORTAL_HTTP_PORT=8088
       - PORTAL_HTTPS_PORT=8843
       - PORT_APP_DISCOVERY=27001
@@ -31,4 +31,3 @@ services:
     volumes:
       - '{{ omada_controller_docker_volumes.data }}:/opt/tplink/EAPController/data'
       - '{{ omada_controller_docker_volumes.logs }}:/opt/tplink/EAPController/logs'
-  
