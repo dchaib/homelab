@@ -12,20 +12,22 @@ homelab_services:
     domain: "hc.{{ homelab_domain_name }}"
   homeassistant:
     domain: "ha.{{ homelab_domain_name }}"
-    ip: "192.168.1.211"
-    port: 8123
+    backend:
+      scheme: http
+      host: "192.168.1.211"
+      port: 8123
   ntfy:
     domain: "ntfy.{{ homelab_domain_name }}"
   omada_controller:
     domain: "sdn.{{ homelab_domain_name }}"
-    ip: "{{ hostvars['services-01.home.arpa']['ansible_facts']['default_ipv4']['address'] }}"
-    port: 8043
   paperless_ngx:
     domain: "paperless.{{ homelab_domain_name }}"
   subsonic:
     domain: "music.{{ homelab_domain_name }}"
-    ip: "192.168.1.76"
-    port: 4040
+    backend:
+      scheme: http
+      host: "192.168.1.76"
+      port: 4040
   traefik:
     domain: "traefik.{{ homelab_domain_name }}"
   vaultwarden:

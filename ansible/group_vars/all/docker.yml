@@ -6,3 +6,6 @@ docker_volumes_dir: '/opt/docker/volumes'
 docker_networks:
   monitoring: "monitoring_network"
   traefik: "traefik_network"
+
+docker_host_gateway:
+  hostname: "host.docker.internal"

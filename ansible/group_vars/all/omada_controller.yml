@@ -1,5 +1,6 @@
 ---
 omada_controller:
+  management_https_port: 8043
   users:
     exporter:
       name: 'exporter'

@@ -12,4 +12,4 @@ http:
     subsonic:
       loadBalancer:
         servers:
-          - url: "http://{{ homelab_services.subsonic.ip }}:{{ homelab_services.subsonic.port }}"
+          - url: "{{ homelab_services.subsonic.backend.scheme }}://{{ homelab_services.subsonic.backend.host }}:{{ homelab_services.subsonic.backend.port }}"

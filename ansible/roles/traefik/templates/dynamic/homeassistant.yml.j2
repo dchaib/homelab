@@ -12,4 +12,4 @@ http:
     homeassistant:
       loadBalancer:
         servers:
-          - url: "http://{{ homelab_services.homeassistant.ip }}:{{ homelab_services.homeassistant.port }}"
+          - url: "{{ homelab_services.homeassistant.backend.scheme }}://{{ homelab_services.homeassistant.backend.host }}:{{ homelab_services.homeassistant.backend.port }}"

@@ -5,6 +5,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    extra_hosts:
+      - "{{ docker_host_gateway.hostname }}:host-gateway"
     networks:
       - "{{ docker_networks.traefik }}"
       - "{{ docker_networks.monitoring }}"

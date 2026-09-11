@@ -12,7 +12,7 @@ http:
     omada:
       loadBalancer:
         servers:
-          - url: "https://{{ homelab_services.omada_controller.ip }}:{{ homelab_services.omada_controller.port }}"
+          - url: "https://{{ docker_host_gateway.hostname }}:{{ omada_controller.management_https_port }}"
         serversTransport: "insecure-transport"
 
   serversTransports:

@@ -42,12 +42,14 @@
     comment: "Omada controller"
   become: true
 
-- name: Allow port 8043
+- name: Allow Docker containers to reach Omada Controller
   community.general.ufw:
     rule: allow
-    port: "8043"
+    from_ip: "172.16.0.0/12"
+    to_ip: "any"
+    port: "{{ omada_controller.management_https_port }}"
     proto: tcp
-    comment: "Omada controller (HTTPS)"
+    comment: "Allow Docker containers to reach Omada Controller"
   become: true
 
 - name: Allow Docker containers to reach host on HTTPS

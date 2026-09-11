@@ -3,6 +3,8 @@ services:
     image: chhaley/omada_exporter:0.13.1
     restart: unless-stopped
     user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    extra_hosts:
+      - "{{ docker_host_gateway.hostname }}:host-gateway"
     environment:
       - OMADA_HOST={{ omada_exporter_controller_host }}
       - OMADA_USER=${OMADA_USER}
