@@ -3,6 +3,13 @@
   hosts: all
   tags:
     - setup
+  pre_tasks:
+    - name: Configure system timezone
+      community.general.timezone:
+        name: "{{ system_timezone }}"
+      become: true
+      tags:
+        - timezone
   roles:
     - users
     - ufw

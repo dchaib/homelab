@@ -23,25 +23,25 @@ backup:
   jobs:
     paperless_ngx:
       data_path: "{{ paperless_ngx_docker_volumes.data }}"
-      hour: 2
+      hour: 4
       minute: 0
       docker_compose_stack_name: "{{ paperless_ngx_stack_name }}"
       healthchecks_slug: paperless-ngx-backup
     vaultwarden:
       data_path: "{{ vaultwarden_docker_volumes.data }}"
-      hour: 2
+      hour: 4
       minute: 10
       docker_compose_stack_name: "{{ vaultwarden_stack_name }}"
       healthchecks_slug: vaultwarden-backup
     vikunja:
       data_path: "{{ vikunja_docker_volumes.db }}"
-      hour: 2
+      hour: 4
       minute: 20
       docker_compose_stack_name: "{{ vikunja_stack_name }}"
       healthchecks_slug: vikunja-backup
     healthchecks:
       data_path: "{{ healthchecks_docker_volumes.data }}"
-      hour: 3
+      hour: 5
       minute: 0
       docker_compose_stack_name: "{{ healthchecks_stack_name }}"
       healthchecks_slug: healthchecks-backup
