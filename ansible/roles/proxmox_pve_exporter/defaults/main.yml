@@ -1,0 +1,3 @@
+---
+proxmox_pve_exporter_stack_name: proxmox-pve-exporter
+proxmox_pve_exporter_config_folder: '{{ docker_config_dir }}/{{ proxmox_pve_exporter_stack_name }}'

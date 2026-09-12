@@ -35,3 +35,4 @@ monitoring:
   omada_exporter: "omada-exporter"
   adguard_home_exporter: "adguard-home-exporter"
   redis_exporter: "redis-exporter"
+  proxmox_pve_exporter: "proxmox-pve-exporter"
