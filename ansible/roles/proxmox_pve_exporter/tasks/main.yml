@@ -1,0 +1,26 @@
+---
+- name: Create Proxmox PVE exporter configuration directory
+  ansible.builtin.file:
+    path: '{{ proxmox_pve_exporter_config_folder }}'
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy Proxmox PVE exporter configuration
+  ansible.builtin.template:
+    src: pve.yml.j2
+    dest: '{{ proxmox_pve_exporter_config_folder }}/pve.yml'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0600'
+  become: true
+  no_log: true
+  notify: Restart docker compose stack
+
+- name: Deploy Proxmox PVE exporter
+  ansible.builtin.include_role:
+    name: docker_compose
+  vars:
+    docker_compose_stack_name: '{{ proxmox_pve_exporter_stack_name }}'

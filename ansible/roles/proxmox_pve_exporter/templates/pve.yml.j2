@@ -1,0 +1,5 @@
+default:
+  user: {{ proxmox.users.exporter.user | to_json }}
+  token_name: {{ proxmox.users.exporter.token.name | to_json }}
+  token_value: {{ proxmox.users.exporter.token.value | to_json }}
+  verify_ssl: {{ proxmox.verify_ssl | bool | lower }}

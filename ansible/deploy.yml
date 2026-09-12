@@ -89,6 +89,9 @@
     - role: redis_exporter
       tags:
         - redis_exporter
+    - role: proxmox_pve_exporter
+      tags:
+        - proxmox_pve_exporter
     - role: crowdsec
       tags:
         - crowdsec

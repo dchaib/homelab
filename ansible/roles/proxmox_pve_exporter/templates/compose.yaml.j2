@@ -1,0 +1,14 @@
+services:
+  {{ monitoring.proxmox_pve_exporter }}:
+    image: prompve/prometheus-pve-exporter:3.10.0
+    restart: unless-stopped
+    init: true
+    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    volumes:
+      - "{{ proxmox_pve_exporter_config_folder }}/pve.yml:/etc/prometheus/pve.yml:ro"
+    networks:
+      - {{ docker_networks.monitoring }}
+
+networks:
+  {{ docker_networks.monitoring }}:
+    external: true
