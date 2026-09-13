@@ -3,10 +3,5 @@
   hosts: all
   tags:
     - setup
-  tasks:
-    - name: Configure system timezone
-      community.general.timezone:
-        name: "{{ system_timezone }}"
-      become: true
-      tags:
-        - timezone
+  roles:
+    - role: base_system

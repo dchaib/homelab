@@ -1,4 +1,11 @@
 ---
+- name: Ensure backup tools are installed
+  ansible.builtin.apt:
+    name: rsync
+    state: present
+    update_cache: true
+  become: true
+
 - name: Create configuration directory
   ansible.builtin.file:
     path: '/etc/samba'

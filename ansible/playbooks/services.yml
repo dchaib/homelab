@@ -65,6 +65,3 @@
     - role: healthchecks
       tags:
         - healthchecks
-    - role: healthchecks_wrapper
-      tags:
-        - healthchecks_wrapper

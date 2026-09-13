@@ -18,3 +18,4 @@
     - role: docker_networks
     - role: cron
     - role: backup
+    - role: healthchecks_wrapper
