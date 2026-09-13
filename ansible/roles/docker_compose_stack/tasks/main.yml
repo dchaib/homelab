@@ -1,0 +1,47 @@
+---
+- name: Create volume directories
+  ansible.builtin.file:
+    path: "{{ item.path | default(item) }}"
+    state: directory
+    owner: '{{ docker_compose_stack_owner }}'
+    group: '{{ docker_compose_stack_group }}'
+    mode: "{{ item.mode | default(docker_compose_stack_default_volume_mode) }}"
+  become: true
+  loop: '{{ docker_compose_stack_volumes }}'
+
+- name: Create subdirectory for the compose file
+  ansible.builtin.file:
+    path: '{{ docker_compose_stack_project_dir }}'
+    state: directory
+    owner: '{{ docker_compose_stack_owner }}'
+    group: '{{ docker_compose_stack_group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy compose file
+  ansible.builtin.template:
+    src: 'compose.yaml.j2'
+    dest: '{{ docker_compose_stack_project_dir }}/compose.yaml'
+    owner: '{{ docker_compose_stack_owner }}'
+    group: '{{ docker_compose_stack_group }}'
+    mode: '0640'
+  become: true
+
+- name: Copy .env file
+  ansible.builtin.template:
+    src: '.env.j2'
+    dest: '{{ docker_compose_stack_project_dir }}/.env'
+    owner: '{{ docker_compose_stack_owner }}'
+    group: '{{ docker_compose_stack_group }}'
+    mode: '0600'
+  become: true
+  when: docker_compose_stack_use_env | bool
+
+- name: Start services
+  community.docker.docker_compose_v2:
+    project_src: '{{ docker_compose_stack_project_dir }}'
+    recreate: "{{ docker_compose_stack_recreate | ternary('always', 'auto') }}"
+  become: true
+  when:
+    - ansible_check_mode is false
+    - docker_compose_stack_start | bool

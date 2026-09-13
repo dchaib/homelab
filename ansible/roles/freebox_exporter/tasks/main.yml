@@ -16,11 +16,12 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
-  notify: "Restart docker compose stack"
+  register: freebox_exporter_config_result
 
 - name: Deploy Freebox Exporter
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: '{{ freebox_exporter_stack_name }}'
-    docker_compose_volumes: '{{ freebox_exporter_docker_volumes.values() }}'
+    docker_compose_stack_volumes: '{{ freebox_exporter_docker_volumes.values() | list }}'
+    docker_compose_stack_recreate: "{{ freebox_exporter_config_result.changed }}"

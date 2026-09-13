@@ -2,7 +2,7 @@ services:
   authelia:
     image: "authelia/authelia:4.39.26"
     restart: unless-stopped
-    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     volumes:
       - "{{ authelia_config_folder }}:/config"
       - "{{ authelia_docker_volumes.data }}:/data"
@@ -29,7 +29,7 @@ services:
   authelia_redis:
     image: "redis:8.10.1-alpine"
     restart: unless-stopped
-    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     volumes:
       - "{{ authelia_config_folder }}/redis.conf:/usr/local/etc/redis/redis.conf:ro"

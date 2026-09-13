@@ -42,10 +42,10 @@
 
 - name: Deploy Pronote2Calendar
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: '{{ pronote2calendar_stack_name }}'
-    docker_compose_start_stack: false
+    docker_compose_stack_start: false
 
 - name: Create cron job
   ansible.builtin.import_tasks: cron-job.yml

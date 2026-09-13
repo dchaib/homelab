@@ -1,11 +1,11 @@
 ---
 - name: Deploy Vikunja
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: '{{ vikunja_stack_name }}'
-    docker_compose_volumes: '{{ vikunja_docker_volumes.values() }}'
-    docker_compose_use_env: true
+    docker_compose_stack_volumes: '{{ vikunja_docker_volumes.values() | list }}'
+    docker_compose_stack_use_env: true
 
 - name: Set up backup for vikunja
   ansible.builtin.include_role:

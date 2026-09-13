@@ -2,7 +2,7 @@ services:
   ntfy:
     image: binwiederhier/ntfy:v2.28.0
     restart: unless-stopped
-    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     command:
       - serve
     volumes:

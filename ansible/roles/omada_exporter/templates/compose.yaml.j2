@@ -2,7 +2,7 @@ services:
   {{ monitoring.omada_exporter }}:
     image: chhaley/omada_exporter:0.13.1
     restart: unless-stopped
-    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     extra_hosts:
       - "{{ docker_host_gateway.hostname }}:host-gateway"
     environment:

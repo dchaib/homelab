@@ -16,11 +16,12 @@
     group: '{{ users.app_user.group }}'
     mode: '0640'
   become: true
-  notify: "Restart docker compose stack"
+  register: alloy_config_result
 
 - name: Deploy Alloy
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: 'alloy'
-    docker_compose_volumes: '{{ alloy_docker_volumes.values() }}'
+    docker_compose_stack_volumes: '{{ alloy_docker_volumes.values() | list }}'
+    docker_compose_stack_recreate: "{{ alloy_config_result.changed }}"

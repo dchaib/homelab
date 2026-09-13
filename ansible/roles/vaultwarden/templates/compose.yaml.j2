@@ -2,7 +2,7 @@ services:
   vaultwarden:
     image: vaultwarden/server:1.37.2-alpine
     restart: unless-stopped
-    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     volumes:
       - {{ vaultwarden_docker_volumes.data }}:/data
     env_file: .env

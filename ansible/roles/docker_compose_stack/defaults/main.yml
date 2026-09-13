@@ -1,0 +1,11 @@
+---
+docker_compose_stack_volumes: []
+docker_compose_stack_use_env: false
+docker_compose_stack_start: true
+docker_compose_stack_recreate: false
+docker_compose_stack_owner: "{{ users.app_user.name }}"
+docker_compose_stack_group: "{{ users.app_user.group }}"
+docker_compose_stack_uid: "{{ users.app_user.uid }}"
+docker_compose_stack_gid: "{{ users.app_user.gid }}"
+docker_compose_stack_project_dir: "{{ docker_compose_dir }}/{{ docker_compose_stack_name }}"
+docker_compose_stack_default_volume_mode: '0750'

@@ -29,9 +29,11 @@
 
 - name: Deploy Omada Controller
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: '{{ omada_controller_stack_name }}'
-    docker_compose_volumes: '{{ omada_controller_docker_volumes.values() }}'
-    docker_compose_user_name: omada
-    docker_compose_user_group: omada
+    docker_compose_stack_volumes: '{{ omada_controller_docker_volumes.values() | list }}'
+    docker_compose_stack_owner: omada
+    docker_compose_stack_group: omada
+    docker_compose_stack_uid: 508
+    docker_compose_stack_gid: 508

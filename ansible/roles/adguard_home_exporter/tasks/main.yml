@@ -1,7 +1,7 @@
 ---
 - name: Deploy AdGuard Home Exporter
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: '{{ adguard_home_exporter_stack_name }}'
-    docker_compose_use_env: true
+    docker_compose_stack_use_env: true

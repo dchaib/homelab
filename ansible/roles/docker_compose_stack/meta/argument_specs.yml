@@ -1,0 +1,38 @@
+---
+argument_specs:
+  main:
+    short_description: Deploy a Docker Compose stack
+    options:
+      docker_compose_stack_name:
+        description: Name of the Docker Compose stack.
+        type: str
+        required: true
+      docker_compose_stack_volumes:
+        description: Directories to create for persistent volumes.
+        type: list
+        elements: raw
+        default: []
+      docker_compose_stack_use_env:
+        description: Whether to render the role-specific .env template.
+        type: bool
+        default: false
+      docker_compose_stack_start:
+        description: Whether to start the stack after rendering its files.
+        type: bool
+        default: true
+      docker_compose_stack_recreate:
+        description: Whether to force recreation after a bind-mounted configuration change.
+        type: bool
+        default: false
+      docker_compose_stack_owner:
+        description: Owner of the stack files and volume directories.
+        type: str
+      docker_compose_stack_group:
+        description: Group of the stack files and volume directories.
+        type: str
+      docker_compose_stack_uid:
+        description: UID exposed to Compose templates.
+        type: int
+      docker_compose_stack_gid:
+        description: GID exposed to Compose templates.
+        type: int
