@@ -50,7 +50,7 @@ resource "proxmox_virtual_environment_vm" "services_vm" {
 
   cpu {
     cores = var.services_vm.cpu_cores
-    type  = "x86-64-v2-AES"
+    type  = "x86-64-v3"
   }
 
   memory {
