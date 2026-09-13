@@ -1,0 +1,26 @@
+---
+ufw_rules:
+  - rule: allow
+    port: "22"
+    proto: tcp
+    comment: SSH
+  - rule: allow
+    port: "29810"
+    proto: udp
+    comment: Omada controller
+  - rule: allow
+    port: "29814"
+    proto: tcp
+    comment: Omada controller
+  - rule: allow
+    port: "{{ omada_controller.management_https_port }}"
+    proto: tcp
+    comment: Allow Docker containers to reach Omada Controller
+    from_ip: "172.16.0.0/12"
+    to_ip: any
+  - rule: allow
+    port: "443"
+    proto: tcp
+    comment: Allow Docker containers to reach host on HTTPS
+    from_ip: "172.16.0.0/12"
+    to_ip: any
