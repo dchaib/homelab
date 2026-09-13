@@ -1,0 +1,21 @@
+---
+- name: Configure DNS hosts
+  hosts: dns_servers
+  tags:
+    - setup
+  roles:
+    - role: systemd_resolved
+
+- name: Configure services hosts
+  hosts: services
+  tags:
+    - setup
+  roles:
+    - role: users
+    - role: ufw
+    - role: cifs
+    - role: docker
+    - role: docker_networks
+    - role: cron
+    - role: backup
+    - role: healthchecks_wrapper

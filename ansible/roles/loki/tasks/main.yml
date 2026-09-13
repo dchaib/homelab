@@ -1,18 +1,18 @@
 ---
 - name: Create Loki group
   ansible.builtin.group:
-    name: loki
-    gid: 10001
+    name: "{{ loki_user.group }}"
+    gid: "{{ loki_user.gid }}"
     state: present
   become: true
 
 - name: Create Loki user
   ansible.builtin.user:
-    name: loki
-    group: loki
+    name: "{{ loki_user.name }}"
+    group: "{{ loki_user.group }}"
     groups:
       - '{{ users.app_user.group }}'
-    uid: 10001
+    uid: "{{ loki_user.uid }}"
     shell: /usr/sbin/nologin
     system: true
     create_home: false
@@ -23,7 +23,7 @@
   ansible.builtin.user:
     name: "{{ users.app_user.name }}"
     groups:
-      - loki
+      - "{{ loki_user.group }}"
     append: true
   become: true
 
@@ -31,8 +31,8 @@
   ansible.builtin.file:
     path: '{{ loki_config_folder }}'
     state: directory
-    owner: loki
-    group: loki
+    owner: "{{ loki_user.name }}"
+    group: "{{ loki_user.group }}"
     mode: '0750'
   become: true
 
@@ -40,17 +40,20 @@
   ansible.builtin.copy:
     src: 'loki-config.yaml'
     dest: '{{ loki_config_folder }}/loki-config.yaml'
-    owner: loki
-    group: loki
+    owner: "{{ loki_user.name }}"
+    group: "{{ loki_user.group }}"
     mode: '0640'
   become: true
-  notify: "Restart docker compose stack"
+  register: loki_config_result
 
 - name: Deploy Loki
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: '{{ loki_stack_name }}'
-    docker_compose_volumes: '{{ loki_docker_volumes.values() }}'
-    docker_compose_user_name: loki
-    docker_compose_user_group: loki
+    docker_compose_stack_volumes: '{{ loki_docker_volumes.values() | list }}'
+    docker_compose_stack_owner: "{{ loki_user.name }}"
+    docker_compose_stack_group: "{{ loki_user.group }}"
+    docker_compose_stack_uid: "{{ loki_user.uid }}"
+    docker_compose_stack_gid: "{{ loki_user.gid }}"
+    docker_compose_stack_recreate: "{{ loki_config_result.changed }}"

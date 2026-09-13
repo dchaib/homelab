@@ -1,18 +1,18 @@
 ---
 - name: Create Prometheus group
   ansible.builtin.group:
-    name: prometheus
-    gid: 65532
+    name: "{{ prometheus_user.group }}"
+    gid: "{{ prometheus_user.gid }}"
     state: present
   become: true
 
 - name: Create Prometheus user
   ansible.builtin.user:
-    name: prometheus
-    group: prometheus
+    name: "{{ prometheus_user.name }}"
+    group: "{{ prometheus_user.group }}"
     groups:
       - '{{ users.app_user.group }}'
-    uid: 65532
+    uid: "{{ prometheus_user.uid }}"
     shell: /usr/sbin/nologin
     system: true
     create_home: false
@@ -23,7 +23,7 @@
   ansible.builtin.user:
     name: "{{ users.app_user.name }}"
     groups:
-      - prometheus
+      - "{{ prometheus_user.group }}"
     append: true
   become: true
 
@@ -31,8 +31,8 @@
   ansible.builtin.file:
     path: '{{ prometheus_config_folder }}'
     state: directory
-    owner: 'prometheus'
-    group: 'prometheus'
+    owner: "{{ prometheus_user.name }}"
+    group: "{{ prometheus_user.group }}"
     mode: '0750'
   become: true
 
@@ -40,17 +40,20 @@
   ansible.builtin.template:
     src: 'prometheus.yml.j2'
     dest: '{{ prometheus_config_folder }}/prometheus.yml'
-    owner: 'prometheus'
-    group: 'prometheus'
+    owner: "{{ prometheus_user.name }}"
+    group: "{{ prometheus_user.group }}"
     mode: '0640'
   become: true
-  notify: "Restart docker compose stack"
+  register: prometheus_config_result
 
 - name: Deploy Prometheus
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: '{{ prometheus_stack_name }}'
-    docker_compose_volumes: '{{ prometheus_docker_volumes.values() }}'
-    docker_compose_user_name: prometheus
-    docker_compose_user_group: prometheus
+    docker_compose_stack_volumes: '{{ prometheus_docker_volumes.values() | list }}'
+    docker_compose_stack_owner: "{{ prometheus_user.name }}"
+    docker_compose_stack_group: "{{ prometheus_user.group }}"
+    docker_compose_stack_uid: "{{ prometheus_user.uid }}"
+    docker_compose_stack_gid: "{{ prometheus_user.gid }}"
+    docker_compose_stack_recreate: "{{ prometheus_config_result.changed }}"

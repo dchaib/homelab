@@ -1,0 +1,22 @@
+---
+- name: Configure system timezone
+  community.general.timezone:
+    name: "{{ system_timezone }}"
+  become: true
+  tags:
+    - timezone
+
+- name: Ensure systemd-timesyncd is installed
+  ansible.builtin.apt:
+    name: systemd-timesyncd
+    state: present
+    update_cache: true
+  become: true
+
+- name: Ensure systemd-timesyncd is enabled and running
+  ansible.builtin.systemd_service:
+    name: systemd-timesyncd
+    enabled: true
+    state: started
+    masked: false
+  become: true

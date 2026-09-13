@@ -2,7 +2,7 @@ services:
   {{ monitoring.freebox_exporter }}:
     image: ghcr.io/shackerd/freebox-exporter-rs:v0.0.26
     restart: unless-stopped
-    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     volumes:
       - "{{ freebox_exporter_config_folder }}:/etc/freebox-exporter-rs"
       - "{{ freebox_exporter_docker_volumes.data }}:/data"

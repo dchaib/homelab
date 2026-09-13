@@ -1,0 +1,7 @@
+---
+- name: Configure base system
+  hosts: all
+  tags:
+    - setup
+  roles:
+    - role: base_system

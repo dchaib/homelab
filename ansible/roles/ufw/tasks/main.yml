@@ -18,48 +18,18 @@
     policy: allow
   become: true
 
-- name: Allow port 22 (SSH)
+- name: Configure firewall rules
   community.general.ufw:
-    rule: allow
-    port: "22"
-    proto: tcp
-    comment: "SSH"
-  become: true
-
-- name: Allow port 29810
-  community.general.ufw:
-    rule: allow
-    port: "29810"
-    proto: udp
-    comment: "Omada controller"
-  become: true
-
-- name: Allow port 29814
-  community.general.ufw:
-    rule: allow
-    port: "29814"
-    proto: tcp
-    comment: "Omada controller"
-  become: true
-
-- name: Allow Docker containers to reach Omada Controller
-  community.general.ufw:
-    rule: allow
-    from_ip: "172.16.0.0/12"
-    to_ip: "any"
-    port: "{{ omada_controller.management_https_port }}"
-    proto: tcp
-    comment: "Allow Docker containers to reach Omada Controller"
-  become: true
-
-- name: Allow Docker containers to reach host on HTTPS
-  community.general.ufw:
-    rule: allow
-    from_ip: "172.16.0.0/12"
-    to_ip: "any"
-    port: "443"
-    proto: tcp
-    comment: "Allow Docker containers to reach host on HTTPS"
+    rule: "{{ item.rule }}"
+    port: "{{ item.port }}"
+    proto: "{{ item.proto }}"
+    comment: "{{ item.comment }}"
+    from_ip: "{{ item.from_ip | default(omit) }}"
+    to_ip: "{{ item.to_ip | default(omit) }}"
+    direction: "{{ item.direction | default(omit) }}"
+  loop: "{{ ufw_rules }}"
+  loop_control:
+    label: "{{ item.comment }}"
   become: true
 
 - name: Ensure UFW is enabled

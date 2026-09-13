@@ -3,7 +3,7 @@ services:
     image: prompve/prometheus-pve-exporter:3.10.0
     restart: unless-stopped
     init: true
-    user: "{{ docker_compose_uid }}:{{ docker_compose_gid }}"
+    user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     volumes:
       - "{{ proxmox_pve_exporter_config_folder }}/pve.yml:/etc/prometheus/pve.yml:ro"
     networks:

@@ -17,10 +17,11 @@
     mode: '0600'
   become: true
   no_log: true
-  notify: Restart docker compose stack
+  register: proxmox_pve_exporter_config_result
 
 - name: Deploy Proxmox PVE exporter
   ansible.builtin.include_role:
-    name: docker_compose
+    name: docker_compose_stack
   vars:
     docker_compose_stack_name: '{{ proxmox_pve_exporter_stack_name }}'
+    docker_compose_stack_recreate: "{{ proxmox_pve_exporter_config_result.changed }}"
