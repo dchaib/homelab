@@ -1,18 +1,18 @@
 ---
 - name: Create Omada group
   ansible.builtin.group:
-    name: omada
-    gid: 508
+    name: "{{ omada_controller_user.group }}"
+    gid: "{{ omada_controller_user.gid }}"
     state: present
   become: true
 
 - name: Create Omada user
   ansible.builtin.user:
-    name: omada
-    group: omada
+    name: "{{ omada_controller_user.name }}"
+    group: "{{ omada_controller_user.group }}"
     groups:
       - '{{ users.app_user.group }}'
-    uid: 508
+    uid: "{{ omada_controller_user.uid }}"
     shell: /usr/sbin/nologin
     system: true
     create_home: false
@@ -23,7 +23,7 @@
   ansible.builtin.user:
     name: "{{ users.app_user.name }}"
     groups:
-      - omada
+      - "{{ omada_controller_user.group }}"
     append: true
   become: true
 
@@ -33,7 +33,7 @@
   vars:
     docker_compose_stack_name: '{{ omada_controller_stack_name }}'
     docker_compose_stack_volumes: '{{ omada_controller_docker_volumes.values() | list }}'
-    docker_compose_stack_owner: omada
-    docker_compose_stack_group: omada
-    docker_compose_stack_uid: 508
-    docker_compose_stack_gid: 508
+    docker_compose_stack_owner: "{{ omada_controller_user.name }}"
+    docker_compose_stack_group: "{{ omada_controller_user.group }}"
+    docker_compose_stack_uid: "{{ omada_controller_user.uid }}"
+    docker_compose_stack_gid: "{{ omada_controller_user.gid }}"

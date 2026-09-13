@@ -3,3 +3,9 @@ omada_controller_stack_name: omada-controller
 omada_controller_docker_volumes:
   data: '{{ docker_volumes_dir }}/{{ omada_controller_stack_name }}/data'
   logs: '{{ docker_volumes_dir }}/{{ omada_controller_stack_name }}/logs'
+
+omada_controller_user:
+  name: omada
+  uid: 508
+  group: omada
+  gid: 508
