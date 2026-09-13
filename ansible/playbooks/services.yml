@@ -1,0 +1,70 @@
+---
+- name: Deploy Docker stacks
+  hosts: services
+  roles:
+    - role: prometheus
+      tags:
+        - prometheus
+    - role: loki
+      tags:
+        - loki
+    - role: alloy
+      tags:
+        - alloy
+    - role: grafana
+      tags:
+        - grafana
+    - role: freebox_exporter
+      tags:
+        - freebox_exporter
+    - role: omada_controller
+      tags:
+        - omada_controller
+    - role: omada_exporter
+      tags:
+        - omada_exporter
+    - role: adguard_home
+      tags:
+        - adguard_home
+    - role: adguard_home_exporter
+      tags:
+        - adguard_home_exporter
+    - role: traefik
+      tags:
+        - traefik
+    - role: pronote2calendar
+      tags:
+        - pronote2calendar
+    - role: authelia
+      tags:
+        - authelia
+    - role: redis_exporter
+      tags:
+        - redis_exporter
+    - role: proxmox_pve_exporter
+      tags:
+        - proxmox_pve_exporter
+    - role: crowdsec
+      tags:
+        - crowdsec
+    - role: ntfy
+      tags:
+        - ntfy
+    - role: apprise
+      tags:
+        - apprise
+    - role: paperless_ngx
+      tags:
+        - paperless_ngx
+    - role: vaultwarden
+      tags:
+        - vaultwarden
+    - role: vikunja
+      tags:
+        - vikunja
+    - role: healthchecks
+      tags:
+        - healthchecks
+    - role: healthchecks_wrapper
+      tags:
+        - healthchecks_wrapper
