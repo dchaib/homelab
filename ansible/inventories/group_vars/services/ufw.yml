@@ -13,6 +13,10 @@ ufw_rules:
     proto: tcp
     comment: Omada controller
   - rule: allow
+    port: "29817"
+    proto: tcp
+    comment: Omada controller
+  - rule: allow
     port: "{{ omada_controller.management_https_port }}"
     proto: tcp
     comment: Allow Docker containers to reach Omada Controller
