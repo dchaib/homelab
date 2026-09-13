@@ -26,12 +26,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install -r ansible/requirements.yml
+
       - name: Lint yaml files
         run: yamllint .
 
       - name: Lint Ansible project
         run: |
-          cd ansible && ansible-lint
+          cd ansible && ansible-lint --offline
+
+      - name: Validate Ansible inventory and playbook
+        run: |
+          cd ansible
+          ansible-inventory --graph
+          ansible-playbook site.yml --syntax-check
 
   lint-tofu:
     name: Lint OpenTofu
