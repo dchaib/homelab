@@ -1,0 +1,7 @@
+---
+- name: Configure services VM base system
+  hosts: services
+  tags:
+    - setup
+  roles:
+    - role: base_system

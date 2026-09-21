@@ -1,0 +1,12 @@
+---
+# Keep the Alloy HTTP server private: metrics are sent through remote_write.
+monitoring_agent_http_listen_address: '127.0.0.1:12345'
+monitoring_agent_scrape_interval: '60s'
+monitoring_agent_loki_write_url: ''
+monitoring_agent_prometheus_remote_write_url: ''
+
+monitoring_agent_smartctl_exporter_listen_address: '127.0.0.1:9633'
+monitoring_agent_smartctl_exporter_interval: '60s'
+monitoring_agent_smartctl_exporter_rescan_interval: '30m'
+# Leave empty for automatic discovery. Use /dev/device;type for RAID/HBA devices.
+monitoring_agent_smartctl_exporter_devices: []

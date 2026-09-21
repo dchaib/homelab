@@ -1,9 +1,12 @@
 ---
-- name: Configure base system
-  ansible.builtin.import_playbook: playbooks/base.yml
+- name: Configure services VM base system
+  ansible.builtin.import_playbook: playbooks/services-base.yml
 
 - name: Configure services hosts
   ansible.builtin.import_playbook: playbooks/services-host.yml
 
 - name: Deploy services
   ansible.builtin.import_playbook: playbooks/services.yml
+
+- name: Configure monitoring agents
+  ansible.builtin.import_playbook: playbooks/monitoring-agents.yml

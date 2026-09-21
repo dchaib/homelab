@@ -1,0 +1,144 @@
+---
+- name: Install prerequisites for the Grafana repository
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - gpg
+      - python3-debian
+    state: present
+    update_cache: true
+  become: true
+
+- name: Require metrics and logs endpoints
+  ansible.builtin.assert:
+    that:
+      - monitoring_agent_prometheus_remote_write_url | length > 0
+      - monitoring_agent_loki_write_url | length > 0
+    fail_msg: Alloy must be able to reach the Prometheus and Loki endpoints from this host.
+
+- name: Create APT keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Install Grafana APT signing key
+  ansible.builtin.get_url:
+    url: https://apt.grafana.com/gpg-full.key
+    dest: /etc/apt/keyrings/grafana.asc
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Configure Grafana APT repository
+  ansible.builtin.deb822_repository:
+    name: grafana
+    types: deb
+    uris: https://apt.grafana.com
+    suites: stable
+    components: main
+    signed_by: /etc/apt/keyrings/grafana.asc
+    state: present
+  become: true
+  notify: Update APT cache
+
+- name: Configure Debian backports repository
+  ansible.builtin.deb822_repository:
+    name: trixie-backports
+    types: deb
+    uris: https://deb.debian.org/debian
+    suites: trixie-backports
+    components: main
+    state: present
+  become: true
+  notify: Update APT cache
+
+- name: Apply repository changes before package installation
+  ansible.builtin.meta: flush_handlers
+
+- name: Install Alloy and hardware monitoring tools
+  ansible.builtin.apt:
+    name:
+      - alloy
+      - lm-sensors
+      - smartmontools
+    state: present
+  become: true
+
+- name: Grant Alloy access to the systemd journal
+  ansible.builtin.user:
+    name: alloy
+    groups:
+      - adm
+      - systemd-journal
+    append: true
+  become: true
+  notify: Restart Alloy
+
+- name: Install smartctl exporter from Debian backports
+  ansible.builtin.apt:
+    name: prometheus-smartctl-exporter
+    state: present
+    default_release: trixie-backports
+    # Start it only after the localhost-only systemd override is in place.
+    policy_rc_d: 101
+  become: true
+
+- name: Create smartctl exporter systemd override directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/smartctl_exporter.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Configure smartctl exporter systemd override
+  ansible.builtin.template:
+    src: smartctl-exporter-override.conf.j2
+    dest: /etc/systemd/system/smartctl_exporter.service.d/override.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify:
+    - Restart smartctl exporter
+
+- name: Enable smartctl exporter service
+  ansible.builtin.systemd_service:
+    name: smartctl_exporter
+    daemon_reload: true
+    enabled: true
+    state: started
+  become: true
+
+- name: Configure Alloy
+  ansible.builtin.template:
+    src: config.alloy.j2
+    dest: /etc/alloy/config.alloy
+    owner: root
+    group: alloy
+    mode: '0640'
+  become: true
+  notify: Restart Alloy
+
+- name: Configure Alloy service arguments
+  ansible.builtin.template:
+    src: alloy.default.j2
+    dest: /etc/default/alloy
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Restart Alloy
+
+- name: Enable Alloy service
+  ansible.builtin.systemd_service:
+    name: alloy
+    enabled: true
+    state: started
+  become: true
