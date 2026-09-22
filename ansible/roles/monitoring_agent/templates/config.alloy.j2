@@ -57,7 +57,7 @@ loki.relabel "journal" {
 loki.source.journal "host" {
   max_age = "1h"
   labels = {
-    "instance" = "{{ inventory_hostname_short }}"
+    "instance" = "{{ inventory_hostname_short }}",
   }
   relabel_rules = loki.relabel.journal.rules
   forward_to    = [loki.write.host.receiver]
