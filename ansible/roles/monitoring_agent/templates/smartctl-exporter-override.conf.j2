@@ -1,0 +1,11 @@
+[Service]
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ExecStart=
+ExecStart=/usr/bin/smartctl_exporter \
+  --web.listen-address={{ monitoring_agent_smartctl_exporter_listen_address }} \
+  --smartctl.interval={{ monitoring_agent_smartctl_exporter_interval }} \
+  --smartctl.rescan={{ monitoring_agent_smartctl_exporter_rescan_interval }}{% for device in monitoring_agent_smartctl_exporter_devices %} \
+  --smartctl.device="{{ device }}"{% endfor %}

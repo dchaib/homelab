@@ -1,0 +1,70 @@
+livedebugging {
+  enabled = false
+}
+
+prometheus.exporter.unix "host" {
+}
+
+prometheus.scrape "host" {
+  targets         = prometheus.exporter.unix.host.targets
+  forward_to      = [prometheus.relabel.host.receiver]
+  scrape_interval = "{{ monitoring_agent_scrape_interval }}"
+}
+
+prometheus.scrape "smartctl" {
+  targets = [{
+    "__address__" = "{{ monitoring_agent_smartctl_exporter_listen_address }}",
+    "job"         = "integrations/smartctl",
+  }]
+  forward_to      = [prometheus.relabel.host.receiver]
+  scrape_interval = "{{ monitoring_agent_scrape_interval }}"
+}
+
+prometheus.relabel "host" {
+  rule {
+    target_label = "instance"
+    replacement  = "{{ inventory_hostname_short }}"
+  }
+
+  forward_to = [prometheus.remote_write.metrics_service.receiver]
+}
+
+prometheus.remote_write "metrics_service" {
+  endpoint {
+    url = "{{ monitoring_agent_prometheus_remote_write_url }}"
+  }
+}
+
+loki.relabel "journal" {
+  forward_to = []
+
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal_priority_keyword"]
+    target_label  = "level"
+  }
+
+  rule {
+    target_label = "job"
+    replacement  = "integrations/journal"
+  }
+}
+
+loki.source.journal "host" {
+  max_age = "1h"
+  labels = {
+    "instance" = "{{ inventory_hostname_short }}"
+  }
+  relabel_rules = loki.relabel.journal.rules
+  forward_to    = [loki.write.host.receiver]
+}
+
+loki.write "host" {
+  endpoint {
+    url = "{{ monitoring_agent_loki_write_url }}"
+  }
+}
