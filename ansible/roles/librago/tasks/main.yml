@@ -1,0 +1,38 @@
+---
+- name: Create Librago configuration directory
+  ansible.builtin.file:
+    path: '{{ librago_config_folder }}'
+    state: directory
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0750'
+  become: true
+
+- name: Copy Librago configuration
+  ansible.builtin.template:
+    src: appsettings.Local.json.j2
+    dest: '{{ librago_config_folder }}/appsettings.Local.json'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0600'
+  become: true
+  no_log: true
+  register: librago_config_result
+
+- name: Copy Librago Chromium seccomp profile
+  ansible.builtin.copy:
+    src: seccomp_profile.json
+    dest: '{{ librago_config_folder }}/seccomp_profile.json'
+    owner: '{{ users.app_user.name }}'
+    group: '{{ users.app_user.group }}'
+    mode: '0640'
+  become: true
+  register: librago_seccomp_result
+
+- name: Deploy Librago
+  ansible.builtin.include_role:
+    name: docker_compose_stack
+  vars:
+    docker_compose_stack_name: '{{ librago_stack_name }}'
+    docker_compose_stack_volumes: '{{ librago_docker_volumes.values() | list }}'
+    docker_compose_stack_recreate: "{{ librago_config_result.changed or librago_seccomp_result.changed }}"

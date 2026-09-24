@@ -62,6 +62,9 @@
     - role: vikunja
       tags:
         - vikunja
+    - role: librago
+      tags:
+        - librago
     - role: healthchecks
       tags:
         - healthchecks

@@ -1,0 +1,5 @@
+---
+librago_stack_name: librago
+librago_config_folder: '{{ docker_config_dir }}/{{ librago_stack_name }}'
+librago_docker_volumes:
+  data: '{{ docker_volumes_dir }}/{{ librago_stack_name }}/data'
