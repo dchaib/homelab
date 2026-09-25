@@ -1,0 +1,37 @@
+services:
+  librago:
+    image: ghcr.io/dchaib/librago:0.1.0
+    init: true
+    restart: unless-stopped
+    user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
+    read_only: true
+    tmpfs:
+      - /tmp
+    shm_size: 1gb
+    security_opt:
+      - no-new-privileges:true
+      - seccomp:{{ librago_config_folder }}/seccomp_profile.json
+    volumes:
+      - {{ librago_docker_volumes.data }}:/data
+      - {{ librago_config_folder }}/appsettings.Local.json:/config/appsettings.Local.json:ro
+    networks:
+      - "{{ docker_networks.traefik }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.librago.rule=Host(`{{ homelab_services.librago.domain }}`)"
+      - "traefik.http.routers.librago.entrypoints=websecure"
+      - "traefik.http.routers.librago.tls=true"
+      - "traefik.http.routers.librago.tls.certresolver=ovh"
+      - "traefik.http.routers.librago.middlewares=authelia@docker"
+      - "traefik.http.services.librago.loadbalancer.server.port=8080"
+      - "traefik.docker.network={{ docker_networks.traefik }}"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  {{ docker_networks.traefik }}:
+    external: true
