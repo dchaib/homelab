@@ -1,6 +1,22 @@
 {
   "Librago": {
     "Accounts": [
+{% for account in librago_accounts %}
+      {
+        "AccountId": {{ (account.network ~ '-' ~ account.borrower) | lower | to_json(ensure_ascii=False) }},
+        "Network": {{ account.network | to_json(ensure_ascii=False) }},
+        "Borrower": {{ account.borrower | to_json(ensure_ascii=False) }},
+        "Username": {{ account.username | to_json(ensure_ascii=False) }},
+        "Password": {{ account.password | to_json(ensure_ascii=False) }}{{ ',' if account.aliases is defined and account.aliases else '' }}
+{% if account.aliases is defined and account.aliases %}
+        "BorrowerAliases": {
+{% for alias in account.aliases %}
+          {{ alias.alias | to_json(ensure_ascii=False) }}: {{ alias.borrower | to_json(ensure_ascii=False) }}{{ ',' if not loop.last else '' }}
+{% endfor %}
+        }
+{% endif %}
+      }{{ ',' if not loop.last else '' }}
+{% endfor %}
     ]
   }
 }
