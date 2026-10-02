@@ -57,7 +57,7 @@ jobs:
         with:
           # Support for .tool-versions is implemented but not yet released.
           # tofu_version_file: .tool-versions
-          tofu_version: 1.12.6
+          tofu_version: v1.13.1
 
       - name: Check OpenTofu formatting
         run: tofu fmt -check -recursive -diff
