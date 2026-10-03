@@ -1,6 +1,6 @@
 services:
   {{ monitoring.proxmox_pve_exporter }}:
-    image: prompve/prometheus-pve-exporter:3.10.0
+    image: prompve/prometheus-pve-exporter:3.10.1
     restart: unless-stopped
     init: true
     user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
