@@ -1,6 +1,6 @@
 services:
   apprise:
-    image: caronc/apprise:v2.0.0
+    image: caronc/apprise:2.0.1
     restart: unless-stopped
     user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     environment:
