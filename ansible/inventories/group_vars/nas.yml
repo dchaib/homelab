@@ -1,6 +1,79 @@
 ---
 nas_management_subnet: 192.168.1.0/24
 
+nas_zfs_pool_name: tank
+nas_zfs_mountpoint: /srv/storage
+nas_zfs_root_properties:
+  compression: lz4
+  atime: 'off'
+  acltype: posix
+  xattr: sa
+
+nas_user_1: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  33663831393836656363316461333532346661353031373731613934393439336135666262366135
+  6565336231636166643234326166326465313561636162320a386130333063626466386131343433
+  38356539316334656537653761646630353535353435373937373364643432656464396139306633
+  3639343230366235370a356361383065643062343162306139656262636566623734383039303766
+  6537
+
+nas_zfs_datasets:
+  - name: personal
+    properties:
+      canmount: 'off'
+  - name: "personal/{{ nas_user_1 }}"
+
+  - name: shared
+    properties:
+      canmount: 'off'
+  - name: shared/documents
+  - name: shared/photos
+    properties:
+      recordsize: '1048576'  # 1 MiB
+
+  - name: media
+  - name: media/movies
+    properties:
+      recordsize: '1048576'  # 1 MiB
+  - name: media/tv
+    properties:
+      recordsize: '1048576'  # 1 MiB
+  - name: media/anime
+    properties:
+      recordsize: '1048576'  # 1 MiB
+  - name: media/music
+  - name: media/music-videos
+    properties:
+      recordsize: '1048576'  # 1 MiB
+
+  - name: software
+    properties:
+      recordsize: '1048576'  # 1 MiB
+
+  - name: apps
+    properties:
+      canmount: 'off'
+  - name: apps/paperless
+    properties:
+      canmount: 'off'
+  - name: apps/paperless/media
+
+  - name: backups
+    properties:
+      canmount: 'off'
+  - name: backups/computers
+    properties:
+      canmount: 'off'
+  - name: backups/computers/pc-01
+  - name: backups/services
+  - name: backups/home-assistant
+    properties:
+      recordsize: '1048576'  # 1 MiB
+
+nas_zfs_directories:
+  - software/applications
+  - software/games
+
 ufw_rules:
   - rule: allow
     port: "22"

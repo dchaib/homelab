@@ -1,0 +1,92 @@
+---
+- name: Check that the manually created NAS pool exists
+  ansible.builtin.command:
+    argv:
+      - zpool
+      - list
+      - -H
+      - -o
+      - name
+      - "{{ nas_zfs_pool_name }}"
+  register: zfs_storage_pool_probe
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  become: true
+
+- name: Require the NAS pool before creating datasets
+  ansible.builtin.assert:
+    that:
+      - zfs_storage_pool_probe.rc == 0
+    fail_msg: >-
+      The {{ nas_zfs_pool_name }} pool is absent. Create the mirror manually
+      before running nas-storage.yml or site.yml.
+
+- name: Read the NAS pool mountpoint
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - get
+      - -H
+      - -o
+      - value
+      - mountpoint
+      - "{{ nas_zfs_pool_name }}"
+  register: zfs_storage_mountpoint
+  changed_when: false
+  check_mode: false
+  become: true
+
+- name: Require the expected NAS pool mountpoint
+  ansible.builtin.assert:
+    that:
+      - zfs_storage_mountpoint.stdout == nas_zfs_mountpoint
+    fail_msg: >-
+      {{ nas_zfs_pool_name }} must be mounted at {{ nas_zfs_mountpoint }} before
+      creating datasets. Its current mountpoint is {{ zfs_storage_mountpoint.stdout }}.
+
+- name: Check that the NAS pool is mounted
+  ansible.builtin.command:
+    argv:
+      - zfs
+      - get
+      - -H
+      - -o
+      - value
+      - mounted
+      - "{{ nas_zfs_pool_name }}"
+  register: zfs_storage_pool_mounted
+  changed_when: false
+  check_mode: false
+  become: true
+
+- name: Require the NAS pool to be mounted
+  ansible.builtin.assert:
+    that:
+      - zfs_storage_pool_mounted.stdout == 'yes'
+    fail_msg: "{{ nas_zfs_pool_name }} is not mounted."
+
+- name: Configure NAS pool filesystem properties
+  community.general.zfs:
+    name: "{{ nas_zfs_pool_name }}"
+    state: present
+    extra_zfs_properties: "{{ nas_zfs_root_properties }}"
+  become: true
+
+- name: Create NAS datasets
+  community.general.zfs:
+    name: "{{ nas_zfs_pool_name }}/{{ item.name }}"
+    state: present
+    extra_zfs_properties: "{{ item.properties | default({}) }}"
+  loop: "{{ nas_zfs_datasets }}"
+  loop_control:
+    label: "{{ item.name }}"
+  become: true
+
+- name: Create ordinary NAS directories
+  ansible.builtin.file:
+    path: "{{ nas_zfs_mountpoint }}/{{ item }}"
+    state: directory
+    mode: '0755'
+  loop: "{{ nas_zfs_directories }}"
+  become: true

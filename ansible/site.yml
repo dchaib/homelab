@@ -8,6 +8,10 @@
 - name: Install OpenZFS on the NAS
   ansible.builtin.import_playbook: playbooks/nas-zfs.yml
 
+# The mirror must be created manually before this playbook runs on a new NAS.
+- name: Configure NAS datasets
+  ansible.builtin.import_playbook: playbooks/nas-storage.yml
+
 - name: Configure services hosts
   ansible.builtin.import_playbook: playbooks/services-host.yml
 
