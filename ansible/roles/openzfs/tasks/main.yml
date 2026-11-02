@@ -1,0 +1,73 @@
+---
+- name: Require Debian 13 for OpenZFS package sources
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.distribution == 'Debian'
+      - ansible_facts.distribution_major_version == '13'
+    fail_msg: The OpenZFS package sources in this role target Debian 13 (trixie).
+
+- name: Install APT repository prerequisites
+  ansible.builtin.apt:
+    name:
+      - debian-archive-keyring
+      - python3-debian
+    state: present
+    update_cache: true
+  become: true
+
+- name: Enable Debian contrib for OpenZFS
+  ansible.builtin.deb822_repository:
+    name: openzfs-contrib
+    types: deb
+    uris: https://deb.debian.org/debian
+    suites:
+      - trixie
+      - trixie-updates
+    components: contrib
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
+    state: present
+  become: true
+  register: openzfs_contrib_repo
+
+- name: Enable Debian security updates for OpenZFS
+  ansible.builtin.deb822_repository:
+    name: openzfs-contrib-security
+    types: deb
+    uris: https://security.debian.org/debian-security
+    suites: trixie-security
+    components: contrib
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
+    state: present
+  become: true
+  register: openzfs_security_repo
+
+- name: Refresh APT cache after enabling contrib
+  ansible.builtin.apt:
+    update_cache: true
+  when: openzfs_contrib_repo.changed or openzfs_security_repo.changed
+  become: true
+
+- name: Determine Debian package architecture
+  ansible.builtin.command:
+    argv:
+      - dpkg
+      - --print-architecture
+  register: openzfs_debian_architecture
+  changed_when: false
+
+- name: Install kernel headers for DKMS
+  ansible.builtin.apt:
+    name: "linux-headers-{{ openzfs_debian_architecture.stdout }}"
+    state: present
+  become: true
+
+- name: Install OpenZFS packages
+  ansible.builtin.apt:
+    name:
+      - zfs-dkms
+      - zfsutils-linux
+      - zfs-zed
+    state: present
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+  become: true

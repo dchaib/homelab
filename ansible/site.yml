@@ -5,6 +5,9 @@
 - name: Configure NAS base system
   ansible.builtin.import_playbook: playbooks/nas-base.yml
 
+- name: Install OpenZFS on the NAS
+  ansible.builtin.import_playbook: playbooks/nas-zfs.yml
+
 - name: Configure services hosts
   ansible.builtin.import_playbook: playbooks/services-host.yml
 
