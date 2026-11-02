@@ -2,6 +2,9 @@
 - name: Configure services VM base system
   ansible.builtin.import_playbook: playbooks/services-base.yml
 
+- name: Configure NAS base system
+  ansible.builtin.import_playbook: playbooks/nas-base.yml
+
 - name: Configure services hosts
   ansible.builtin.import_playbook: playbooks/services-host.yml
 

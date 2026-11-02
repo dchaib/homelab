@@ -1,0 +1,7 @@
+---
+- name: Configure NAS base system
+  hosts: nas
+  roles:
+    - role: base_system
+    - role: ssh_hardening
+    - role: ufw

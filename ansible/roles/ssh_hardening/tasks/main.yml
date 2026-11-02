@@ -1,0 +1,32 @@
+---
+- name: Load OpenSSH configuration drop-ins
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^\s*Include\s+/etc/ssh/sshd_config\.d/\*\.conf\s*$'
+    line: Include /etc/ssh/sshd_config.d/*.conf
+    insertbefore: BOF
+  become: true
+  notify: Validate and reload OpenSSH
+
+- name: Ensure OpenSSH configuration directory exists
+  ansible.builtin.file:
+    path: /etc/ssh/sshd_config.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Disable SSH password and root logins
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-ansible-hardening.conf
+    content: |
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitRootLogin no
+      PubkeyAuthentication yes
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: Validate and reload OpenSSH

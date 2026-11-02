@@ -1,0 +1,9 @@
+---
+nas_management_subnet: 192.168.1.0/24
+
+ufw_rules:
+  - rule: allow
+    port: "22"
+    proto: tcp
+    comment: SSH from management LAN
+    from_ip: "{{ nas_management_subnet }}"

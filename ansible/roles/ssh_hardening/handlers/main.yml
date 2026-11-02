@@ -1,0 +1,16 @@
+---
+- name: Validate OpenSSH configuration
+  ansible.builtin.command:
+    argv:
+      - /usr/sbin/sshd
+      - -t
+  changed_when: false
+  become: true
+  listen: Validate and reload OpenSSH
+
+- name: Reload OpenSSH
+  ansible.builtin.systemd_service:
+    name: ssh
+    state: reloaded
+  become: true
+  listen: Validate and reload OpenSSH
