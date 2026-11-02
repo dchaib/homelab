@@ -12,7 +12,6 @@
     - setup
   roles:
     - role: users
-    - role: ufw
     - role: cifs
     - role: docker
     - role: docker_networks

@@ -1,6 +1,8 @@
 ---
 - name: Configure NAS base system
   hosts: nas
+  tags:
+    - setup
   roles:
     - role: base_system
     - role: ssh_hardening
