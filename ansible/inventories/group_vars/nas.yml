@@ -57,6 +57,8 @@ nas_zfs_datasets:
     properties:
       canmount: 'off'
   - name: apps/paperless/media
+  - name: apps/paperless/consume
+  - name: apps/paperless/export
 
   - name: backups
     properties:
