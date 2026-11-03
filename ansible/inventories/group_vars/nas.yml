@@ -16,6 +16,13 @@ nas_user_1: !vault |
   38356539316334656537653761646630353535353435373937373364643432656464396139306633
   3639343230366235370a356361383065643062343162306139656262636566623734383039303766
   6537
+nas_samba_user_1_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  64386439303233353630356239313362343737613930383066303266386564383366393163363636
+  3035663735313638633935383732383665313535616563330a653935373836636566363336373362
+  62613563373934646366303363646535303639663537393039646662363139376464643437393634
+  6539623733633938340a333333333566386363613965396635393436383563396235326134343630
+  3935
 
 nas_zfs_datasets:
   - name: personal
@@ -76,9 +83,89 @@ nas_zfs_directories:
   - software/applications
   - software/games
 
+nas_samba_workgroup: "{{ nas_smb_workgroup }}"
+nas_samba_accounts:
+  - name: "{{ nas_user_1 }}"
+    password: "{{ nas_samba_user_1_password }}"
+    manage_unix_account: false
+  - name: "{{ nas_smb_connections.dockerbackup.username }}"
+    password: "{{ nas_smb_connections.dockerbackup.password }}"
+    manage_unix_account: true
+  - name: "{{ nas_smb_connections.paperless.username }}"
+    password: "{{ nas_smb_connections.paperless.password }}"
+    manage_unix_account: true
+  - name: "{{ nas_smb_connections.homeassistant.username }}"
+    password: "{{ nas_smb_connections.homeassistant.password }}"
+    manage_unix_account: true
+
+# Dataset names are relative to nas_zfs_pool_name and nas_zfs_mountpoint.
+nas_samba_shares:
+  - name: "{{ nas_user_1 | capitalize }}"
+    dataset: "personal/{{ nas_user_1 }}"
+    writers:
+      - "{{ nas_user_1 }}"
+  - name: Documents
+    dataset: shared/documents
+    writers:
+      - "{{ nas_user_1 }}"
+  - name: Photos
+    dataset: shared/photos
+    writers:
+      - "{{ nas_user_1 }}"
+  - name: Media
+    dataset: media
+    # Each child filesystem needs its own root ACL and mount check.
+    child_datasets:
+      - media/movies
+      - media/tv
+      - media/anime
+      - media/music
+      - media/music-videos
+    writers:
+      - "{{ nas_user_1 }}"
+  - name: Software
+    dataset: software
+    writers:
+      - "{{ nas_user_1 }}"
+  - name: PC-01
+    dataset: backups/computers/pc-01
+    writers:
+      - "{{ nas_user_1 }}"
+  - name: "{{ nas_smb_connections.homeassistant.shares.backups }}"
+    dataset: backups/home-assistant
+    browseable: false
+    writers:
+      - "{{ nas_smb_connections.homeassistant.username }}"
+  - name: "{{ nas_smb_connections.dockerbackup.shares.backups }}"
+    dataset: backups/services
+    browseable: false
+    writers:
+      - "{{ nas_smb_connections.dockerbackup.username }}"
+  - name: "{{ nas_smb_connections.paperless.shares.media }}"
+    dataset: apps/paperless/media
+    browseable: false
+    writers:
+      - "{{ nas_smb_connections.paperless.username }}"
+  - name: "{{ nas_smb_connections.paperless.shares.consume }}"
+    dataset: apps/paperless/consume
+    writers:
+      - "{{ nas_smb_connections.paperless.username }}"
+      - "{{ nas_user_1 }}"
+  - name: "{{ nas_smb_connections.paperless.shares.export }}"
+    dataset: apps/paperless/export
+    readers:
+      - "{{ nas_user_1 }}"
+    writers:
+      - "{{ nas_smb_connections.paperless.username }}"
+
 ufw_rules:
   - rule: allow
     port: "22"
     proto: tcp
     comment: SSH from management LAN
+    from_ip: "{{ nas_management_subnet }}"
+  - rule: allow
+    port: "445"
+    proto: tcp
+    comment: SMB from local LAN
     from_ip: "{{ nas_management_subnet }}"

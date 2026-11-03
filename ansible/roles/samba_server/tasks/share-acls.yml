@@ -1,0 +1,28 @@
+---
+- name: Grant writers access to dataset roots and future entries
+  ansible.posix.acl:
+    path: "{{ nas_zfs_mountpoint }}/{{ item.0 }}"
+    entity: "{{ item.1 }}"
+    etype: user
+    permissions: rwx
+    default: "{{ item.2 }}"
+    recursive: false
+    state: present
+  loop: >-
+    {{ ([samba_server_share.dataset] + (samba_server_share.child_datasets | default([]))) |
+    product(samba_server_share.writers | default([]), [false, true]) | list }}
+  become: true
+
+- name: Grant readers access to dataset roots and future entries
+  ansible.posix.acl:
+    path: "{{ nas_zfs_mountpoint }}/{{ item.0 }}"
+    entity: "{{ item.1 }}"
+    etype: user
+    permissions: r-x
+    default: "{{ item.2 }}"
+    recursive: false
+    state: present
+  loop: >-
+    {{ ([samba_server_share.dataset] + (samba_server_share.child_datasets | default([]))) |
+    product(samba_server_share.readers | default([]), [false, true]) | list }}
+  become: true

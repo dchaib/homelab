@@ -1,0 +1,5 @@
+---
+- name: Configure NAS SMB shares
+  hosts: nas
+  roles:
+    - role: samba_server

@@ -1,0 +1,22 @@
+[global]
+    workgroup = {{ nas_samba_workgroup }}
+    server role = standalone server
+    security = user
+    map to guest = Never
+    unix password sync = no
+
+{% for share in nas_samba_shares %}
+[{{ share.name }}]
+    path = {{ nas_zfs_mountpoint }}/{{ share.dataset }}
+    browseable = {{ 'yes' if share.browseable | default(true) else 'no' }}
+    guest ok = no
+    read only = yes
+    valid users = {{ ((share.readers | default([])) + (share.writers | default([]))) | unique | join(' ') }}
+{% if share.writers | default([]) %}
+    write list = {{ share.writers | join(' ') }}
+{% endif %}
+    inherit acls = yes
+    create mask = 0660
+    directory mask = 0770
+
+{% endfor %}

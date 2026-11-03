@@ -12,6 +12,9 @@
 - name: Configure NAS datasets
   ansible.builtin.import_playbook: playbooks/nas-storage.yml
 
+- name: Configure NAS SMB shares
+  ansible.builtin.import_playbook: playbooks/nas-shares.yml
+
 - name: Configure services hosts
   ansible.builtin.import_playbook: playbooks/services-host.yml
 
