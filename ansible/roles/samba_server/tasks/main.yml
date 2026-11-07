@@ -6,30 +6,18 @@
   loop: "{{ nas_samba_accounts }}"
   no_log: true
 
-- name: Initialize public account metadata
+- name: Collect declared account names without passwords
   ansible.builtin.set_fact:
-    samba_server_account_metadata: []
-
-- name: Collect account metadata without passwords
-  ansible.builtin.set_fact:
-    samba_server_account_metadata: >-
-      {{ samba_server_account_metadata +
-      [{'name': item.get('name'), 'manage_unix_account': item.get('manage_unix_account')}] }}
-  loop: "{{ nas_samba_accounts }}"
+    samba_server_declared_account_names: "{{ nas_samba_accounts | map(attribute='name') | list }}"
   no_log: true
 
-- name: Validate account names and Unix management policy
+- name: Validate account names
   ansible.builtin.assert:
     that:
-      - item.name is string
-      - item.name is match('^[a-z_][a-z0-9_-]{0,31}$')
-      - item.manage_unix_account is boolean
-    fail_msg: >-
-      Each account needs a lowercase Unix name of at most 32 characters
-      and a boolean manage_unix_account.
-  loop: "{{ samba_server_account_metadata }}"
-  loop_control:
-    label: "{{ item.name | default('missing name', true) }}"
+      - item is string
+      - item is match('^[a-z_][a-z0-9_-]{0,31}$')
+    fail_msg: Each account needs a lowercase Unix name of at most 32 characters.
+  loop: "{{ samba_server_declared_account_names }}"
 
 - name: Validate declared account passwords
   ansible.builtin.assert:
@@ -44,7 +32,7 @@
 - name: Require unique account and share names
   ansible.builtin.assert:
     that:
-      - samba_server_account_metadata | map(attribute='name') | unique | length == samba_server_account_metadata | length
+      - samba_server_declared_account_names | unique | length == samba_server_declared_account_names | length
       - nas_samba_shares | map(attribute='name') | map('lower') | unique | length == nas_samba_shares | length
 
 - name: Validate share access lists
@@ -54,7 +42,7 @@
       - ((item.readers | default([])) + (item.writers | default([]))) | length > 0
       - >-
         (((item.readers | default([])) + (item.writers | default([]))) |
-        difference(samba_server_account_metadata | map(attribute='name') | list)) | length == 0
+        difference(samba_server_declared_account_names)) | length == 0
   loop: "{{ nas_samba_shares }}"
   loop_control:
     label: "{{ item.name }}"
@@ -98,23 +86,10 @@
 - name: Inspect Unix accounts
   ansible.builtin.getent:
     database: passwd
-    key: "{{ item.name }}"
+    key: "{{ item }}"
     fail_key: false
-  loop: "{{ samba_server_account_metadata }}"
-  loop_control:
-    label: "{{ item.name }}"
+  loop: "{{ samba_server_declared_account_names }}"
   register: samba_server_unix_accounts
-
-- name: Require externally managed Unix accounts to exist
-  ansible.builtin.assert:
-    that:
-      - item.ansible_facts.getent_passwd[item.item.name] is not none or item.item.manage_unix_account
-    fail_msg: >-
-      An externally managed Unix account is absent. Create it before running
-      nas-shares.yml; the Samba role preserves existing administrative accounts.
-  loop: "{{ samba_server_unix_accounts.results }}"
-  loop_control:
-    label: "{{ item.item.name }}"
 
 - name: Refuse unexpected existing Unix service accounts
   ansible.builtin.assert:
@@ -124,16 +99,14 @@
       - samba_server_unix_entry[2] | int > 0
       - samba_server_unix_entry[5] in ['/usr/sbin/nologin', '/sbin/nologin', '/bin/false', '/usr/bin/false']
     fail_msg: >-
-      Existing service account {{ item.item.name }} has an unexpected UID, GID
+      Existing service account {{ item.item }} has an unexpected UID, GID
       or shell. Inspect it manually; this role will not change it automatically.
   vars:
-    samba_server_unix_entry: "{{ item.ansible_facts.getent_passwd[item.item.name] }}"
+    samba_server_unix_entry: "{{ item.ansible_facts.getent_passwd[item.item] }}"
   loop: "{{ samba_server_unix_accounts.results }}"
   loop_control:
-    label: "{{ item.item.name }}"
-  when:
-    - item.item.manage_unix_account
-    - item.ansible_facts.getent_passwd[item.item.name] is not none
+    label: "{{ item.item }}"
+  when: item.ansible_facts.getent_passwd[item.item] is not none
 
 - name: Install Samba and ACL tools
   ansible.builtin.apt:
@@ -161,18 +134,16 @@
 
 - name: Create missing Unix service accounts
   ansible.builtin.user:
-    name: "{{ item.item.name }}"
+    name: "{{ item.item }}"
     system: true
     create_home: false
     shell: /usr/sbin/nologin
     password_lock: true
     state: present
   loop: "{{ samba_server_unix_accounts.results }}"
-  when:
-    - item.ansible_facts.getent_passwd[item.item.name] is none
-    - item.item.manage_unix_account
+  when: item.ansible_facts.getent_passwd[item.item] is none
   loop_control:
-    label: "{{ item.item.name }}"
+    label: "{{ item.item }}"
   become: true
 
 - name: Configure root ACLs for each share

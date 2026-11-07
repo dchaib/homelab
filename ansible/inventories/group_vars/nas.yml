@@ -87,16 +87,12 @@ nas_samba_workgroup: "{{ nas_smb_workgroup }}"
 nas_samba_accounts:
   - name: "{{ nas_user_1 }}"
     password: "{{ nas_samba_user_1_password }}"
-    manage_unix_account: false
   - name: "{{ nas_smb_connections.dockerbackup.username }}"
     password: "{{ nas_smb_connections.dockerbackup.password }}"
-    manage_unix_account: true
   - name: "{{ nas_smb_connections.paperless.username }}"
     password: "{{ nas_smb_connections.paperless.password }}"
-    manage_unix_account: true
   - name: "{{ nas_smb_connections.homeassistant.username }}"
     password: "{{ nas_smb_connections.homeassistant.password }}"
-    manage_unix_account: true
 
 # Dataset names are relative to nas_zfs_pool_name and nas_zfs_mountpoint.
 nas_samba_shares:
