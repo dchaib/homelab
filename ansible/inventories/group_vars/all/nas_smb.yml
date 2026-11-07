@@ -11,7 +11,7 @@ nas_smb_connections:
   dockerbackup:
     shares:
       backups: DockerBackups
-    username: dockerbackup
+    username: bkp-docker
     password: !vault |
       $ANSIBLE_VAULT;1.1;AES256
       64323965376632666530356664656638366537313766613138366666616534353537306661616532
@@ -24,7 +24,7 @@ nas_smb_connections:
       media: PaperlessMedia
       consume: PaperlessConsume
       export: PaperlessExport
-    username: paperlessngx
+    username: svc-paperlessngx
     password: !vault |
       $ANSIBLE_VAULT;1.1;AES256
       32663161346231306164326133396333396439396161303932386539623134303233383833386566
@@ -36,7 +36,7 @@ nas_smb_connections:
   homeassistant:
     shares:
       backups: HomeAssistantBackups
-    username: habackup
+    username: bkp-homeassistant
     password: !vault |
       $ANSIBLE_VAULT;1.1;AES256
       31373264353463326130346537666664623031346430656662393265383066373862326531376365
