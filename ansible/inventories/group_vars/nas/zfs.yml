@@ -5,7 +5,7 @@ nas_zfs_root_properties:
   compression: lz4
   atime: 'off'
   acltype: posix
-  xattr: sa
+  xattr: 'on'
 
 nas_zfs_datasets: "{{ nas_zfs_common_datasets + nas_zfs_personal_datasets }}"
 nas_zfs_personal_datasets: >-
