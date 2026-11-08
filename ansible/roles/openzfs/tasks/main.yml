@@ -54,6 +54,7 @@
       - --print-architecture
   register: openzfs_debian_architecture
   changed_when: false
+  check_mode: false
 
 - name: Install kernel headers for DKMS
   ansible.builtin.apt:
