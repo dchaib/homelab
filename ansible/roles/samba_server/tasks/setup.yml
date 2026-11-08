@@ -99,7 +99,7 @@
     database: passwd
 
 - name: Calculate membership changes
-  ansible.builtin.import_tasks: membership-plan.yml
+  ansible.builtin.import_tasks: group-membership-plan.yml
 
 - name: Reconcile only the managed access group memberships
   ansible.builtin.command:
@@ -110,14 +110,14 @@
   no_log: true
 
 - name: Configure share roots and inheritance
-  ansible.builtin.include_tasks: share-acls.yml
+  ansible.builtin.include_tasks: share-permissions.yml
   loop: "{{ samba_server_shares }}"
   loop_control:
     loop_var: samba_server_share
     label: "{{ samba_server_share.name }}"
 
 - name: Validate and install Samba configuration
-  ansible.builtin.import_tasks: configuration.yml
+  ansible.builtin.import_tasks: smb-config.yml
 
 # Existing passwords are preserved; rotation is an explicit operation.
 - name: Create missing Samba accounts

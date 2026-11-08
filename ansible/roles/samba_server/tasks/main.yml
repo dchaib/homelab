@@ -1,6 +1,6 @@
 ---
 - name: Validate and derive declared access
-  ansible.builtin.import_tasks: access.yml
+  ansible.builtin.import_tasks: access-policy.yml
 
 - name: Install Samba and ACL tools
   ansible.builtin.apt:
@@ -10,7 +10,7 @@
   become: true
 
 - name: Configure accounts, groups, root permissions and Samba
-  ansible.builtin.import_tasks: configure.yml
+  ansible.builtin.import_tasks: setup.yml
   become: true
 
 - name: Enable and start Samba
