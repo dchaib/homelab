@@ -1,0 +1,70 @@
+---
+nas_zfs_pool_name: tank
+nas_zfs_mountpoint: /srv/storage
+nas_zfs_root_properties:
+  compression: lz4
+  atime: 'off'
+  acltype: posix
+  xattr: 'on'
+
+nas_zfs_datasets: "{{ nas_zfs_common_datasets + nas_zfs_personal_datasets }}"
+nas_zfs_personal_datasets: >-
+  {%- set datasets = [] -%}
+  {%- for user in nas_users -%}
+  {%- set _ = datasets.append({'name': 'personal/' ~ user.name}) -%}
+  {%- endfor -%}
+  {{ datasets }}
+
+nas_zfs_common_datasets:
+  - name: personal
+    properties:
+      canmount: 'off'
+
+  - name: shared
+    properties:
+      canmount: 'off'
+  - name: shared/documents
+  - name: shared/photos
+    properties:
+      recordsize: '1048576'  # 1 MiB
+
+  - name: media
+  - name: media/movies
+    properties:
+      recordsize: '1048576'  # 1 MiB
+  - name: media/tv
+    properties:
+      recordsize: '1048576'  # 1 MiB
+  - name: media/anime
+    properties:
+      recordsize: '1048576'  # 1 MiB
+  - name: media/music
+  - name: media/music-videos
+    properties:
+      recordsize: '1048576'  # 1 MiB
+
+  - name: software
+    properties:
+      recordsize: '1048576'  # 1 MiB
+
+  - name: apps
+    properties:
+      canmount: 'off'
+  - name: apps/paperless
+    properties:
+      canmount: 'off'
+  - name: apps/paperless/media
+  - name: apps/paperless/consume
+  - name: apps/paperless/export
+
+  - name: backups
+    properties:
+      canmount: 'off'
+  - name: backups/computers
+    properties:
+      canmount: 'off'
+  - name: backups/computers/pc-01
+  - name: backups/services
+  - name: backups/home-assistant
+    properties:
+      recordsize: '1048576'  # 1 MiB

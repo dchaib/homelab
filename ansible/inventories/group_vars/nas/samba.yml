@@ -1,0 +1,98 @@
+---
+nas_samba_workgroup: "{{ nas_smb_workgroup }}"
+nas_samba_accounts: "{{ nas_users + nas_samba_service_accounts }}"
+nas_samba_service_accounts:
+  - id: dockerbackup
+    name: "{{ nas_smb_connections.dockerbackup.username }}"
+    password: "{{ nas_smb_connections.dockerbackup.password }}"
+    access:
+      docker_backups: rw
+  - id: paperless
+    name: "{{ nas_smb_connections.paperless.username }}"
+    password: "{{ nas_smb_connections.paperless.password }}"
+    access:
+      paperless_media: rw
+      paperless_consume: rw
+      paperless_export: rw
+  - id: homeassistant
+    name: "{{ nas_smb_connections.homeassistant.username }}"
+    password: "{{ nas_smb_connections.homeassistant.password }}"
+    access:
+      homeassistant_backups: rw
+
+# Owners reference account IDs. Access assignments exist only on accounts above.
+# Dataset paths remain relative to nas_zfs_pool_name and nas_zfs_mountpoint.
+nas_samba_shares: "{{ nas_samba_personal_shares + nas_samba_common_shares }}"
+nas_samba_personal_shares: >-
+  {%- set shares = [] -%}
+  {%- for user in nas_users -%}
+  {%- set _ = shares.append({
+    'id': 'personal_' ~ user.id,
+    'name': user.name | capitalize,
+    'dataset': 'personal/' ~ user.name,
+    'owner': user.id
+  }) -%}
+  {%- endfor -%}
+  {{ shares }}
+
+nas_samba_common_shares:
+  - id: documents
+    name: Documents
+    dataset: shared/documents
+    owner: account_01
+    rw_group: nas_documents_rw
+    ro_group: nas_documents_ro
+  - id: photos
+    name: Photos
+    dataset: shared/photos
+    owner: account_01
+    rw_group: nas_photos_rw
+    ro_group: nas_photos_ro
+  - id: media
+    name: Media
+    dataset: media
+    # One policy, explicitly applied to each child filesystem root.
+    child_datasets:
+      - media/movies
+      - media/tv
+      - media/anime
+      - media/music
+      - media/music-videos
+    owner: account_01
+    rw_group: nas_media_rw
+    ro_group: nas_media_ro
+  - id: software
+    name: Software
+    dataset: software
+    owner: account_01
+    rw_group: nas_software_rw
+    ro_group: nas_software_ro
+  - id: pc_01
+    name: PC-01
+    dataset: backups/computers/pc-01
+    owner: account_01
+  - id: homeassistant_backups
+    name: "{{ nas_smb_connections.homeassistant.shares.backups }}"
+    dataset: backups/home-assistant
+    browseable: false
+    owner: homeassistant
+  - id: docker_backups
+    name: "{{ nas_smb_connections.dockerbackup.shares.backups }}"
+    dataset: backups/services
+    browseable: false
+    owner: dockerbackup
+  - id: paperless_media
+    name: "{{ nas_smb_connections.paperless.shares.media }}"
+    dataset: apps/paperless/media
+    browseable: false
+    owner: paperless
+  - id: paperless_consume
+    name: "{{ nas_smb_connections.paperless.shares.consume }}"
+    dataset: apps/paperless/consume
+    owner: paperless
+    rw_group: nas_paperless_consume_rw
+  - id: paperless_export
+    name: "{{ nas_smb_connections.paperless.shares.export }}"
+    dataset: apps/paperless/export
+    owner: paperless
+    ro_group: nas_paperless_export_ro

@@ -1,0 +1,129 @@
+---
+- name: Define root permissions for the owner only
+  ansible.builtin.set_fact:
+    samba_server_root_group: "{{ ansible_facts.getent_passwd[samba_server_share.owner_name][2] }}"
+    samba_server_root_mode: '0700'
+    samba_server_root_acl:
+      - user::rwx
+      - group::---
+      - other::---
+  when:
+    - samba_server_share.rw_group is not defined
+    - samba_server_share.ro_group is not defined
+
+- name: Define root permissions for writer and reader groups
+  ansible.builtin.set_fact:
+    samba_server_root_group: "{{ samba_server_share.rw_group }}"
+    samba_server_root_mode: '2770'
+    samba_server_root_acl:
+      - user::rwx
+      - group::rwx
+      - "group:{{ samba_server_share.ro_group }}:r-x"
+      - mask::rwx
+      - other::---
+      - default:user::rwx
+      - default:group::rwx
+      - "default:group:{{ samba_server_share.ro_group }}:r-x"
+      - default:mask::rwx
+      - default:other::---
+  when:
+    - samba_server_share.rw_group is defined
+    - samba_server_share.ro_group is defined
+
+- name: Define root permissions for a writer group
+  ansible.builtin.set_fact:
+    samba_server_root_group: "{{ samba_server_share.rw_group }}"
+    samba_server_root_mode: '2770'
+    samba_server_root_acl:
+      - user::rwx
+      - group::rwx
+      - mask::rwx
+      - other::---
+      - default:user::rwx
+      - default:group::rwx
+      - default:mask::rwx
+      - default:other::---
+  when:
+    - samba_server_share.rw_group is defined
+    - samba_server_share.ro_group is not defined
+
+- name: Define root permissions for the owner and a reader group
+  ansible.builtin.set_fact:
+    samba_server_root_group: "{{ ansible_facts.getent_passwd[samba_server_share.owner_name][2] }}"
+    samba_server_root_mode: '0750'
+    samba_server_root_acl:
+      - user::rwx
+      - group::---
+      - "group:{{ samba_server_share.ro_group }}:r-x"
+      - mask::r-x
+      - other::---
+      - default:user::rwx
+      - default:group::---
+      - "default:group:{{ samba_server_share.ro_group }}:r-x"
+      - default:mask::r-x
+      - default:other::---
+  when:
+    - samba_server_share.rw_group is not defined
+    - samba_server_share.ro_group is defined
+
+- name: Collect the share and child dataset roots
+  ansible.builtin.set_fact:
+    samba_server_root_paths: "{{ [samba_server_share.dataset] + (samba_server_share.child_datasets | default([])) }}"
+
+- name: Inspect managed roots before changing their permissions
+  ansible.builtin.stat:
+    path: "{{ nas_zfs_mountpoint }}/{{ item }}"
+    follow: false
+  loop: "{{ samba_server_root_paths }}"
+  register: samba_server_root_stats
+
+- name: Refuse symlinks or files at managed directory paths
+  ansible.builtin.assert:
+    that:
+      - not item.stat.exists or (item.stat.isdir and not item.stat.islnk)
+    fail_msg: "Managed path {{ item.item }} must be a directory, never a symlink."
+  loop: "{{ samba_server_root_stats.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Configure directory owners and modes without recursion
+  ansible.builtin.file:
+    path: "{{ nas_zfs_mountpoint }}/{{ item }}"
+    state: directory
+    follow: false
+    owner: "{{ samba_server_share.owner_name }}"
+    group: "{{ samba_server_root_group }}"
+    mode: "{{ samba_server_root_mode }}"
+  loop: "{{ samba_server_root_paths }}"
+  become: true
+
+- name: Read existing root ACLs
+  ansible.builtin.command:
+    argv: [getfacl, -cpE, --, "{{ nas_zfs_mountpoint }}/{{ item }}"]
+  loop: "{{ samba_server_root_paths }}"
+  register: samba_server_existing_acls
+  changed_when: false
+  become: true
+  when: not ansible_check_mode
+
+- name: Remove default ACLs from roots without access groups
+  ansible.builtin.command:
+    argv: [setfacl, -k, --, "{{ nas_zfs_mountpoint }}/{{ item.item }}"]
+  loop: "{{ samba_server_existing_acls.results }}"
+  when:
+    - not ansible_check_mode
+    - samba_server_share.rw_group is not defined
+    - samba_server_share.ro_group is not defined
+    - item.stdout_lines | select('match', '^default:') | list | length > 0
+  changed_when: true
+  become: true
+
+- name: Replace root ACLs with the exact access policy
+  ansible.builtin.command:
+    argv: [setfacl, "--set={{ samba_server_root_acl | join(',') }}", --, "{{ nas_zfs_mountpoint }}/{{ item.item }}"]
+  loop: "{{ samba_server_existing_acls.results }}"
+  when:
+    - not ansible_check_mode
+    - (item.stdout_lines | reject('equalto', '') | sort | list) != (samba_server_root_acl | sort | list)
+  changed_when: true
+  become: true

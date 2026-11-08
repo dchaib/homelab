@@ -1,0 +1,17 @@
+---
+- name: Configure NAS base system
+  hosts: nas
+  tags:
+    - setup
+  roles:
+    - role: base_system
+    - role: ssh_hardening
+    - role: ufw
+      tags:
+        - ufw
+  tasks:
+    - name: Ensure rsync is installed
+      ansible.builtin.apt:
+        name: rsync
+        state: present
+      become: true

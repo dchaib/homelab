@@ -18,9 +18,9 @@ services:
       - broker
     volumes:
       - {{ paperless_ngx_docker_volumes.data }}:/usr/src/paperless/data
-      - /mnt/paperless/media:/usr/src/paperless/media
-      - /mnt/paperless/export:/usr/src/paperless/export
-      - /mnt/paperless/consume:/usr/src/paperless/consume
+      - {{ paperless_ngx_mount_root }}/media:/usr/src/paperless/media
+      - {{ paperless_ngx_mount_root }}/export:/usr/src/paperless/export
+      - {{ paperless_ngx_mount_root }}/consume:/usr/src/paperless/consume
     env_file: .env
     environment:
       PAPERLESS_REDIS: redis://:${REDIS_PASSWORD}@broker:6379

@@ -1,0 +1,12 @@
+---
+ufw_rules:
+  - rule: allow
+    port: "22"
+    proto: tcp
+    comment: SSH from management LAN
+    from_ip: "{{ nas_management_subnet }}"
+  - rule: allow
+    port: "445"
+    proto: tcp
+    comment: SMB from local LAN
+    from_ip: "{{ nas_management_subnet }}"

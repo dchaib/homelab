@@ -1,0 +1,11 @@
+---
+- name: Configure Samba shares
+  ansible.builtin.template:
+    src: smb.conf.j2
+    dest: /etc/samba/smb.conf
+    owner: root
+    group: root
+    mode: '0644'
+    validate: testparm -s %s
+  notify: Restart Samba
+  become: true

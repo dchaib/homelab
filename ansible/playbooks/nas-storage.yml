@@ -1,0 +1,5 @@
+---
+- name: Configure NAS datasets
+  hosts: nas
+  roles:
+    - role: zfs_storage

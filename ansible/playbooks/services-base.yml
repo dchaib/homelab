@@ -5,3 +5,7 @@
     - setup
   roles:
     - role: base_system
+    - role: ssh_hardening
+    - role: ufw
+      tags:
+        - ufw

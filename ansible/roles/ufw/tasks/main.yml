@@ -6,18 +6,6 @@
     update_cache: true
   become: true
 
-- name: Set default incoming policy
-  community.general.ufw:
-    direction: incoming
-    policy: deny
-  become: true
-
-- name: Set default outgoing policy
-  community.general.ufw:
-    direction: outgoing
-    policy: allow
-  become: true
-
 - name: Configure firewall rules
   community.general.ufw:
     rule: "{{ item.rule }}"
@@ -30,6 +18,18 @@
   loop: "{{ ufw_rules }}"
   loop_control:
     label: "{{ item.comment }}"
+  become: true
+
+- name: Set default incoming policy
+  community.general.ufw:
+    direction: incoming
+    policy: deny
+  become: true
+
+- name: Set default outgoing policy
+  community.general.ufw:
+    direction: outgoing
+    policy: allow
   become: true
 
 - name: Ensure UFW is enabled

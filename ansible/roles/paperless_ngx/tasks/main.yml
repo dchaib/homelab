@@ -21,10 +21,10 @@
   become: true
   no_log: true
 
-- name: Mount SMB share on host
+- name: Mount SMB shares on host
   ansible.posix.mount:
-    path: /mnt/paperless
-    src: "{{ paperless_ngx.smb_share.path }}"
+    path: "{{ paperless_ngx_mount_root }}/{{ item.key }}"
+    src: "{{ item.value }}"
     fstype: cifs
     opts: "\
       credentials={{ paperless_ngx_config_folder }}/smb_creds,\
@@ -34,6 +34,10 @@
       file_mode=0777,\
       dir_mode=0777"
     state: mounted
+  loop: "{{ paperless_ngx.smb_share.paths | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  register: paperless_ngx_mounts_result
   become: true
 
 - name: Copy Redis configuration
@@ -54,7 +58,7 @@
     docker_compose_stack_name: '{{ paperless_ngx_stack_name }}'
     docker_compose_stack_volumes: '{{ paperless_ngx_docker_volumes.values() | list }}'
     docker_compose_stack_use_env: true
-    docker_compose_stack_recreate: "{{ paperless_ngx_redis_result.changed }}"
+    docker_compose_stack_recreate: "{{ paperless_ngx_mounts_result.changed or paperless_ngx_redis_result.changed }}"
 
 - name: Set up backup for paperless-ngx
   ansible.builtin.include_role:
