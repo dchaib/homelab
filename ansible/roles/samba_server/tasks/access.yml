@@ -1,0 +1,48 @@
+---
+- name: Require account declarations to be mappings
+  ansible.builtin.assert:
+    that:
+      - item is mapping
+  loop: "{{ nas_samba_accounts }}"
+  no_log: true
+
+- name: Collect declared account names without passwords
+  ansible.builtin.set_fact:
+    samba_server_declared_account_names: "{{ nas_samba_accounts | map(attribute='name') | list }}"
+  no_log: true
+
+- name: Validate account names
+  ansible.builtin.assert:
+    that:
+      - item is string
+      - item is match('^[a-z_][a-z0-9_-]{0,31}$')
+    fail_msg: Each account needs a lowercase Unix name of at most 32 characters.
+  loop: "{{ samba_server_declared_account_names }}"
+
+- name: Validate declared account passwords
+  ansible.builtin.assert:
+    that:
+      - item.password is defined
+      - item.password is string
+      - item.password | length > 0
+    fail_msg: Each declared Samba account needs a nonempty string password, preferably stored in Vault.
+  loop: "{{ nas_samba_accounts }}"
+  no_log: true
+
+- name: Require unique account and share names
+  ansible.builtin.assert:
+    that:
+      - samba_server_declared_account_names | unique | length == samba_server_declared_account_names | length
+      - nas_samba_shares | map(attribute='name') | map('lower') | unique | length == nas_samba_shares | length
+
+- name: Validate share access lists
+  ansible.builtin.assert:
+    that:
+      - (item.readers | default([]) | intersect(item.writers | default([]))) | length == 0
+      - ((item.readers | default([])) + (item.writers | default([]))) | length > 0
+      - >-
+        (((item.readers | default([])) + (item.writers | default([]))) |
+        difference(samba_server_declared_account_names)) | length == 0
+  loop: "{{ nas_samba_shares }}"
+  loop_control:
+    label: "{{ item.name }}"
