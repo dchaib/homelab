@@ -4,19 +4,39 @@
     security = user
     map to guest = Never
     unix password sync = no
+    unix extensions = no
+    smb3 unix extensions = no
+    store dos attributes = yes
+    nt acl support = no
 
-{% for share in nas_samba_shares %}
+{% for share in samba_server_shares %}
 [{{ share.name }}]
     path = {{ nas_zfs_mountpoint }}/{{ share.dataset }}
     browseable = {{ 'yes' if share.browseable | default(true) else 'no' }}
+    hide unreadable = {{ 'yes' if share.hide_unreadable | default(false) else 'no' }}
     guest ok = no
     read only = yes
-    valid users = {{ ((share.readers | default([])) + (share.writers | default([]))) | unique | join(' ') }}
-{% if share.writers | default([]) %}
-    write list = {{ share.writers | join(' ') }}
-{% endif %}
+{% set writers = ['@' ~ share.rw_group] if share.rw_group is defined else [share.owner_name] %}
+{% set readers = ['@' ~ share.ro_group] if share.ro_group is defined else [] %}
+    valid users = {{ (writers + readers) | join(' ') }}
+    write list = {{ writers | join(' ') }}
+    read list = {{ readers | join(' ') }}
+    inherit owner = no
+{% if share.rw_group is defined %}
     inherit acls = yes
     create mask = 0660
     directory mask = 0770
+    force directory mode = 02000
+{% elif share.ro_group is defined %}
+    inherit acls = yes
+    create mask = 0640
+    directory mask = 0750
+    force directory mode = 0000
+{% else %}
+    inherit acls = no
+    create mask = 0600
+    directory mask = 0700
+    force directory mode = 0000
+{% endif %}
 
 {% endfor %}

@@ -1,6 +1,21 @@
 ---
-- name: Validate NAS accounts and shares
+- name: Validate and derive declared access
   ansible.builtin.import_tasks: access.yml
 
-- name: Configure NAS shares
+- name: Install Samba and ACL tools
+  ansible.builtin.apt:
+    name: [samba, acl]
+    state: present
+    update_cache: true
+  become: true
+
+- name: Configure accounts, groups, root permissions and Samba
   ansible.builtin.import_tasks: configure.yml
+  become: true
+
+- name: Enable and start Samba
+  ansible.builtin.systemd_service:
+    name: smbd
+    enabled: true
+    state: started
+  become: true

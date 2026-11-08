@@ -1,48 +1,131 @@
 ---
-- name: Require account declarations to be mappings
+- name: Validate account declarations
   ansible.builtin.assert:
     that:
-      - item is mapping
-  loop: "{{ nas_samba_accounts }}"
-  no_log: true
-
-- name: Collect declared account names without passwords
-  ansible.builtin.set_fact:
-    samba_server_declared_account_names: "{{ nas_samba_accounts | map(attribute='name') | list }}"
-  no_log: true
-
-- name: Validate account names
-  ansible.builtin.assert:
-    that:
-      - item is string
-      - item is match('^[a-z_][a-z0-9_-]{0,31}$')
-    fail_msg: Each account needs a lowercase Unix name of at most 32 characters.
-  loop: "{{ samba_server_declared_account_names }}"
-
-- name: Validate declared account passwords
-  ansible.builtin.assert:
-    that:
-      - item.password is defined
+      - item.id is match('^[a-z][a-z0-9_]*$')
+      - item.name is match('^[a-z_][a-z0-9_-]{0,31}$')
       - item.password is string
       - item.password | length > 0
-    fail_msg: Each declared Samba account needs a nonempty string password, preferably stored in Vault.
+      - item.access is mapping
   loop: "{{ nas_samba_accounts }}"
   no_log: true
 
-- name: Require unique account and share names
+- name: Require unique accounts and shares
   ansible.builtin.assert:
     that:
-      - samba_server_declared_account_names | unique | length == samba_server_declared_account_names | length
+      - nas_samba_accounts | map(attribute='id') | unique | length == nas_samba_accounts | length
+      - nas_samba_accounts | map(attribute='name') | unique | length == nas_samba_accounts | length
+      - nas_samba_shares | map(attribute='id') | unique | length == nas_samba_shares | length
       - nas_samba_shares | map(attribute='name') | map('lower') | unique | length == nas_samba_shares | length
+  no_log: true
 
-- name: Validate share access lists
+- name: Initialize account lookups and share access
+  ansible.builtin.set_fact:
+    samba_server_account_names: {}
+    samba_server_access: {}
+    samba_server_shares: []
+    samba_server_groups: []
+
+- name: Collect each account name and access assignments
+  ansible.builtin.set_fact:
+    samba_server_account_names: "{{ samba_server_account_names | combine({item.id: item.name}) }}"
+    samba_server_access: "{{ samba_server_access | combine({item.id: item.access}) }}"
+  loop: "{{ nas_samba_accounts }}"
+  no_log: true
+
+- name: Validate access references and rights
   ansible.builtin.assert:
     that:
-      - (item.readers | default([]) | intersect(item.writers | default([]))) | length == 0
-      - ((item.readers | default([])) + (item.writers | default([]))) | length > 0
-      - >-
-        (((item.readers | default([])) + (item.writers | default([]))) |
-        difference(samba_server_declared_account_names)) | length == 0
+      - item.value.keys() | difference(nas_samba_shares | map(attribute='id') | list) | length == 0
+      - item.value.values() | difference(['ro', 'rw']) | length == 0
+    fail_msg: "Account {{ item.key }} references an unknown share or an access other than ro/rw."
+  loop: "{{ samba_server_access | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+
+- name: Validate share declarations
+  ansible.builtin.assert:
+    that:
+      - item.id is match('^[a-z][a-z0-9_]*$')
+      - item.owner in samba_server_account_names
+      - item.dataset in (nas_zfs_datasets | map(attribute='name') | list)
+      - item.child_datasets | default([]) | difference(nas_zfs_datasets | map(attribute='name') | list) | length == 0
+    fail_msg: "Share {{ item.id }} has an invalid owner or dataset."
   loop: "{{ nas_samba_shares }}"
   loop_control:
-    label: "{{ item.name }}"
+    label: "{{ item.id }}"
+
+- name: Require child datasets to belong to their share
+  ansible.builtin.assert:
+    that:
+      - item.1.startswith(item.0.dataset ~ '/')
+  loop: "{{ nas_samba_shares | subelements('child_datasets', skip_missing=true) }}"
+  loop_control:
+    label: "{{ item.0.id }}: {{ item.1 }}"
+
+- name: Derive share access from the accounts
+  ansible.builtin.set_fact:
+    samba_server_shares: "{{ samba_server_shares + [item | combine(samba_server_share_access)] }}"
+  vars:
+    samba_server_assigned_accounts: >-
+      {{ samba_server_access | dict2items | selectattr('value.' ~ item.id, 'defined') | list }}
+    samba_server_share_access:
+      owner_name: "{{ samba_server_account_names[item.owner] }}"
+      writer_ids: >-
+        {{ samba_server_assigned_accounts | selectattr('value.' ~ item.id, 'equalto', 'rw') | map(attribute='key') | list }}
+      reader_ids: >-
+        {{ samba_server_assigned_accounts | selectattr('value.' ~ item.id, 'equalto', 'ro') | map(attribute='key') | list }}
+  loop: "{{ nas_samba_shares }}"
+  no_log: true
+
+- name: Validate access against the owner and declared groups
+  ansible.builtin.assert:
+    that:
+      - item.owner in item.writer_ids
+      - item.rw_group is defined or item.writer_ids == [item.owner]
+      - item.reader_ids | length == 0 or item.ro_group is defined
+    fail_msg: "Share {{ item.id }} has access inconsistent with its owner or declared groups."
+  loop: "{{ samba_server_shares }}"
+  loop_control:
+    label: "{{ item.id }}"
+
+- name: Collect writer groups
+  ansible.builtin.set_fact:
+    samba_server_groups: "{{ samba_server_groups + [samba_server_writer_group] }}"
+  vars:
+    samba_server_writer_group:
+      name: "{{ item.rw_group }}"
+      members: "{{ item.writer_ids | map('extract', samba_server_account_names) | list }}"
+  loop: "{{ samba_server_shares }}"
+  when: item.rw_group is defined
+  no_log: true
+
+- name: Collect reader groups
+  ansible.builtin.set_fact:
+    samba_server_groups: "{{ samba_server_groups + [samba_server_reader_group] }}"
+  vars:
+    samba_server_reader_group:
+      name: "{{ item.ro_group }}"
+      members: "{{ item.reader_ids | map('extract', samba_server_account_names) | list }}"
+  loop: "{{ samba_server_shares }}"
+  when: item.ro_group is defined
+  no_log: true
+
+- name: Require distinct access groups
+  ansible.builtin.assert:
+    that:
+      - samba_server_groups | map(attribute='name') | unique | length == samba_server_groups | length
+
+- name: Review share access using stable account IDs
+  ansible.builtin.debug:
+    verbosity: 1
+    msg:
+      share: "{{ item.id }}"
+      owner: "{{ item.owner }}"
+      writers: "{{ item.writer_ids }}"
+      readers: "{{ item.reader_ids }}"
+      rw_group: "{{ item.rw_group | default('none') }}"
+      ro_group: "{{ item.ro_group | default('none') }}"
+  loop: "{{ samba_server_shares }}"
+  loop_control:
+    label: "{{ item.id }}"

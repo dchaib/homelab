@@ -82,11 +82,3 @@
   loop_control:
     label: "{{ item.name }}"
   become: true
-
-- name: Create ordinary NAS directories
-  ansible.builtin.file:
-    path: "{{ nas_zfs_mountpoint }}/{{ item }}"
-    state: directory
-    mode: '0755'
-  loop: "{{ nas_zfs_directories }}"
-  become: true

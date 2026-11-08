@@ -1,22 +1,16 @@
 ---
-- name: Initialize the shared dataset list
-  ansible.builtin.set_fact:
-    samba_server_datasets: []
-
 - name: Collect shared datasets and their children
   ansible.builtin.set_fact:
     samba_server_datasets: >-
-      {{ (samba_server_datasets + [item.dataset] + (item.child_datasets | default([]))) | unique }}
-  loop: "{{ nas_samba_shares }}"
-  loop_control:
-    label: "{{ item.name }}"
+      {{ ((samba_server_shares | map(attribute='dataset') | list) +
+          (samba_server_shares | selectattr('child_datasets', 'defined') | map(attribute='child_datasets') | flatten)) | unique }}
 
 - name: Inspect shared dataset mounts
   community.general.zfs_facts:
     name: "{{ nas_zfs_pool_name }}"
     recurse: true
     type: filesystem
-    properties: mounted,mountpoint
+    properties: mounted,mountpoint,readonly,acltype
   register: samba_server_dataset_mounts
   become: true
 
@@ -25,6 +19,8 @@
     that:
       - samba_server_dataset_facts | length == 1
       - samba_server_dataset_facts[0].mounted == 'yes'
+      - samba_server_dataset_facts[0].readonly == 'off'
+      - samba_server_dataset_facts[0].acltype in ['posix', 'posixacl']
       - samba_server_dataset_facts[0].mountpoint == nas_zfs_mountpoint ~ '/' ~ item
     fail_msg: >-
       {{ nas_zfs_pool_name }}/{{ item }} must be mounted at
@@ -38,10 +34,6 @@
 - name: Inspect Unix accounts
   ansible.builtin.getent:
     database: passwd
-    key: "{{ item }}"
-    fail_key: false
-  loop: "{{ samba_server_declared_account_names }}"
-  register: samba_server_unix_accounts
 
 - name: Refuse unexpected existing Unix service accounts
   ansible.builtin.assert:
@@ -51,23 +43,14 @@
       - samba_server_unix_entry[2] | int > 0
       - samba_server_unix_entry[5] in ['/usr/sbin/nologin', '/sbin/nologin', '/bin/false', '/usr/bin/false']
     fail_msg: >-
-      Existing service account {{ item.item }} has an unexpected UID, GID
+      Existing service account {{ item }} has an unexpected UID, GID
       or shell. Inspect it manually; this role will not change it automatically.
   vars:
-    samba_server_unix_entry: "{{ item.ansible_facts.getent_passwd[item.item] }}"
-  loop: "{{ samba_server_unix_accounts.results }}"
+    samba_server_unix_entry: "{{ ansible_facts.getent_passwd[item] }}"
+  loop: "{{ samba_server_account_names.values() | list }}"
   loop_control:
-    label: "{{ item.item }}"
-  when: item.ansible_facts.getent_passwd[item.item] is not none
-
-- name: Install Samba and ACL tools
-  ansible.builtin.apt:
-    name:
-      - samba
-      - acl
-    state: present
-    update_cache: true
-  become: true
+    label: "{{ item }}"
+  when: item in ansible_facts.getent_passwd
 
 - name: Inspect Samba accounts
   ansible.builtin.command:
@@ -81,31 +64,59 @@
 
 - name: Collect existing Samba account names
   ansible.builtin.set_fact:
-    samba_server_account_names: >-
+    samba_server_existing_smb_names: >-
       {{ samba_server_accounts.stdout_lines | map('split', ':', 1) | map('first') | list }}
 
 - name: Create missing Unix service accounts
   ansible.builtin.user:
-    name: "{{ item.item }}"
+    name: "{{ item }}"
     system: true
     create_home: false
     shell: /usr/sbin/nologin
     password_lock: true
     state: present
-  loop: "{{ samba_server_unix_accounts.results }}"
-  when: item.ansible_facts.getent_passwd[item.item] is none
+  loop: "{{ samba_server_account_names.values() | list }}"
+  when: item not in ansible_facts.getent_passwd
   loop_control:
-    label: "{{ item.item }}"
+    label: "{{ item }}"
   become: true
 
-- name: Configure root ACLs for each share
+- name: Create the declared access groups
+  ansible.builtin.group:
+    name: "{{ item.name }}"
+    system: true
+    state: present
+  loop: "{{ samba_server_groups }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Read current group memberships
+  ansible.builtin.getent:
+    database: group
+
+- name: Read current Unix accounts
+  ansible.builtin.getent:
+    database: passwd
+
+- name: Calculate membership changes
+  ansible.builtin.import_tasks: membership-plan.yml
+
+- name: Reconcile only the managed access group memberships
+  ansible.builtin.command:
+    argv: [gpasswd, --members, "{{ item.members | join(',') }}", "{{ item.name }}"]
+  loop: "{{ samba_server_membership_changes }}"
+  notify: Restart Samba
+  changed_when: true
+  no_log: true
+
+- name: Configure share roots and inheritance
   ansible.builtin.include_tasks: share-acls.yml
-  loop: "{{ nas_samba_shares }}"
+  loop: "{{ samba_server_shares }}"
   loop_control:
     loop_var: samba_server_share
     label: "{{ samba_server_share.name }}"
 
-- name: Configure Samba shares
+- name: Validate and install Samba configuration
   ansible.builtin.import_tasks: configuration.yml
 
 # Existing passwords are preserved; rotation is an explicit operation.
@@ -118,14 +129,7 @@
       - "{{ item.name }}"
     stdin: "{{ item.password }}\n{{ item.password }}"
   loop: "{{ nas_samba_accounts }}"
-  when: item.name not in samba_server_account_names and not ansible_check_mode
+  when: item.name not in samba_server_existing_smb_names and not ansible_check_mode
   changed_when: true
   become: true
   no_log: true
-
-- name: Enable and start Samba
-  ansible.builtin.systemd_service:
-    name: smbd
-    enabled: true
-    state: started
-  become: true
