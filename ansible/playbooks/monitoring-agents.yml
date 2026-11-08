@@ -1,7 +1,0 @@
----
-- name: Configure monitoring agents
-  hosts: monitoring_agents
-  roles:
-    - role: monitoring_agent
-      tags:
-        - monitoring_agent

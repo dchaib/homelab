@@ -1,0 +1,65 @@
+---
+- name: Require Debian 13 for the SMART exporter backports repository
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.distribution == 'Debian'
+      - ansible_facts.distribution_major_version == '13'
+    fail_msg: The SMART exporter backports repository targets Debian 13 / Proxmox VE 9.
+
+- name: Install SMART exporter repository prerequisites
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - debian-archive-keyring
+      - python3-debian
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Configure Debian backports for smartctl exporter
+  ansible.builtin.deb822_repository:
+    name: trixie-backports
+    types: deb
+    uris: https://deb.debian.org/debian
+    suites: trixie-backports
+    components: main
+    signed_by: /usr/share/keyrings/debian-archive-keyring.gpg
+    state: present
+  become: true
+  register: monitoring_agent_backports_repo
+
+- name: Refresh APT cache after configuring backports  # noqa: no-handler -- Required before package installation.
+  ansible.builtin.apt:
+    update_cache: true
+  when: monitoring_agent_backports_repo.changed
+  become: true
+
+- name: Install smartctl exporter from Debian backports
+  ansible.builtin.apt:
+    name: prometheus-smartctl-exporter
+    state: present
+    default_release: trixie-backports
+    # Start it only after the localhost-only systemd override is in place.
+    policy_rc_d: 101
+  become: true
+
+- name: Create smartctl exporter systemd override directory
+  ansible.builtin.file:
+    path: /etc/systemd/system/smartctl_exporter.service.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Configure smartctl exporter systemd override
+  ansible.builtin.template:
+    src: smartctl-exporter-override.conf.j2
+    dest: /etc/systemd/system/smartctl_exporter.service.d/override.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify:
+    - Restart smartctl exporter

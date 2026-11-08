@@ -1,0 +1,14 @@
+---
+- name: Prepare physical host monitoring tools
+  hosts: physical_hosts
+  roles:
+    - role: hardware_monitoring
+      tags:
+        - hardware_monitoring
+
+- name: Configure monitoring agents
+  hosts: monitoring_agents
+  roles:
+    - role: monitoring_agent
+      tags:
+        - monitoring_agent

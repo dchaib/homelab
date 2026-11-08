@@ -1,0 +1,92 @@
+---
+- name: Require HTTP endpoint URLs
+  ansible.builtin.assert:
+    that:
+      - monitoring_agent_prometheus_remote_write_url is match('^https?://[^\\s]+$')
+      - monitoring_agent_loki_write_url is match('^https?://[^\\s]+$')
+    fail_msg: Alloy requires HTTP(S) URLs reachable from the host.
+
+- name: Install Grafana repository prerequisites
+  ansible.builtin.apt:
+    name:
+      - ca-certificates
+      - python3-debian
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Create APT keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Install Grafana APT signing key
+  ansible.builtin.get_url:
+    url: https://apt.grafana.com/gpg-full.key
+    dest: /etc/apt/keyrings/grafana.asc
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Configure Grafana APT repository
+  ansible.builtin.deb822_repository:
+    name: grafana
+    types: deb
+    uris: https://apt.grafana.com
+    suites: stable
+    components: main
+    signed_by: /etc/apt/keyrings/grafana.asc
+    state: present
+  become: true
+  register: monitoring_agent_grafana_repo
+
+- name: Refresh APT cache after configuring Grafana repository  # noqa: no-handler -- Required before package installation.
+  ansible.builtin.apt:
+    update_cache: true
+  when: monitoring_agent_grafana_repo.changed
+  become: true
+
+- name: Install Alloy without starting its default configuration
+  ansible.builtin.apt:
+    name: alloy
+    state: present
+    policy_rc_d: 101
+  become: true
+
+- name: Grant Alloy access to the systemd journal
+  ansible.builtin.user:
+    name: alloy
+    groups:
+      - adm
+      - systemd-journal
+    append: true
+  become: true
+  notify: Restart Alloy
+
+- name: Configure Alloy
+  ansible.builtin.template:
+    src: config.alloy.j2
+    dest: /etc/alloy/config.alloy
+    owner: root
+    group: alloy
+    mode: '0640'
+    validate: /usr/bin/alloy validate %s
+  become: true
+  notify: Restart Alloy
+
+- name: Configure Alloy service arguments
+  ansible.builtin.template:
+    src: alloy.default.j2
+    dest: /etc/default/alloy
+    owner: root
+    group: root
+    mode: '0644'
+    validate: /bin/sh -n %s
+  become: true
+  notify: Restart Alloy
