@@ -3,3 +3,6 @@
   hosts: nas
   roles:
     - role: zfs_storage
+    - role: sanoid
+      tags:
+        - sanoid
