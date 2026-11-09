@@ -3,6 +3,20 @@ livedebugging {
 }
 
 prometheus.exporter.unix "host" {
+{% if monitoring_agent_systemd_units | length > 0 %}
+  // Add systemd without replacing the default collectors (hwmon, thermal_zone, zfs).
+  enable_collectors = ["systemd"]
+
+  systemd {
+    unit_include = {{ ('^(' ~ (monitoring_agent_systemd_units | map('regex_escape') | join('|')) ~ ')$') | to_json }}
+  }
+{% endif %}
+{% if monitoring_agent_hwmon_chip_exclude | length > 0 %}
+  // Exclude disk sensors before reading sysfs, not after scraping their metrics.
+  hwmon {
+    chip_exclude = {{ monitoring_agent_hwmon_chip_exclude | to_json }}
+  }
+{% endif %}
 }
 
 prometheus.scrape "host" {
@@ -11,6 +25,7 @@ prometheus.scrape "host" {
   scrape_interval = {{ monitoring_agent_scrape_interval | to_json }}
 }
 
+{% if monitoring_agent_smartctl_exporter_enabled | bool %}
 prometheus.scrape "smartctl" {
   targets = [{
     "__address__" = {{ monitoring_agent_smartctl_exporter_listen_address | to_json }},
@@ -20,6 +35,7 @@ prometheus.scrape "smartctl" {
   scrape_interval = {{ monitoring_agent_scrape_interval | to_json }}
 }
 
+{% endif %}
 prometheus.relabel "host" {
   rule {
     target_label = "instance"

@@ -1,6 +1,7 @@
 ---
 - name: Configure SMART metrics exporter
   ansible.builtin.import_tasks: smartctl.yml
+  when: monitoring_agent_smartctl_exporter_enabled | bool
 
 - name: Install and configure Alloy
   ansible.builtin.import_tasks: alloy.yml
@@ -15,6 +16,7 @@
     enabled: true
     state: started
   become: true
+  when: monitoring_agent_smartctl_exporter_enabled | bool
 
 - name: Enable Alloy service
   ansible.builtin.systemd_service:

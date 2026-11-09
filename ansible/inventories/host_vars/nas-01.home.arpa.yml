@@ -1,4 +1,22 @@
 ---
+# Keep SATA disks asleep: SMART events come from the existing smartd journal.
+monitoring_agent_smartctl_exporter_enabled: false
+
+# hwmon filters the device-derived chip ID, not the human-readable chip_name.
+# drivetemp is attached to a SCSI device below targetH:C:T; retain platform,
+# PCI and NVMe sensors. Also cover the name fallback when device is absent.
+monitoring_agent_hwmon_chip_exclude: '^(drivetemp|target[0-9]+:[0-9]+:[0-9]+_[0-9]+:[0-9]+:[0-9]+:[0-9]+)$'
+
+monitoring_agent_systemd_units:
+  - alloy.service
+  - smartmontools.service
+  - zfs-zed.service
+  - sanoid.timer
+  - sanoid.service
+  - sanoid-prune.service
+  # Debian schedules the existing scrub through /etc/cron.d/zfsutils-linux.
+  - cron.service
+
 hardware_monitoring_disks:
   - device: /dev/disk/by-id/ata-SAMSUNG_SSD_830_Series_S0XYNEAC628692
     type: ata
