@@ -31,16 +31,47 @@ The Alloy UI binds to `127.0.0.1:12345` by default. Override
 The default unix collectors remain enabled, including `hwmon`, `thermal_zone`
 and `zfs`. A nonempty `monitoring_agent_systemd_units` list additionally enables
 `systemd`, restricted to those exact unit names; it does not replace the defaults.
-The default empty list preserves the existing `pve-01` configuration.
+An empty list leaves the systemd collector disabled.
+
+### Proxmox systemd services
+
+On `pve-01`, `monitoring_agent_systemd_units` selects eight permanent services,
+verified as `active/running` on 2026-11-09:
+
+| Unit | Purpose |
+| --- | --- |
+| `alloy.service` | Collect and forward host metrics and the journal |
+| `smartmontools.service` | Local SMART monitoring through smartd |
+| `smartctl_exporter.service` | Existing NVMe SMART metrics |
+| `pve-cluster.service` | pmxcfs configuration filesystem, required even without a cluster |
+| `pvedaemon.service` | Privileged Proxmox API and task workers |
+| `pveproxy.service` | HTTPS API and web interface |
+| `pvestatd.service` | Guest and storage status collection |
+| `qmeventd.service` | QEMU shutdown events and guest cleanup for the two configured VMs |
+
+`pve-guests.service` is deliberately excluded: it is a boot/shutdown `oneshot`
+with `RemainAfterExit=yes`, normally `active/exited`, not a running daemon or
+a measure of guest availability. Its executions remain visible in the journal.
+
+Corosync is inactive without `corosync.conf`; HA resources, LXC guests, Proxmox
+firewall configuration and scheduled Proxmox jobs are absent on this standalone
+host. Their services, including `pvescheduler`, are not selected merely because
+they are installed or running. SPICE and daily update timers/oneshots are also
+outside this short list. Revisit the list if those features are configured.
+
+After deployment, inspect `node_systemd_unit_state{instance="pve-01"}` for the
+eight units. The `state="active"` series should be 1 during normal operation;
+systemd state alone does not guarantee API or guest health. Existing unix
+collectors, the SMART scrape and journal forwarding remain unchanged. No alert
+rules are added.
+
+### NAS hardware sensors
 
 `monitoring_agent_hwmon_chip_exclude` optionally excludes chips **before**
 reading their sensor values. It matches the device-derived `chip` identifier,
 not the readable `chip_name`. The NAS excludes both the SCSI identifiers used
 by `drivetemp` and the `drivetemp` name fallback. CPU, motherboard and NVMe
 sensors remain eligible. No disk-temperature experiment is performed.
-
-See [NAS monitoring and validation](../../../docs/nas-monitoring.md) for metrics,
-limitations, sensor inventory and the checks to perform after deployment.
 
 ## SMART devices
 
