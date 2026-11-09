@@ -1,0 +1,10 @@
+---
+hardware_monitoring_disks:
+  - device: /dev/disk/by-id/ata-SAMSUNG_SSD_830_Series_S0XYNEAC628692
+    type: ata
+  - device: /dev/disk/by-id/ata-WDC_WD30EFRX-68EUZN0_WD-WMC4N2485188
+    type: ata
+  - device: /dev/disk/by-id/ata-WDC_WD30EFRX-68EUZN0_WD-WMC4N2487623
+    type: ata
+  - device: /dev/disk/by-id/ata-Hitachi_HDT721010SLA360_STF604MH1PN37W
+    type: ata

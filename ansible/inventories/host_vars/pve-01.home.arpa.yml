@@ -1,0 +1,4 @@
+---
+hardware_monitoring_disks:
+  - device: /dev/disk/by-id/nvme-eui.363630304ec607420025384500000001
+    type: nvme
