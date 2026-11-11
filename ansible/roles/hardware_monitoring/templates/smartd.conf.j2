@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+{% for disk in hardware_monitoring_disks %}
+{{ disk.device }} -d {{ disk.type }} -a{% if disk.type == 'ata' %} -n standby -s S/../15/./02{% endif %}
+
+{% endfor %}

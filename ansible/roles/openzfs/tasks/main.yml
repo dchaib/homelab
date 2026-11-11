@@ -72,3 +72,10 @@
   environment:
     DEBIAN_FRONTEND: noninteractive
   become: true
+
+- name: Enable ZED
+  ansible.builtin.systemd_service:
+    name: zfs-zed
+    enabled: true
+    state: started
+  become: true

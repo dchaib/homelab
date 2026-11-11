@@ -5,6 +5,11 @@ monitoring_agent_scrape_interval: '60s'
 monitoring_agent_loki_write_url: ''
 monitoring_agent_prometheus_remote_write_url: ''
 
+# Empty values leave the unix exporter's default collectors unchanged.
+monitoring_agent_systemd_units: []
+monitoring_agent_hwmon_chip_exclude: ''
+
+monitoring_agent_smartctl_exporter_enabled: true
 monitoring_agent_smartctl_exporter_listen_address: '127.0.0.1:9633'
 monitoring_agent_smartctl_exporter_interval: '60s'
 monitoring_agent_smartctl_exporter_rescan_interval: '30m'

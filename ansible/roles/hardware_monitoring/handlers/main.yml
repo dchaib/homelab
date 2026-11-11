@@ -1,0 +1,6 @@
+---
+- name: Reload smartd
+  ansible.builtin.systemd_service:
+    name: smartmontools
+    state: reloaded
+  become: true

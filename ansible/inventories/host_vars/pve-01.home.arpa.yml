@@ -1,0 +1,15 @@
+---
+# Permanent services required by this standalone host and its QEMU guests.
+monitoring_agent_systemd_units:
+  - alloy.service
+  - smartmontools.service
+  - smartctl_exporter.service
+  - pve-cluster.service
+  - pvedaemon.service
+  - pveproxy.service
+  - pvestatd.service
+  - qmeventd.service
+
+hardware_monitoring_disks:
+  - device: /dev/disk/by-id/nvme-eui.363630304ec607420025384500000001
+    type: nvme

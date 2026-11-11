@@ -1,9 +1,4 @@
 ---
-- name: Update APT cache
-  ansible.builtin.apt:
-    update_cache: true
-  become: true
-
 - name: Restart Alloy
   ansible.builtin.systemd_service:
     name: alloy
@@ -13,5 +8,6 @@
 - name: Restart smartctl exporter
   ansible.builtin.systemd_service:
     name: smartctl_exporter
+    daemon_reload: true
     state: restarted
   become: true

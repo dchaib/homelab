@@ -1,0 +1,25 @@
+---
+- name: Install smartmontools
+  ansible.builtin.apt:
+    name: smartmontools
+    state: present
+    update_cache: true
+  become: true
+
+- name: Configure smartd
+  ansible.builtin.template:
+    src: smartd.conf.j2
+    dest: /etc/smartd.conf
+    owner: root
+    group: root
+    mode: '0644'
+    validate: /usr/sbin/smartd -q showtests -s - -A - -c %s
+  become: true
+  notify: Reload smartd
+
+- name: Enable smartd
+  ansible.builtin.systemd_service:
+    name: smartmontools
+    enabled: true
+    state: started
+  become: true
