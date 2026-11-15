@@ -26,6 +26,15 @@ scrape_configs:
       - targets: ['{{ homelab_services.homeassistant.backend.host }}:9100']
     relabel_configs:
       - target_label: 'instance'
+        replacement: '{{ homelab_services.homeassistant.backend.instance }}'
+  - job_name: 'homeassistant'
+    metrics_path: /api/prometheus
+    authorization:
+      credentials: {{ homeassistant_prometheus_token | mandatory | to_json }}
+    static_configs:
+      - targets: ['{{ homelab_services.homeassistant.backend.host }}:{{ homelab_services.homeassistant.backend.port }}']
+    relabel_configs:
+      - target_label: 'instance'
         replacement: 'homeassistant'
   - job_name: 'traefik'
     static_configs:

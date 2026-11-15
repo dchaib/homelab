@@ -16,6 +16,7 @@ homelab_services:
       scheme: http
       host: "192.168.1.211"
       port: 8123
+      instance: "ha-01"
   librago:
     domain: "librago.{{ homelab_domain_name }}"
   ntfy:
