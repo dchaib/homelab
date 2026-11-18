@@ -3,6 +3,10 @@ livedebugging {
 }
 
 prometheus.exporter.unix "host" {
+  textfile {
+    directory = {{ monitoring_textfile_directory | to_json }}
+  }
+
 {% if monitoring_agent_systemd_units | length > 0 %}
   // Add systemd without replacing the default collectors (hwmon, thermal_zone, zfs).
   enable_collectors = ["systemd"]

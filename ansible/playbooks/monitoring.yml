@@ -1,4 +1,11 @@
 ---
+- name: Collect system update metrics on physical hosts and services VMs
+  hosts: physical_hosts:services
+  roles:
+    - role: system_update_metrics
+      tags:
+        - system_update_metrics
+
 - name: Configure physical host monitoring
   hosts: physical_hosts
   roles:

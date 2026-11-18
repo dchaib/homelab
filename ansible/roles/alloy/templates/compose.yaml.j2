@@ -5,6 +5,7 @@ services:
     ports:
       - '{{ alloy_port }}:12345'
     volumes:
+      - '{{ monitoring_textfile_directory }}:{{ monitoring_textfile_directory }}:ro'
       - '{{ alloy_config_folder }}/config.alloy:/etc/alloy/config.alloy:ro'
       - '{{ alloy_docker_volumes.data }}:/var/lib/alloy'
 #      - "./endpoints.json:/etc/alloy/endpoints.json"

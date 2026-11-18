@@ -11,7 +11,11 @@ prometheus.scrape "metamonitoring" {
   scrape_interval = "{{ monitoring.scraping_interval }}"
 }
 
-prometheus.exporter.unix "local_system" { }
+prometheus.exporter.unix "local_system" {
+  textfile {
+    directory = {{ monitoring_textfile_directory | to_json }}
+  }
+}
 
 prometheus.scrape "scrape_metrics" {
   targets         = prometheus.exporter.unix.local_system.targets
