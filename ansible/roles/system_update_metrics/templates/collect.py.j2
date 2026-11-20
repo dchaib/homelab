@@ -25,7 +25,9 @@ def command(*args, limit="10m"):
 
 
 def count_updates(cache, compare):
-    counts = dict.fromkeys(("updates", "security_updates", "kernel_updates", "proxmox_updates"), 0)
+    counts = dict.fromkeys(("updates", "security_updates", "kernel_updates"), 0)
+    if "pve-manager" in cache and cache["pve-manager"].is_installed:
+        counts["proxmox_updates"] = 0
     for package in cache:
         if not package.is_installed or not package.candidate:
             continue
@@ -34,7 +36,8 @@ def count_updates(cache, compare):
             continue
         counts["updates"] += 1
         counts["kernel_updates"] += int(package.name.startswith(("linux-image-", "proxmox-kernel-", "pve-kernel-")))
-        counts["proxmox_updates"] += int(any(o.origin == "Proxmox" for o in candidate.origins))
+        if "proxmox_updates" in counts:
+            counts["proxmox_updates"] += int(any(o.origin == "Proxmox" for o in candidate.origins))
         # A regular candidate can supersede a security version still in the indexes.
         counts["security_updates"] += int(any(
             compare(v.version, installed) > 0 and compare(v.version, candidate.version) <= 0
