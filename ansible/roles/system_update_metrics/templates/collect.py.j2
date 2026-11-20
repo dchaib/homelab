@@ -2,6 +2,7 @@
 """Collect pending APT updates and kernel reboot status."""
 
 import argparse
+import fcntl
 import os
 from pathlib import Path
 import re
@@ -9,6 +10,10 @@ import subprocess
 import sys
 import tempfile
 import time
+
+DEFAULT_OUTPUT = Path({{ (monitoring_textfile_directory ~ '/system_updates.prom') | to_json }})
+{% raw %}
+LOCK_PATH = Path("/run/lock/system-update-metrics.lock")
 
 
 def command(*args, limit="10m"):
@@ -106,7 +111,20 @@ def collect(path):
     return int(failed)
 
 
-if __name__ == "__main__":
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", required=True, type=Path)
-    raise SystemExit(collect(parser.parse_args().output))
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    args = parser.parse_args(argv)
+    # The open descriptor holds the lock for manual and cron executions alike.
+    with LOCK_PATH.open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print("System update metrics collection is already running.", file=sys.stderr)
+            return 1
+        return collect(args.output)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+{% endraw %}

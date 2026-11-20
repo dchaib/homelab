@@ -5,7 +5,6 @@
       - cron
       - python3-apt
       - needrestart
-      - util-linux
       - coreutils
     state: present
     update_cache: true
@@ -22,8 +21,8 @@
   become: true
 
 - name: Install system update metrics collector
-  ansible.builtin.copy:
-    src: collect.py
+  ansible.builtin.template:
+    src: collect.py.j2
     dest: /usr/local/bin/collect-system-updates
     owner: root
     group: root
@@ -44,8 +43,6 @@
     hour: '{{ system_update_metrics_cron_hour }}'
     minute: '{{ system_update_metrics_cron_minute }}'
     job: >-
-      /usr/bin/flock -n /run/lock/system-update-metrics.lock
       /usr/local/bin/collect-system-updates
-      --output {{ (monitoring_textfile_directory ~ '/system_updates.prom') | quote }}
       2>&1 | /usr/bin/logger -t system-update-metrics
   become: true
