@@ -24,6 +24,15 @@ argument_specs:
         description: Whether to force recreation after a bind-mounted configuration change.
         type: bool
         default: false
+      docker_compose_stack_metrics_enabled:
+        description: Publish expected Compose services through the textfile collector.
+        type: bool
+        default: true
+      docker_compose_stack_metrics_excluded_services:
+        description: Service names to exclude from the expected inventory, such as one-off jobs.
+        type: list
+        elements: str
+        default: []
       docker_compose_stack_owner:
         description: Owner of the stack files and volume directories.
         type: str

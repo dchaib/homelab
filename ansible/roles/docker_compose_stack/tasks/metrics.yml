@@ -1,0 +1,44 @@
+---
+- name: Remove inventory for stacks that are not monitored or not started
+  ansible.builtin.file:
+    path: '{{ monitoring_textfile_directory }}/expected-containers-{{ docker_compose_stack_name }}.prom'
+    state: absent
+  become: true
+  when: not (docker_compose_stack_metrics_enabled | bool and docker_compose_stack_start | bool)
+
+- name: Generate expected services from the rendered Compose configuration
+  when:
+    - docker_compose_stack_metrics_enabled | bool
+    - docker_compose_stack_start | bool
+    - not ansible_check_mode
+  become: true
+  block:
+    - name: Create shared textfile collector directory
+      ansible.builtin.file:
+        path: '{{ monitoring_textfile_directory }}'
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Read resolved Compose configuration
+      ansible.builtin.command:
+        argv:
+          - docker
+          - compose
+          - config
+          - --format
+          - json
+        chdir: '{{ docker_compose_stack_project_dir }}'
+      register: docker_compose_stack_metrics_config
+      changed_when: false
+      # Resolved configuration can contain interpolated environment secrets.
+      no_log: true
+
+    - name: Write expected services inventory
+      ansible.builtin.template:
+        src: 'expected-containers.prom.j2'
+        dest: '{{ monitoring_textfile_directory }}/expected-containers-{{ docker_compose_stack_name }}.prom'
+        owner: root
+        group: root
+        mode: '0644'

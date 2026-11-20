@@ -1,0 +1,9 @@
+# Ansible managed: expected services, independent of running containers.
+# HELP homelab_container_expected Compose service expected to have a running container.
+# TYPE homelab_container_expected gauge
+{% set config = docker_compose_stack_metrics_config.stdout | from_json %}
+{% for service, definition in config.services | dictsort %}
+{% if not definition.get('profiles', []) and definition.get('deploy', {}).get('replicas', 1) | int > 0 and service not in docker_compose_stack_metrics_excluded_services %}
+homelab_container_expected{project={{ config.name | to_json }},service={{ service | to_json }}} 1
+{% endif %}
+{% endfor %}
