@@ -1,0 +1,3 @@
+---
+system_update_metrics_cron_hour: '7'
+system_update_metrics_cron_minute: '0'

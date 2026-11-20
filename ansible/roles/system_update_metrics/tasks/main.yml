@@ -1,0 +1,48 @@
+---
+- name: Install system update metrics prerequisites
+  ansible.builtin.apt:
+    name:
+      - cron
+      - python3-apt
+      - needrestart
+      - coreutils
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Create shared textfile collector directory
+  ansible.builtin.file:
+    path: '{{ monitoring_textfile_directory }}'
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Install system update metrics collector
+  ansible.builtin.template:
+    src: collect.py.j2
+    dest: /usr/local/bin/collect-system-updates
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Enable cron for system update metrics
+  ansible.builtin.service:
+    name: cron
+    enabled: true
+    state: started
+  become: true
+
+- name: Schedule daily system update metrics collection
+  ansible.builtin.cron:
+    name: Collect pending APT updates and reboot status
+    user: root
+    hour: '{{ system_update_metrics_cron_hour }}'
+    minute: '{{ system_update_metrics_cron_minute }}'
+    job: >-
+      /usr/local/bin/collect-system-updates
+      2>&1 | /usr/bin/logger -t system-update-metrics
+  become: true
