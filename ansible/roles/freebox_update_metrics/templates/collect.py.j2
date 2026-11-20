@@ -1,0 +1,208 @@
+#!/usr/bin/python3
+"""Collect the latest announced stable firmware for the configured Freebox Server."""
+
+import argparse
+from email.utils import parsedate_to_datetime
+import fcntl
+import html
+import os
+from pathlib import Path
+import re
+import signal
+import sys
+import tempfile
+import time
+import unicodedata
+from urllib.request import Request, urlopen
+import xml.etree.ElementTree as ET
+
+DEFAULT_OUTPUT = Path({{ (monitoring_textfile_directory ~ '/freebox_updates.prom') | to_json }})
+DEFAULT_FEED_URL = {{ freebox_update_metrics_feed_url | to_json }}
+MODEL = {{ monitoring_freebox_model | to_json }}
+{% raw %}
+LOCK_PATH = Path("/run/lock/freebox-update-metrics.lock")
+MAX_RESPONSE_BYTES = 2 * 1024 * 1024
+VERSION = r"[0-9]+\.[0-9]+\.[0-9]+(?:\.[0-9]+)?"
+LATEST = "homelab_freebox_firmware_latest_info"
+if not isinstance(MODEL, str) or not MODEL.strip():
+    raise ValueError("monitoring_freebox_model must be a non-empty string")
+LABELS = 'model="' + MODEL.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"') + '"'
+SUCCESS = "homelab_freebox_update_collect_success"
+LAST_SUCCESS = "homelab_freebox_update_last_success_timestamp_seconds"
+HELP = {
+    LATEST: "Latest stable Freebox Server firmware announced for the model.",
+    SUCCESS: "Whether the last RSS collection attempt succeeded.",
+    LAST_SUCCESS: "Unix time of the last successful RSS collection, or zero.",
+}
+
+
+def normalized(text):
+    text = unicodedata.normalize("NFKD", html.unescape(text)).casefold()
+    text = "".join(character for character in text if not unicodedata.combining(character))
+    return " ".join(text.split())
+
+
+def announcement_version(title):
+    """Return version text, None for an unrelated title, or "" for a malformed one."""
+    title = normalized(title)
+    if not re.search(r"\bmise a jour\b.*\bfreebox server\b", title):
+        return None
+    if re.search(r"\b(player|repeteur|beta[0-9]*|alpha[0-9]*|rc[0-9]*|preview)\b", title):
+        return None
+    suffix = title.split("freebox server", 1)[1].strip()
+    if not suffix.startswith("("):
+        return suffix
+
+    qualified = re.fullmatch(r"\(([^()]*)\)\s*(.*)", suffix)
+    if qualified is None:
+        return ""
+    models = [name.strip() for name in qualified[1].split("/")]
+    if not all(models):
+        return ""
+    if normalized(MODEL) not in models:
+        return None
+    return qualified[2]
+
+
+def latest_version(data):
+    # A small RSS document needs no DTD or custom entities.
+    if re.search(br"<!\s*(?:DOCTYPE|ENTITY)\b", data, re.IGNORECASE):
+        raise ValueError("RSS declarations are not supported")
+    root = ET.fromstring(data)
+    if root.tag != "rss" or root.find("channel") is None:
+        raise ValueError("Expected an RSS channel")
+    announcements = []
+    for item in root.findall("./channel/item"):
+        version = announcement_version(item.findtext("title", ""))
+        if version is None:
+            continue
+        # Malformed titles are kept: if newest, they must fail validation below.
+        published = parsedate_to_datetime(item.findtext("pubDate", ""))
+        if published.tzinfo is None:
+            raise ValueError("Announcement date must include a timezone")
+        announcements.append((published.timestamp(), version))
+    if not announcements:
+        raise ValueError(f"No applicable stable Server {MODEL} announcement")
+    newest = max(date for date, _ in announcements)
+    versions = set()
+    for date, version in announcements:
+        if date != newest:
+            continue
+        match = re.fullmatch(VERSION, version)
+        if match is None:
+            raise ValueError("Newest applicable announcement has an unsupported version")
+        versions.add(match[0])
+    if len(versions) != 1:
+        raise ValueError("Conflicting latest firmware announcements")
+    return versions.pop()
+
+
+def fetch_version(url):
+    if not url.startswith("https://"):
+        raise ValueError("The feed URL must use HTTPS")
+    request = Request(url, headers={"User-Agent": "homelab-freebox-update-metrics/1.0"})
+    with urlopen(request, timeout=20) as response:
+        if not response.geturl().startswith("https://"):
+            raise ValueError("The feed redirected away from HTTPS")
+        data = response.read(MAX_RESPONSE_BYTES + 1)
+    if len(data) > MAX_RESPONSE_BYTES:
+        raise ValueError("RSS response exceeds 2 MiB")
+    return latest_version(data)
+
+
+def read_previous(path):
+    """Recover only the previous version and last success, for this model."""
+    versions = set()
+    last_success = 0
+    if not path.exists():
+        return None, last_success
+    version_pattern = rf'{LATEST}\{{{re.escape(LABELS)},firmware_version="({VERSION})"\}} 1'
+    timestamp_pattern = rf'{LAST_SUCCESS}\{{{re.escape(LABELS)}\}} ([0-9]+)'
+    success_pattern = rf'{SUCCESS}\{{{re.escape(LABELS)}\}} [01]'
+    for number, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+        if not line.strip() or line.startswith("#"):
+            continue
+        version = re.fullmatch(version_pattern, line)
+        timestamp = re.fullmatch(timestamp_pattern, line)
+        if version:
+            versions.add(version[1])
+            continue
+        if timestamp:
+            try:
+                last_success = int(timestamp[1])
+                continue
+            except ValueError:
+                pass
+        elif re.fullmatch(success_pattern, line):
+            # The previous attempt's outcome is replaced by this attempt's outcome.
+            continue
+        print(f"Ignoring invalid previous metric at line {number}", file=sys.stderr)
+
+    if len(versions) > 1:
+        print("Ignoring ambiguous previous firmware versions", file=sys.stderr)
+        return None, last_success
+    version = next(iter(versions), None)
+    return version, last_success
+
+
+def write_metrics(path, version, success, last_success):
+    metrics = [
+        (SUCCESS, LABELS, int(success)),
+        (LAST_SUCCESS, LABELS, last_success),
+    ]
+    if version is not None:
+        metrics.insert(0, (LATEST, f'{LABELS},firmware_version="{version}"', 1))
+
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, suffix=".tmp", delete=False) as stream:
+        temporary = Path(stream.name)
+        try:
+            for name, labels, value in metrics:
+                stream.write(f"# HELP {name} {HELP[name]}\n# TYPE {name} gauge\n")
+                stream.write(f"{name}{{{labels}}} {value}\n")
+            stream.flush()
+            os.fchmod(stream.fileno(), 0o644)
+            os.replace(temporary, path)
+        finally:
+            temporary.unlink(missing_ok=True)
+
+
+def deadline_expired(signum, frame):
+    raise TimeoutError("Freebox RSS collection exceeded 60 seconds")
+
+
+def collect(path, url):
+    version, last_success = read_previous(path)
+    success = False
+    # Bound DNS, redirects and slow streamed responses, including manual runs.
+    previous_handler = signal.signal(signal.SIGALRM, deadline_expired)
+    signal.alarm(60)
+    try:
+        version = fetch_version(url)
+    except Exception as error:
+        print(f"rss: {error}", file=sys.stderr)
+    else:
+        success = True
+        last_success = int(time.time())
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous_handler)
+    write_metrics(path, version, success, last_success)
+    return int(not success)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    args = parser.parse_args(argv)
+    with LOCK_PATH.open("a") as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print("Freebox update metrics collection is already running.", file=sys.stderr)
+            return 1
+        return collect(args.output, DEFAULT_FEED_URL)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+{% endraw %}

@@ -6,6 +6,13 @@
       tags:
         - system_update_metrics
 
+- name: Collect announced Freebox firmware version
+  hosts: services
+  roles:
+    - role: freebox_update_metrics
+      tags:
+        - freebox_update_metrics
+
 - name: Configure physical host monitoring
   hosts: physical_hosts
   roles:

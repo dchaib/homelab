@@ -1,0 +1,4 @@
+---
+freebox_update_metrics_feed_url: 'https://dev.freebox.fr/blog/?feed=rss2&cat=1'
+freebox_update_metrics_cron_hour: '*/6'
+freebox_update_metrics_cron_minute: '17'

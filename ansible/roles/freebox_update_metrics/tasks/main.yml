@@ -1,0 +1,48 @@
+---
+- name: Install Freebox update metrics prerequisites
+  ansible.builtin.apt:
+    name:
+      - python3
+      - ca-certificates
+      - cron
+      - coreutils
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+
+- name: Create shared textfile collector directory
+  ansible.builtin.file:
+    path: '{{ monitoring_textfile_directory }}'
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Install Freebox update metrics collector
+  ansible.builtin.template:
+    src: collect.py.j2
+    dest: /usr/local/bin/collect-freebox-updates
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Enable cron for Freebox update metrics
+  ansible.builtin.service:
+    name: cron
+    enabled: true
+    state: started
+  become: true
+
+- name: Schedule Freebox update metrics collection
+  ansible.builtin.cron:
+    name: Collect latest announced Freebox Server firmware
+    user: root
+    hour: '{{ freebox_update_metrics_cron_hour }}'
+    minute: '{{ freebox_update_metrics_cron_minute }}'
+    job: >-
+      /usr/local/bin/collect-freebox-updates
+      2>&1 | /usr/bin/logger -t freebox-update-metrics
+  become: true
