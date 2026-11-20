@@ -46,16 +46,16 @@ dns:
     - hostname.bind
   bogus_nxdomain: []
   bootstrap_dns:
-    - 9.9.9.10
-    - 149.112.112.10
-    - 2620:fe::10
-    - 2620:fe::fe:10
+    - 1.1.1.1
+    - 1.0.0.1
+    - 2606:4700:4700::1111
+    - 2606:4700:4700::1001
   disallowed_clients: []
   fallback_dns: []
   ipset: []
   local_ptr_upstreams: []
   upstream_dns:
-    - https://dns10.quad9.net/dns-query
+    - https://cloudflare-dns.com/dns-query
   cache_optimistic_answer_ttl: 30s
   cache_optimistic_max_age: 12h
   fastest_timeout: 1s
