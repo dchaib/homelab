@@ -14,7 +14,7 @@ scrape_configs:
     fallback_scrape_protocol: 'PrometheusText0.0.4'
     relabel_configs:
       - target_label: 'instance'
-        replacement: 'freebox-delta'
+        replacement: {{ monitoring_freebox_instance | to_json }}
   - job_name: 'omada-controller'
     static_configs:
       - targets: ['{{ monitoring.omada_exporter }}:9202']

@@ -14,6 +14,31 @@ import time
 DEFAULT_OUTPUT = Path({{ (monitoring_textfile_directory ~ '/system_updates.prom') | to_json }})
 {% raw %}
 LOCK_PATH = Path("/run/lock/system-update-metrics.lock")
+HELP = {
+    "homelab_apt_updates_pending": "Installed packages with a newer APT candidate.",
+    "homelab_apt_security_updates_pending": "Installed packages with a newer Debian security version.",
+    "homelab_apt_kernel_updates_pending": "Installed kernel packages with a newer APT candidate.",
+    "homelab_apt_proxmox_updates_pending": "Installed packages with a newer Proxmox candidate on PVE hosts.",
+    "homelab_reboot_required": "Whether the reboot marker is present or needrestart reports an outdated kernel.",
+    "homelab_system_update_collect_success": "Whether the last collection attempt succeeded, by check.",
+    "homelab_system_update_last_success_timestamp_seconds": "Unix time of the last successful collection, or zero, by check.",
+}
+COUNT_METRICS = {
+    "homelab_apt_updates_pending",
+    "homelab_apt_security_updates_pending",
+    "homelab_apt_kernel_updates_pending",
+    "homelab_apt_proxmox_updates_pending",
+}
+BOOLEAN_METRICS = {
+    "homelab_reboot_required",
+    'homelab_system_update_collect_success{check="apt"}',
+    'homelab_system_update_collect_success{check="reboot"}',
+}
+TIMESTAMP_METRICS = {
+    'homelab_system_update_last_success_timestamp_seconds{check="apt"}',
+    'homelab_system_update_last_success_timestamp_seconds{check="reboot"}',
+}
+ALLOWED_METRICS = COUNT_METRICS | BOOLEAN_METRICS | TIMESTAMP_METRICS
 
 
 def command(*args, limit="10m"):
@@ -71,20 +96,32 @@ def read_previous(path):
     if not path.exists():
         return {}
     values = {}
-    for line in path.read_text().splitlines():
-        fields = line.split()
-        if len(fields) == 2 and fields[0].startswith("homelab_") and fields[1].isdigit():
-            values[fields[0]] = int(fields[1])
+    for number, line in enumerate(path.read_text(encoding="utf-8", errors="replace").splitlines(), 1):
+        if not line.strip() or line.startswith("#"):
+            continue
+        try:
+            key, raw_value = line.split()
+            if key not in ALLOWED_METRICS:
+                raise ValueError("Unknown metric")
+            if not re.fullmatch(r"[0-9]+", raw_value):
+                raise ValueError("Expected a non-negative integer")
+            value = int(raw_value)
+            if key in BOOLEAN_METRICS and value not in (0, 1):
+                raise ValueError("Boolean metric must be zero or one")
+        except ValueError:
+            print(f"Ignoring invalid previous metric at line {number}", file=sys.stderr)
+            continue
+        values[key] = value
     return values
 
 
 def write_metrics(path, values):
     # Rename within the shared directory so Alloy never reads a partial file.
-    with tempfile.NamedTemporaryFile(mode="w", dir=path.parent, suffix=".tmp", delete=False) as stream:
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, suffix=".tmp", delete=False) as stream:
         temporary = Path(stream.name)
         try:
             for name in sorted({key.split("{")[0] for key in values}):
-                stream.write(f"# TYPE {name} gauge\n")
+                stream.write(f"# HELP {name} {HELP[name]}\n# TYPE {name} gauge\n")
             for name, value in sorted(values.items()):
                 stream.write(f"{name} {value}\n")
             stream.flush()

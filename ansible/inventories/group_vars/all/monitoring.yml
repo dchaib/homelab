@@ -1,2 +1,5 @@
 ---
 monitoring_textfile_directory: /var/lib/node_exporter/textfile_collector
+
+monitoring_freebox_model: delta
+monitoring_freebox_instance: "freebox-{{ monitoring_freebox_model }}"
