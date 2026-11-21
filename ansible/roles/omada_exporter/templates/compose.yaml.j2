@@ -1,6 +1,6 @@
 services:
   {{ monitoring.omada_exporter }}:
-    image: chhaley/omada_exporter:0.13.1
+    image: rcooler/omada_exporter:2.4.5
     restart: unless-stopped
     user: "{{ docker_compose_stack_uid }}:{{ docker_compose_stack_gid }}"
     extra_hosts:
@@ -9,8 +9,11 @@ services:
       - OMADA_HOST={{ omada_exporter_controller_host }}
       - OMADA_USER=${OMADA_USER}
       - OMADA_PASS=${OMADA_PASS}
+      - OMADA_CLIENT_ID=${OMADA_CLIENT_ID}
+      - OMADA_SECRET_ID=${OMADA_SECRET_ID}
       - OMADA_SITE=Home
       - OMADA_INSECURE=true
+      - OMADA_MQTT_ENABLED=false
     networks:
       - {{ docker_networks.monitoring }}
 
