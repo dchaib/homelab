@@ -1,0 +1,45 @@
+---
+- name: Read current segmentation offload features
+  ansible.builtin.command:
+    argv:
+      - /usr/sbin/ethtool
+      - -k
+      - '{{ network_offload_workaround_interface }}'
+  register: network_offload_workaround_features
+  changed_when: false
+  become: true
+
+- name: Disable TSO and GSO when required
+  ansible.builtin.command:
+    argv:
+      - /usr/sbin/ethtool
+      - -K
+      - '{{ network_offload_workaround_interface }}'
+      - tso
+      - 'off'
+      - gso
+      - 'off'
+  changed_when: true
+  become: true
+  when: >-
+    not (network_offload_workaround_features.stdout is search('(?m)^tcp-segmentation-offload: off( |$)'))
+    or not (network_offload_workaround_features.stdout is search('(?m)^generic-segmentation-offload: off( |$)'))
+
+- name: Read applied segmentation offload features
+  ansible.builtin.command:
+    argv:
+      - /usr/sbin/ethtool
+      - -k
+      - '{{ network_offload_workaround_interface }}'
+  register: network_offload_workaround_applied
+  changed_when: false
+  become: true
+
+- name: Verify TSO and GSO are disabled
+  ansible.builtin.assert:
+    that:
+      - >-
+        network_offload_workaround_applied.stdout is search('(?m)^tcp-segmentation-offload: off( |$)')
+      - >-
+        network_offload_workaround_applied.stdout is search('(?m)^generic-segmentation-offload: off( |$)')
+    fail_msg: 'TSO/GSO remain enabled on {{ network_offload_workaround_interface }}.'

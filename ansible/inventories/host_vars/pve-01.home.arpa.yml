@@ -1,4 +1,7 @@
 ---
+network_offload_workaround_interfaces:
+  - nic0
+
 # Permanent services required by this standalone host and its QEMU guests.
 monitoring_agent_systemd_units:
   - alloy.service

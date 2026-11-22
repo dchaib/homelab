@@ -1,4 +1,7 @@
 ---
+- name: Configure physical hosts
+  ansible.builtin.import_playbook: playbooks/physical-hosts.yml
+
 - name: Configure services VM base system
   ansible.builtin.import_playbook: playbooks/services-base.yml
 
