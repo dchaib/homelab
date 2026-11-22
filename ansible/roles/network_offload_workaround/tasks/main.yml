@@ -1,0 +1,58 @@
+---
+- name: Validate network offload interface names
+  ansible.builtin.assert:
+    that:
+      - item is string
+      - item is match('^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,14}$')
+    fail_msg: Configure explicit physical interface names for the offload workaround.
+  loop: '{{ network_offload_workaround_interfaces }}'
+
+- name: Inspect physical network devices
+  ansible.builtin.stat:
+    path: '/sys/class/net/{{ item }}/device'
+    follow: true
+  register: network_offload_workaround_devices
+  loop: '{{ network_offload_workaround_interfaces }}'
+
+- name: Require existing physical network devices
+  ansible.builtin.assert:
+    that:
+      - item.stat.isdir | default(false)
+    fail_msg: '{{ item.item }} must be an existing physical interface, not a bridge or virtual interface.'
+  loop: '{{ network_offload_workaround_devices.results }}'
+  loop_control:
+    label: '{{ item.item }}'
+
+- name: Install ethtool
+  ansible.builtin.apt:
+    name: ethtool
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+  when: network_offload_workaround_interfaces | length > 0
+
+- name: Install network activation hook
+  ansible.builtin.template:
+    src: network-offload.j2
+    dest: /etc/network/if-up.d/ansible-network-offload
+    owner: root
+    group: root
+    mode: '0755'
+    validate: /bin/sh -n %s
+  become: true
+  when: network_offload_workaround_interfaces | length > 0
+
+- name: Remove network activation hook when no interfaces are configured
+  ansible.builtin.file:
+    path: /etc/network/if-up.d/ansible-network-offload
+    state: absent
+  become: true
+  when: network_offload_workaround_interfaces | length == 0
+
+- name: Apply and verify offload workaround without restarting networking
+  ansible.builtin.include_tasks: apply.yml
+  loop: '{{ network_offload_workaround_interfaces }}'
+  loop_control:
+    loop_var: network_offload_workaround_interface
+  when: not ansible_check_mode

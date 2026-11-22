@@ -1,0 +1,7 @@
+---
+- name: Configure physical host network workarounds
+  hosts: physical_hosts
+  roles:
+    - role: network_offload_workaround
+      tags:
+        - network_offload_workaround
